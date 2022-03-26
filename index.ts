@@ -7,6 +7,7 @@ const http = require("http");
 const server = http.createServer(app);
 import { Server } from "socket.io";
 const io = new Server(server);
+const serveIndex = require("serve-index");
 
 // Config
 const port = 3000;
@@ -58,48 +59,66 @@ function genMap(width: number, height: number) {
 // TODO parse from serialized file
 let map: Tile[][] = genMap(mapWidth, mapHeight);
 let users: { [key: string]: User } = {};
+console.log("Map", map);
 
 // Default route to serve game html file
 app.get("/", (req: any, res: any) => {
-  res.sendFile(path.join(__dirname, "/index.html"));
+  res.sendFile("./index.html", { root: __dirname });
 });
+
+app.use("/public", express.static("public"));
+app.use("/public", serveIndex("public"));
 
 // Socket logic
 io.on("connection", (socket) => {
   // User creation
+  // Note: You need to create a user to interract with the world
   socket.on("create", ({ name }) => {
-    const id = uuid();
-
-    if (!users[id]) {
-      users[id] = {
+    if (!users[socket.id]) {
+      users[socket.id] = {
         role: "treater",
-        id: id,
-        x: 50,
-        y: 50,
+        id: socket.id,
+        x: mapWidth / 2,
+        y: mapHeight / 2,
         name: name,
         capacity: 0,
       };
     }
 
-    io.emit("created", { map: map, user: users[id] });
+    // Sends to the user the finalized user and the map
+    socket.emit("created", { map: map, user: users[socket.id], users: users });
+    // Sends to other players that a new user connected
+    socket.broadcast.emit("login", { user: users[socket.id] });
   });
 
   // Update a tile
   socket.on("edit", ({ user, x, y, state }) => {
     // TODO check for correctness
+    switch ([user.role, map[x][y]]) {
+      case ["worker", "dry"]:
+        map[x][y] = "plowed";
+        break;
+    }
+    console.log("Map Update:", user.role, x, y, map[x][y]);
     map[x][y] = state;
   });
 
   // Move a player
   socket.on("move", ({ position, uuid }) => {
     for (const [id, user] of Object.entries(users)) {
-      if (user.id === uuid) {
+      if (
+        user.id === uuid &&
         // Check for valid position
+        Math.abs(user.x - position.x) <= 1 &&
+        Math.abs(user.y - position.y) <= 1
+      ) {
+        // Update player position
         users[id] = {
           ...user,
           x: position.x,
           y: position.y,
         };
+        // And broadcast it
         io.emit("update", { user: users[id] });
       }
     }
@@ -108,6 +127,12 @@ io.on("connection", (socket) => {
   // Player emote
   io.on("emote", (emote) => {
     io.emit("react", emote);
+  });
+
+  socket.on("disconnect", () => {
+    // Destroy the user
+    // TODO Maybe we don't want this
+    users[socket.id] = undefined;
   });
 });
 
