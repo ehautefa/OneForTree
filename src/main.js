@@ -17,11 +17,11 @@ socket.on("connect", (e) => {
 
     launchGame();
   });
-  
+
   socket.on("login", (data) => {
     console.log(data);
   });
-  
+
   socket.on("move", ({ uuid, next, prev }) => {
     console.log("player moved: ", uuid, next, prev);
   });
@@ -34,7 +34,7 @@ async function launchGame() {
   // let playerSheet = {};
   let speed = 2;
   let playerPosition = { x: 0, y: 0 };
-  let otherPlayers = []
+  let otherPlayers = [];
   let mapContainer = new PIXI.Container();
 
   // Create the application helper and add its render target to the page
@@ -86,8 +86,7 @@ async function launchGame() {
     player.playerSheet = playerSheet;
   }
 
-
-  function createOtherPlayer({x, y, id},playerSheet) {
+  function createOtherPlayer({ x, y, id }, playerSheet) {
     let otherPlayer = new PIXI.AnimatedSprite(playerSheet.walkSouth);
     otherPlayer.id = id;
     otherPlayer.anchor.set(0.5);
@@ -98,14 +97,14 @@ async function launchGame() {
     mapContainer.addChild(otherPlayer);
     otherPlayer.play();
     otherPlayer.playerSheet = playerSheet;
-    otherPlayer.currentPosition = {x:x * 30 + 15, y:y * 30 + 5};
-    otherPlayer.futurePosition = {x:x * 30 + 15, y:y * 30 + 5};
-    return (otherPlayer);
+    otherPlayer.currentPosition = { x: x * 30 + 15, y: y * 30 + 5 };
+    otherPlayer.futurePosition = { x: x * 30 + 15, y: y * 30 + 5 };
+    return otherPlayer;
   }
 
-  function createPlayerSheet() {
+  function createPlayerSheet(texture) {
     let playerSheet = {};
-    let ssheet = new PIXI.BaseTexture.from(app.loader.resources["viking"].url);
+    let ssheet = new PIXI.BaseTexture.from(texture);
     let w = 26;
     let h = 36;
 
@@ -143,57 +142,67 @@ async function launchGame() {
       new PIXI.Texture(ssheet, new PIXI.Rectangle(10 * w, 0, w, h)),
       new PIXI.Texture(ssheet, new PIXI.Rectangle(11 * w, 0, w, h)),
     ];
-    return (playerSheet);
+    return playerSheet;
   }
 
   function doneLoading(e) {
-    let playerSheet = createPlayerSheet();
+    let playerSheet = createPlayerSheet(app.loader.resources["viking"].url);
     createPlayer(playerSheet);
     app.ticker.add(gameLoop);
   }
 
+  // FAKE SOCKETS EVENT
+  //
+  //
+  //
   setInterval(() => {
-    
-    let playerSheet = createPlayerSheet();
-    otherPlayers.push( createOtherPlayer({x:otherPlayers.length, y: 3, id: otherPlayers.length}, playerSheet));
-
+    let otherPlayerSheet = createPlayerSheet(
+      app.loader.resources["viking"].url
+    );
+    otherPlayers.push(
+      createOtherPlayer(
+        { x: otherPlayers.length, y: 3, id: otherPlayers.length },
+        otherPlayerSheet
+      )
+    );
     // function createOtherPlayer({x, y},playerSheet)
   }, 5000);
 
   setInterval(() => {
     let selectId = Math.floor(Math.random() * otherPlayers.length);
-    let rdmX =  Math.floor(Math.random() * 40) * 30 + 15;
-    let rdmy =  Math.floor(Math.random() * 40) * 30 + 5;
-    console.log("PPPPP", selectId)
-    otherPlayers[selectId].futurePosition = {x:rdmX, y:rdmy};
-
+    let rdmX = Math.floor(Math.random() * 40) * 30 + 15;
+    let rdmy = Math.floor(Math.random() * 40) * 30 + 5;
+    console.log("PPPPP", selectId);
+    otherPlayers[selectId].futurePosition = { x: rdmX, y: rdmy };
   }, 1000);
+  //
+  //
+  //
+  // FAKE SOCKETS EVENT
 
-
-
-  function computePlayerAnimation () {
-    if (playerDestination.y > mapContainer.y) {
+  function computePlayerAnimation() {
+    if (playerDestination.pixels.y > mapContainer.y) {
       if (!player.playing) {
         player.textures = player.playerSheet.walkNorth;
         player.play();
       }
     }
     //a
-    else if (playerDestination.x > mapContainer.x) {
+    else if (playerDestination.pixels.x > mapContainer.x) {
       if (!player.playing) {
         player.textures = player.playerSheet.walkWest;
         player.play();
       }
     }
     //s
-    else if (playerDestination.y < mapContainer.y) {
+    else if (playerDestination.pixels.y < mapContainer.y) {
       if (!player.playing) {
         player.textures = player.playerSheet.walkSouth;
         player.play();
       }
     }
     //d
-    else if (playerDestination.x < mapContainer.x) {
+    else if (playerDestination.pixels.x < mapContainer.x) {
       if (!player.playing) {
         player.textures = player.playerSheet.walkEast;
         player.play();
@@ -201,26 +210,65 @@ async function launchGame() {
     }
   }
 
-  
-  function gameLoop() {
-    computePlayerAnimation();
+  function computeOtherPlayersAnimation() {
+    otherPlayers.forEach((otherPlayer) => {
+      if (otherPlayer.futurePosition.y > otherPlayer.y) {
+        if (!otherPlayer.playing) {
+          otherPlayer.textures = otherPlayer.playerSheet.walkSouth;
+          otherPlayer.play();
+        }
+      }
+      //a
+      else if (otherPlayer.futurePosition.x > otherPlayer.x) {
+        if (!otherPlayer.playing) {
+          otherPlayer.textures = otherPlayer.playerSheet.walkEast;
+          otherPlayer.play();
+        }
+      }
+      //s
+      else if (otherPlayer.futurePosition.y < otherPlayer.y) {
+        if (!otherPlayer.playing) {
+          otherPlayer.textures = otherPlayer.playerSheet.walkNorth;
+          otherPlayer.play();
+        }
+      }
+      //d
+      else if (otherPlayer.futurePosition.x < otherPlayer.x) {
+        if (!otherPlayer.playing) {
+          otherPlayer.textures = otherPlayer.playerSheet.walkWest;
+          otherPlayer.play();
+        }
+      }
+    });
   }
 
-  const offset = { x: parseInt(app.view.width / 2) - 15, y: parseInt(app.view.height / 2) - 5};
+  function gameLoop() {
+    computePlayerAnimation();
+    computeOtherPlayersAnimation();
+  }
 
+  const offset = {
+    x: parseInt(app.view.width / 2) - 15,
+    y: parseInt(app.view.height / 2) - 5,
+  };
 
-  let playerDestination = { x: 0, y: 0 };
+  let playerDestination = {
+    tiles: {x:0, y:0},
+    pixels: {x:0, y:0}
+    // x: 0, y: 0
+  };
   playerDestination.setPlayerDestination = (val) => {
     playerPosition = val;
-    val.x != undefined ? (playerDestination.x = val.x * 30 + offset.x) : null;
-    val.y != undefined ? (playerDestination.y = val.y * 30 + offset.y) : null;
+    val.x != undefined ? (playerDestination.pixels.x = -val.x * 30 + offset.x) : null;
+    val.y != undefined ? (playerDestination.pixels.y = -val.y * 30 + offset.y) : null;
+    val.x != undefined ? (playerDestination.tiles.x = val.x) : null;
+    val.y != undefined ? (playerDestination.tiles.y = val.y) : null;
   };
-  
+
   playerDestination.setPlayerDestination({ x: 0, y: 0 });
 
   function computeOtherPlayerMoves() {
-    otherPlayers.forEach(otherPlayer => {
-      
+    otherPlayers.forEach((otherPlayer) => {
       if (otherPlayer.futurePosition.x > otherPlayer.x) {
         otherPlayer.x++;
       } else if (otherPlayer.futurePosition.x < otherPlayer.x) {
@@ -231,30 +279,64 @@ async function launchGame() {
       } else if (otherPlayer.futurePosition.y < otherPlayer.y) {
         otherPlayer.y--;
       }
-
-
-
     });
   }
 
   function computePlayerMoves() {
-    if (playerDestination.x > mapContainer.x) {
+    let isDestinationReached = undefined;
+
+    if (playerDestination.pixels.x > mapContainer.x) {
       mapContainer.x++;
-    } else if (playerDestination.x < mapContainer.x) {
+      if (
+        !(playerDestination.pixels.x > mapContainer.x) &&
+        isDestinationReached == undefined
+      ) {
+        isDestinationReached = true;
+      } else {
+        isDestinationReached = false;
+      }
+    } else if (playerDestination.pixels.x < mapContainer.x) {
       mapContainer.x--;
+      if (
+        !(playerDestination.pixels.x < mapContainer.x) &&
+        isDestinationReached == undefined
+      ) {
+        isDestinationReached = true;
+      } else {
+        isDestinationReached = false;
+      }
     }
-    if (playerDestination.y > mapContainer.y) {
+    if (playerDestination.pixels.y > mapContainer.y) {
       mapContainer.y++;
-    } else if (playerDestination.y < mapContainer.y) {
+      if (
+        !(playerDestination.pixels.y > mapContainer.y) &&
+        isDestinationReached == undefined
+      ) {
+        isDestinationReached = true;
+      } else {
+        isDestinationReached = false;
+      }
+    } else if (playerDestination.pixels.y < mapContainer.y) {
       mapContainer.y--;
+      if (
+        !(playerDestination.pixels.y < mapContainer.y) &&
+        isDestinationReached == undefined
+      ) {
+        isDestinationReached = true;
+      } else {
+        isDestinationReached = false;
+      }
+    }
+    if (isDestinationReached) {
+      console.log("destination atteinte :", playerDestination.tiles);
     }
   }
-  
+
   setInterval(() => {
     computePlayerMoves();
     computeOtherPlayerMoves();
   }, 10);
-  
+
   let itemsMap = world.map((row, y) => {
     let currentRow = row.map((cell, x) => {
       console.log("cell :", cell);
@@ -262,7 +344,7 @@ async function launchGame() {
       currentCell.interactive = true;
       currentCell.on("pointerdown", (e) => {
         console.log("ptr dw:", y, x);
-        playerDestination.setPlayerDestination({ x: -x, y: -y });
+        playerDestination.setPlayerDestination({ x: x, y: y });
       });
       mapContainer.addChild(currentCell);
       return currentCell;
@@ -276,10 +358,10 @@ async function launchGame() {
     "keydown",
     (event) => {
       var name = event.key;
-      if (name == "ArrowRight") playerPosition.x--;
-      if (name == "ArrowDown") playerPosition.y--;
-      if (name == "ArrowUp") playerPosition.y++;
-      if (name == "ArrowLeft") playerPosition.x++;
+      if (name == "ArrowRight") playerPosition.x++;
+      if (name == "ArrowDown") playerPosition.y++;
+      if (name == "ArrowUp") playerPosition.y--;
+      if (name == "ArrowLeft") playerPosition.x--;
       playerDestination.setPlayerDestination(playerPosition);
     },
     false
