@@ -74,8 +74,8 @@ async function launchGame() {
     player.anchor.set(0.5);
     player.animationSpeed = 0.18;
     player.loop = false;
-    player.x = app.view.width / 2;
-    player.y = app.view.height / 2;
+    player.x = parseInt(app.view.width / 2);
+    player.y = parseInt(app.view.height / 2);
     app.stage.addChild(player);
     player.play();
   }
@@ -157,7 +157,7 @@ async function launchGame() {
     }
   }
 
-  const offset = { x: app.view.width / 2, y: app.view.height / 2 };
+  const offset = { x: parseInt(app.view.width / 2) - 15, y: parseInt(app.view.height / 2) - 5};
 
   let mapContainer = new PIXI.Container();
 
@@ -264,4 +264,47 @@ async function launchGame() {
   function wateredTile() {
     console.log("Watered Tile");
   }
+
+
+
+
+  // PLAYER UI
+  // ----------------------------------------------------------
+  // UI Player Activities Init
+  var playersActivitiesSprite = PIXI.Sprite.from('./src/assets/players_activities_sprite.png');
+  playersActivitiesSprite.x = 1366 - 260;
+  playersActivitiesSprite.y = 10;
+
+  var playersActivitiesSpriteTitle = PIXI.Sprite.from('./src/assets/players_activities_title_sprite.png');
+  playersActivitiesSpriteTitle.x = 10;
+  playersActivitiesSpriteTitle.y = 10;
+  playersActivitiesSprite.addChild(playersActivitiesSpriteTitle);
+
+  // UI LifeBar Init
+  var healthBarSprite = PIXI.Sprite.from('./src/assets/lifebar_sprite.png');
+  healthBarSprite.x = 1366 - 300;
+  healthBarSprite.y = 10;
+
+  // UI ProfileType Init
+  let textProfileContent = "Profile Type :";
+  let powerCapacityBar = new PIXI.Graphics();
+
+  let textProfile = new PIXI.Text(textProfileContent, {
+    fontFamily : 'Arial', 
+    fontSize: 24, 
+    fill : 0xffffff, 
+    align : 'center'
+  });
+
+  textProfile.position.x = 20;
+  textProfile.position.y = 718;
+  textProfile.zIndex = 0;
+
+  powerCapacityBar.beginFill(0xffffff, 0.75);
+  powerCapacityBar.drawRect(textProfile.width + 28, 718, 250, 30);
+
+  // UI Deploy
+  app.stage.addChild(playersActivitiesSprite, healthBarSprite, textProfile, powerCapacityBar);
+
+  console.log(textProfile.width);
 }
