@@ -313,6 +313,25 @@ var healthBarSprite = PIXI.Sprite.from('./public/ressources/lifebar_sprite.png')
 healthBarSprite.x = 1366 - 300;
 healthBarSprite.y = 10;
 
+// UI ProfileType Init
+let textProfileContent = "Profile Type :";
+let powerCapacityBar = new PIXI.Graphics();
+
+let textProfile = new PIXI.Text(textProfileContent, {
+  fontFamily : 'Arial', 
+  fontSize: 24, 
+  fill : 0xffffff, 
+  align : 'center'
+});
+
+textProfile.position.x = 20;
+textProfile.position.y = 718;
+textProfile.zIndex = 0;
+
+powerCapacityBar.beginFill(0xffffff, 0.75);
+powerCapacityBar.drawRect(textProfile.width + 28, 718, 250, 30);
 
 // UI Deploy
-app.stage.addChild(playersActivitiesSprite, healthBarSprite);
+app.stage.addChild(playersActivitiesSprite, healthBarSprite, textProfile, powerCapacityBar);
+
+console.log(textProfile.width);
