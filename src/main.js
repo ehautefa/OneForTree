@@ -34,6 +34,9 @@ async function launchGame() {
   let player;
   let playerSheet = {};
   let playerPosition = { x: 0, y: 0 };
+  let mapContainer = createTileMap(map, (x, y) => {
+    playerDestination.setPlayerDestination({ x: -x, y: -y });
+  });
 
   // Create the application helper and add its render target to the page
 
@@ -132,10 +135,6 @@ async function launchGame() {
     createPlayer();
     app.ticker.add(gameLoop);
   }
-
-  let mapContainer = createTileMap(map, (x, y) => {
-    playerDestination.setPlayerDestination({ x: -x, y: -y });
-  });
 
   let dir = "N";
   function gameLoop() {
