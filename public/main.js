@@ -80,7 +80,20 @@ setInterval(() => {
 
 
 
-// BLOCK À EFFET
+// PROFILE CHARACTERS
+// ----------------------------------------------------------
+planterCarac = {
+  nbSeeds: 0
+}
+
+sprinklerCarac = {
+  liters: 0
+}
+
+
+
+
+// EFFECTS BLOCKS
 // ----------------------------------------------------------
 
 function effectBlock(blockType) {
@@ -100,10 +113,11 @@ function effectBlock(blockType) {
     if (blockTile == 3) {
       wateredTile();
     }
-
 }
 
 function dryTile(){
+  planter = planterCarac;
+  planter.nbSeeds - 1;
   console.log("Dry Tile");
 }
 
@@ -112,6 +126,8 @@ function plowedTile() {
 }
 
 function seededTile() {
+  sprinkler = sprinklerCarac;
+  sprinkler.liters - 50;
   console.log("Seeded Tile"); 
 }
 
