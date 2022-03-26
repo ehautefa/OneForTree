@@ -115,7 +115,7 @@ export const server = (io, socket) => {
 
     // Sends to the user the finalized user and the map
     // socket.emit("created", { map: map, user: users[socket.id], users: users });
-    callback({ map: map, user: users[socket.id], leaderboard: users });
+    callback?.({ map: map, user: users[socket.id], leaderboard: users });
     // Sends to other players that a new user connected
     socket.broadcast.emit("login", { user: users[socket.id] });
   });
@@ -210,7 +210,7 @@ export const server = (io, socket) => {
         // Transmits the user data to himself
         io.emit("edit", { position: { x, y }, tile: tile });
         // Edits the user
-        callback({ user: users[user.id] });
+        callback?.({ user: users[user.id] });
       }
     }
   );
@@ -238,14 +238,14 @@ export const server = (io, socket) => {
             position: { x: users[uuid].x, y: users[id].y },
           });
           console.log("callback", callback);
-          callback({ position });
+          callback?.({ position });
           // And broadcast it
           socket.broadcast.emit("move", { uuid, prev: prev, next: position });
         } else {
           console.log("denied move", {
             position: { x: users[uuid].x, y: users[id].y },
           });
-          callback({ position: { x: users[uuid].x, y: users[id].y } });
+          callback?.({ position: { x: users[uuid].x, y: users[id].y } });
         }
       }
     }
