@@ -37,7 +37,7 @@ async function launchGame() {
   let app = new PIXI.Application({
     width: window.innerWidth,
     height: window.innerHeight,
-    antialias: true,
+    antialias: false,
     transparent: false,
     resolution: 1,
     backgroundAlpha: 0,
@@ -90,8 +90,8 @@ async function launchGame() {
     player.y = parseInt(app.view.height / 2);
     app.stage.addChild(player);
     player.play();
-    player.width = 100;
-    player.height = 100
+    player.width = 200;
+    player.height = 200;
   }
 
   function createPlayerSheet() {
@@ -217,7 +217,7 @@ async function launchGame() {
     }
   }
 
-  const offset = { x: parseInt(app.view.width / 2) - 15, y: parseInt(app.view.height / 2) - 5 };
+  const offset = { x: parseInt(app.view.width / 2) - 50, y: parseInt(app.view.height / 2) + 50 };
 
   let mapContainer = new PIXI.Container();
 
