@@ -37,13 +37,13 @@ document.addEventListener('keydown', (event) => {
   var code = event.code;
   // Alert the key name and key code on keydown
   // alert(`Key pressed ${name} \r\n Key code value: ${code}`);
-  if (name == "ArrowDown")
-    direction = 0;
-  if (name == "ArrowUp")
-    direction = 2;
-  if (name == "ArrowLeft")
-    direction = 1;
   if (name == "ArrowRight")
+    direction = 0;
+  if (name == "ArrowLeft")
+    direction = 2;
+  if (name == "ArrowDown")
+    direction = 1;
+  if (name == "ArrowUp")
     direction = 3;
 
 
