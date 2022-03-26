@@ -77,6 +77,10 @@ async function launchGame() {
     let playerSheet = createPlayerSheet(app.loader.resources["laboureur"].url);
     createPlayer(user, playerSheet);
     app.ticker.add(gameLoop);
+    setInterval(() => {
+      computePlayerMoves();
+      computeOtherPlayerMoves();
+    }, 10);
   }
 
   app.loader.add("laboureur", "/src/assets/Anim_Laboureur_AllSprites.png");
@@ -133,14 +137,6 @@ async function launchGame() {
     };
   }
 
-  // function createPlayerSheet() {
-  //   let ssheet = new PIXI.BaseTexture.from(
-  //     app.loader.resources["laboureur"].url
-  //   );
-  //   let w = 60;
-  //   let h = 60;
-  //   player.playerSheet = playerSheet;
-  // }
 
   function createOtherPlayer({ x, y, id }, playerSheet) {
     let otherPlayer = new PIXI.AnimatedSprite(playerSheet.walkSouth);
@@ -374,22 +370,22 @@ async function launchGame() {
   //   y: parseInt(app.view.height / 2) - 5,
   // };
 
-  let playerDestination = {
-    tiles: { x: 0, y: 0 },
-    pixels: { x: 0, y: 0 },
-    // x: 0, y: 0
-    setPlayerDestination: (val) => {
-      // playerPosition = val;
-      val.x != undefined
-        ? (playerDestination.pixels.x = -val.x * 100 + offset.x)
-        : null;
-      val.y != undefined
-        ? (playerDestination.pixels.y = -val.y * 100 + offset.y)
-        : null;
-      val.x != undefined ? (playerDestination.tiles.x = val.x) : null;
-      val.y != undefined ? (playerDestination.tiles.y = val.y) : null;
-    },
-  };
+  // let playerDestination = {
+  //   tiles: { x: 0, y: 0 },
+  //   pixels: { x: 0, y: 0 },
+  //   // x: 0, y: 0
+  //   setPlayerDestination: (val) => {
+  //     // playerPosition = val;
+  //     val.x != undefined
+  //       ? (playerDestination.pixels.x = -val.x * 100 + offset.x)
+  //       : null;
+  //     val.y != undefined
+  //       ? (playerDestination.pixels.y = -val.y * 100 + offset.y)
+  //       : null;
+  //     val.x != undefined ? (playerDestination.tiles.x = val.x) : null;
+  //     val.y != undefined ? (playerDestination.tiles.y = val.y) : null;
+  //   },
+  // };
 
  
 
@@ -458,10 +454,7 @@ async function launchGame() {
     }
   }
 
-  setInterval(() => {
-    computePlayerMoves();
-    computeOtherPlayerMoves();
-  }, 10);
+
 
   map.forEach((row, y) => {
     row.forEach((cell, x) => {
