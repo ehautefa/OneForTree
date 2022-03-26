@@ -69,7 +69,7 @@ async function launchGame() {
     app.ticker.add(gameLoop);
   }
 
-  app.loader.add("viking", "/src/assets/viking.png");
+  app.loader.add("laboureur", "/src/assets/Anim_Laboureur_AllSprites.png");
   app.loader.load(doneLoading);
 
   function createPlayer() {
@@ -84,22 +84,38 @@ async function launchGame() {
   }
 
   function createPlayerSheet() {
-    let ssheet = new PIXI.BaseTexture.from(app.loader.resources["viking"].url);
-    let w = 26;
-    let h = 36;
+    let ssheet = new PIXI.BaseTexture.from(app.loader.resources["laboureur"].url);
+    let w = 60;
+    let h = 60;
 
     playerSheet["standSouth"] = [
-      new PIXI.Texture(ssheet, new PIXI.Rectangle(1 * w, 0, w, h)),
+      new PIXI.Texture(ssheet, new PIXI.Rectangle(13 * w, 0, w, h)),
+	  new PIXI.Texture(ssheet, new PIXI.Rectangle(14 * w, 0, w, h)),
+	  new PIXI.Texture(ssheet, new PIXI.Rectangle(15 * w, 0, w, h)),
+	  new PIXI.Texture(ssheet, new PIXI.Rectangle(16 * w, 0, w, h)),
+	  new PIXI.Texture(ssheet, new PIXI.Rectangle(17 * w, 0, w, h)),
     ];
 
     playerSheet["standWest"] = [
-      new PIXI.Texture(ssheet, new PIXI.Rectangle(4 * w, 0, w, h)),
+	  new PIXI.Texture(ssheet, new PIXI.Rectangle(23 * w, 0, w, h)),
+      new PIXI.Texture(ssheet, new PIXI.Rectangle(24 * w, 0, w, h)),
+	  new PIXI.Texture(ssheet, new PIXI.Rectangle(25 * w, 0, w, h)),
+	  new PIXI.Texture(ssheet, new PIXI.Rectangle(26 * w, 0, w, h)),
+	  new PIXI.Texture(ssheet, new PIXI.Rectangle(27 * w, 0, w, h)),
     ];
     playerSheet["standEast"] = [
-      new PIXI.Texture(ssheet, new PIXI.Rectangle(7 * w, 0, w, h)),
+	  new PIXI.Texture(ssheet, new PIXI.Rectangle(18 * w, 0, w, h)),
+      new PIXI.Texture(ssheet, new PIXI.Rectangle(19 * w, 0, w, h)),
+	  new PIXI.Texture(ssheet, new PIXI.Rectangle(20 * w, 0, w, h)),
+	  new PIXI.Texture(ssheet, new PIXI.Rectangle(21 * w, 0, w, h)),
+	  new PIXI.Texture(ssheet, new PIXI.Rectangle(22 * w, 0, w, h)),
     ];
     playerSheet["standNorth"] = [
-      new PIXI.Texture(ssheet, new PIXI.Rectangle(10 * w, 0, w, h)),
+	  new PIXI.Texture(ssheet, new PIXI.Rectangle(13 * w, 0, w, h)),
+  	  new PIXI.Texture(ssheet, new PIXI.Rectangle(14 * w, 0, w, h)),
+  	  new PIXI.Texture(ssheet, new PIXI.Rectangle(15 * w, 0, w, h)),
+  	  new PIXI.Texture(ssheet, new PIXI.Rectangle(16 * w, 0, w, h)),
+  	  new PIXI.Texture(ssheet, new PIXI.Rectangle(17 * w, 0, w, h)),
     ];
 
     playerSheet["walkSouth"] = [
@@ -130,8 +146,11 @@ async function launchGame() {
     app.ticker.add(gameLoop);
   }
 
-  function gameLoop() {
+let dir = 'N';
+function gameLoop() {
+//	var dir = 'N';
     if (playerDestination.y > mapContainer.y) {
+	  dir = 'N';
       if (!player.playing) {
         player.textures = playerSheet.walkNorth;
         player.play();
@@ -139,6 +158,7 @@ async function launchGame() {
     }
     //a
     else if (playerDestination.x > mapContainer.x) {
+	  dir = 'W';
       if (!player.playing) {
         player.textures = playerSheet.walkWest;
         player.play();
@@ -146,6 +166,7 @@ async function launchGame() {
     }
     //s
     else if (playerDestination.y < mapContainer.y) {
+	  dir = 'S';
       if (!player.playing) {
         player.textures = playerSheet.walkSouth;
         player.play();
@@ -153,11 +174,40 @@ async function launchGame() {
     }
     //d
     else if (playerDestination.x < mapContainer.x) {
+	  dir = 'E';
       if (!player.playing) {
         player.textures = playerSheet.walkEast;
         player.play();
       }
     }
+	if (dir == 'N')
+	{
+		if (!player.playing) {
+			player.textures = playerSheet.standNorth;
+	        player.play();
+		}
+	}
+	else if (dir == 'S')
+	{
+		if (!player.playing) {
+			player.textures = playerSheet.standSouth;
+	        player.play();
+		}
+	}
+	else if (dir == 'W')
+	{
+		if (!player.playing) {
+			player.textures = playerSheet.standWest;
+	        player.play();
+		}
+	}
+	else if (dir == 'E')
+	{
+		if (!player.playing) {
+			player.textures = playerSheet.standEast;
+	        player.play();
+		}
+	}
   }
 
   const offset = { x: parseInt(app.view.width / 2) - 15, y: parseInt(app.view.height / 2) - 5};
@@ -280,9 +330,9 @@ async function launchGame() {
   playersActivitiesSprite.height = visualViewport.height - 20;
 
   let playersActivitiesSpriteTitle = new PIXI.Text("Player Activities", {
-    fontFamily : 'Arial', 
-    fontSize: 24, 
-    fill : 0x000000, 
+    fontFamily : 'Arial',
+    fontSize: 24,
+    fill : 0x000000,
     align : 'center'
   });
   playersActivitiesSpriteTitle.x = screen.width - 250;
@@ -299,9 +349,9 @@ async function launchGame() {
   let powerCapacityBar = new PIXI.Graphics();
 
   let textProfile = new PIXI.Text(textProfileContent, {
-    fontFamily : 'Arial', 
-    fontSize: 24, 
-    fill : 0xffffff, 
+    fontFamily : 'Arial',
+    fontSize: 24,
+    fill : 0xffffff,
     align : 'center'
   });
 
