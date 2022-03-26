@@ -13,24 +13,15 @@ function createSquare(position) {
   return square;
 }
 
-
 function createPlayer() {
-  // let player = {x:0, y:0};
   let player = new PIXI.Sprite.from("/public/map_case.png");
   console.log(app.view.width);
   player.position.set(app.view.width / 2, app.view.height / 2);
   player.width = 30;
   player.height = 30;
   player.tint = "0x0000FF";
-  
-  // player = {...player, setPosition : () => {},  get userPosition() {return({x:this.x/30, y:this.y/30})},
-  // set userPosition(val) {this.x=val.x*30, this.y=val.y*30} };
   return player;
-  
 }
-
-
-// console.log("Player getter :", player.userPosition);
 
 let playerPosition = {x:0, y:0}
 
@@ -50,14 +41,7 @@ let map = [
 
 const offset = {x:app.view.width / 2, y:app.view.height / 2}
 
-
-
-
 let mapContainer = new PIXI.Container();
-// mapContainer.setPlayerPosition = (val) => {
-//   val.x != undefined ? mapContainer.x = val.x * 30 + offset.x : null
-//   val.y != undefined ? mapContainer.y = val.y * 30 + offset.y : null
-// };
 
 let playerDestination = {x:0, y:0};
 playerDestination.setPlayerPosition = (val) => {
@@ -69,81 +53,44 @@ playerDestination.setPlayerPosition = (val) => {
 playerDestination.setPlayerPosition({x:0, y:0})
 
 setInterval(() => {
- 
   if (playerDestination.x > mapContainer.x)
   {
-    mapContainer.x++
+    mapContainer.x++;
   }
   else if (playerDestination.x < mapContainer.x)
   {
-    mapContainer.x--
+    mapContainer.x--;
   }
   if (playerDestination.y > mapContainer.y)
   {
-    mapContainer.y++
+    mapContainer.y++;
   }
   else if (playerDestination.y < mapContainer.y)
   {
-    mapContainer.y--
+    mapContainer.y--;
   }
-
-
-  // mapContainer.x 
-  // mapContainer.y 
-
-
-
-  // playerDestination.x
-  // playerDestination.y
 }, 10)
-
-
-// mapContainer.setPlayerPosition(playerPosition);
 
 let itemsMap = map.map((row, y) => {
   let currentRow = row.map((cell, x) => {
     console.log("cell :", cell);
     let currentCell = createSquare({ x: x, y: y, type: cell });
     currentCell.interactive = true;
-    // currentCell.buttonMode = true;
     currentCell.on('pointerdown', (e) => {
       console.log("ptr dw:", y, x)
       playerDestination.setPlayerPosition({x:-x, y:-y});
     });
-
     mapContainer.addChild(currentCell);
-
-    // app.stage.addChild(currentCell);
-    
     return currentCell;
   });
   return currentRow;
 });
 
-// mapContainer.setPlayerPosition({x:3,  y:3});
 
 app.stage.addChild(mapContainer);
 
 
 let player = createPlayer();
-
-console.log("Map :", itemsMap);
-
-let square = createSquare({ x: 10, y: 10 });
-let squareList = [];
-
-let direction = 0;
-
-
-
-// for (let i = 0; i < 10; i++) {
-//   squareList.push(createSquare({ x: 10 * i, y: 10 }));
-// }
-// // let sprite = PIXI.Sprite.from("/public/sample.png");
-// // app.stage.addChild(sprite);
-// for (let i = 0; i < 10; i++) {
-//   app.stage.addChild(squareList[i]);
-// }
 
 app.stage.addChild(player);
 
@@ -151,9 +98,6 @@ document.addEventListener(
   "keydown",
   (event) => {
     var name = event.key;
-    var code = event.code;
-    // Alert the key name and key code on keydown
-    // alert(`Key pressed ${name} \r\n Key code value: ${code}`);
     if (name == "ArrowRight") playerPosition.x--;
     if (name == "ArrowLeft") playerPosition.x++;
     if (name == "ArrowDown") playerPosition.y--;
@@ -163,23 +107,3 @@ document.addEventListener(
   },
   false
 );
-
-setInterval(() => {
-  // for (let i = 9; i >= 1; i--) {
-  //   // console.log(squareList[i - 1]);
-  //   squareList[i].x = squareList[i - 1].x;
-  //   squareList[i].y = squareList[i - 1].y;
-  // }
-
-  // if (direction == 0) squareList[0].x = squareList[0].x + 10;
-  // if (direction == 1) squareList[0].y = squareList[0].y + 10;
-  // if (direction == 2) squareList[0].x = squareList[0].x - 10;
-  // if (direction == 3) squareList[0].y = squareList[0].y - 10;
-}, 200);
-
-// Add a ticker callback to move the sprite back and forth
-// let elapsed = 0.0;
-// app.ticker.add((delta) => {
-//   elapsed += delta;
-//   sprite.x = 100.0 + Math.cos(elapsed / 50.0) * 100.0;
-// });
