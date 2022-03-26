@@ -70,7 +70,6 @@ app.get('/', (req:any, res:any) => {
 
 // Socket logic
 io.on("connection", (socket) => {
-	console.log("here");
 	// User creation
   socket.on("create", ({ name }) => {
     const id = uuid();

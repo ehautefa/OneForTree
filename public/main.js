@@ -1,11 +1,12 @@
 const socket = io();
-
+localStorage.debug = 'socket.io-client:socket'
+let world;
 //Connect to server
 socket.on("connect", () => {
 	console.log(socket.connected);
 	socket.emit("create", "elise");
 	socket.on("created", ({ mappy, user }) => {
-		console.log(mappy);
+		world = mappy;
 		console.log(user);
 	});
 });
@@ -40,6 +41,7 @@ function createPlayer() {
 }
 
 let playerPosition = {x:0, y:0}
+
 
 let map = [
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
