@@ -9,7 +9,11 @@ function createSquare(position) {
   square.position.set(position.x * 30, position.y * 30);
   square.width = 30;
   square.height = 30;
-  if (position.type == 1) square.tint = "0x00FF00";
+  if (position.type == 1)
+  {
+    square.tint = "0x00FF00";
+    initMarker(0, square.position.x, square.position.y);
+  } 
   return square;
 }
 
@@ -164,4 +168,29 @@ function seededTile() {
 
 function wateredTile() {
   console.log("Watered Tile");
+}
+
+
+
+
+// MARKERS
+// ----------------------------------------------------------
+
+function initMarker(statusBlock, posX, posY) { // (Sélection du type de marker, Position X du Tile, Position Y du Tile)
+  switch (statusBlock) {
+    case 0:
+      markerType(posX, posY);
+      break;
+    default:
+      break;
+  }
+}
+
+function markerType(posX, posY) {
+  var markerSize = 10;
+  var graphics = new PIXI.Graphics();
+  graphics.beginFill(0x9b59b6);
+  graphics.drawEllipse(posX, posY, markerSize, markerSize);
+  graphics.zIndex = 0;
+  app.stage.addChild(graphics);
 }
