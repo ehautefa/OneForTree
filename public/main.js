@@ -1,79 +1,85 @@
-// Create the application helper and add its render target to the page
-let app = new PIXI.Application({ width: 640, height: 360 });
-document.body.appendChild(app.view);
+const renderer = PIXI.autoDetectRenderer({
+  antialias: true,
+  autoDensity: true,
+  resolution: window.devicePixelRatio || 1,
+  width: 800,
+  height: 600,
+});
 
-// Create the sprite and add it to the stage
+let stage;
+let tilemap;
+let frame = 0;
 
-function createSquare(position) {
-  let square = new PIXI.Sprite(PIXI.Texture.WHITE);
-  square.position.set(position.x, position.y);
-  square.width = 10;
-  square.height = 10;
-  square.tint = '0x00FF00';
-  return (square);
-}
+document.body.appendChild(renderer.view);
 
-let square = createSquare({x:10, y:10});
-let squareList = [];
+const loader = new PIXI.Loader();
 
-let direction = 0;
+loader.add('atlas', '/public/atlas.json');
+loader.add('button', '/public/button.png');
+loader.load((_, resources) => {
+  // Setup tilemap scene
+  stage = new PIXI.Container();
+  tilemap = new PIXI.tilemap.CompositeTilemap();
+  stage.addChild(tilemap);
 
-for (let i = 0; i < 10; i++)
-{
-  squareList.push(createSquare({x:10*i, y:10}));
-}
-// let sprite = PIXI.Sprite.from("/public/sample.png");
-// app.stage.addChild(sprite);
-for (let i = 0; i < 10; i++)
-{
-  app.stage.addChild(squareList[i]);
-}
+  // Setup rendering loop
+  PIXI.Ticker.shared.add(() => renderer.render(stage));
 
+  makeTilemap();
+  setInterval(() => {
+    // Animate the chest tile textures. Since they are placed in 1 row
+    // only, we only need to update tileAnim[0] (for x) and not
+    // tileAnim[1] (for y).
+    renderer.plugins.tilemap.tileAnim[0] = frame++;
+  }, 400);
+});
 
-app.stage.addChild(square);
+function makeTilemap() {
+  // Clear the tilemap, in case it is being reused.
+  tilemap.clear();
 
-document.addEventListener('keydown', (event) => {
-  var name = event.key;
-  var code = event.code;
-  // Alert the key name and key code on keydown
-  // alert(`Key pressed ${name} \r\n Key code value: ${code}`);
-  if (name == "ArrowRight")
-    direction = 0;
-  if (name == "ArrowLeft")
-    direction = 2;
-  if (name == "ArrowDown")
-    direction = 1;
-  if (name == "ArrowUp")
-    direction = 3;
+  const resources = loader.resources;
+  const size = 32;
 
+  // Calculate the dimensions of the tilemap to build
+  const pxW = renderer.screen.width;
+  const pxH = renderer.screen.height;
+  const tileW = pxW / size;
+  const tileH = pxH / size;
+  const wallBoundary = 2 + Math.floor(tileH / 2);
 
+  // Fill the scene with grass and sparse rocks on top and chests on
+  // the bottom. Some chests are animated between two tile textures
+  // (so they flash red).
+  for (let i = 0; i < tileW; i++) {
+    for (let j = 0; j < tileH; j++) {
+      tilemap.tile(
+        (j < tileH / 2) && (i % 2 === 1) && (j % 2 === 1)
+          ? 'tough.png'
+          : 'grass.png',
+        i * size,
+        j * size,
+      );
 
-}, false);
+      if (j === wallBoundary) {
+        tilemap.tile('brick_wall.png', i * size, j * size);
+      } else if (j > wallBoundary + 1 && j < tileH - 1) {
+        if (Math.random() > 0.8) {
+          tilemap.tile('chest.png', i * size, j * size);
 
-setInterval(() => {
-  
-  for (let i = 9; i >= 1; i--)
-  {
-    // console.log(squareList[i - 1]);
-    squareList[i].x = squareList[i - 1].x
-    squareList[i].y = squareList[i - 1].y
+          if (Math.random() > 0.8) {
+            // Animate between 2 tile textures. The x-offset
+            // between them in the base-texture is 34px, i.e.
+            // "red_chest" is exactly 34 pixels right in the atlas.
+            tilemap.tileAnimX(34, 2);
+          }
+        }
+      }
+    }
   }
 
-  if (direction == 0)
-    squareList[0].x = squareList[0].x + 10;
-    if (direction == 1)
-    squareList[0].y = squareList[0].y + 10;
-    if (direction == 2)
-    squareList[0].x = squareList[0].x - 10;
-    if (direction == 3)
-    squareList[0].y = squareList[0].y - 10;
-
-
-}, 200);
-
-// Add a ticker callback to move the sprite back and forth
-// let elapsed = 0.0;
-// app.ticker.add((delta) => {
-//   elapsed += delta;
-//   sprite.x = 100.0 + Math.cos(elapsed / 50.0) * 100.0;
-// });
+  // Button does not appear in the atlas, but @pixi/tilemap won't surrender
+  // - it will create second layer for special for buttons and they will
+  // appear above all the other tiles.
+  tilemap.tile(resources.button.texture, 0, 0);
+}
