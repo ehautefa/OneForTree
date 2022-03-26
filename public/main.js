@@ -77,3 +77,36 @@ setInterval(() => {
 //   elapsed += delta;
 //   sprite.x = 100.0 + Math.cos(elapsed / 50.0) * 100.0;
 // });
+
+
+
+// BLOCK À EFFET
+// ----------------------------------------------------------
+
+function effectBlock(blockType) {
+    // Dry Tile
+    if (blockType == 0) {
+      dryTile();
+    }
+    // Plowed Tile
+    if (blockType == 1) {
+      plowedTile();
+    }
+    // Seeded Tile
+    if (blockType == 2) {
+      seededTile();
+    }
+
+}
+
+function dryTile(){
+  console.log("Dry Tile");
+}
+
+function plowedTile() {
+  console.log("Plowed Tile");
+}
+
+function seededTile() {
+  console.log("Seeded Tile"); 
+}
