@@ -9,7 +9,7 @@ let otherPlayers = [];
 let mapContainer = new PIXI.Container();
 
 
-
+// import "./file.js";
 
 
 // Create the application helper and add its render target to the page
@@ -105,11 +105,12 @@ function createPlayerSheet(playerSheet) {
   return (playerSheet);
 }
 
-function createOtherPlayer() 
+function createOtherPlayer({x, y, id}) 
 {
   let otherPlayerObj = {
-    playerPosition : {x:5, y:5},
-    playerDestination : {x:5, y:5},
+    id : id,
+    playerPosition : {x:x, y:y},
+    playerDestination : {x:x, y:y},
     playerSheet: {},
     playerController:{}}
     otherPlayerObj.playerSheet = createPlayerSheet(otherPlayerObj.playerSheet);
@@ -118,16 +119,19 @@ function createOtherPlayer()
   otherPlayerObj.playerController.anchor.set(0.5);
   otherPlayerObj.playerController.animationSpeed = 0.18;
   otherPlayerObj.playerController.loop = false;
-  otherPlayerObj.playerController.x = parseInt(app.view.width / 2);
-  otherPlayerObj.playerController.y = parseInt(app.view.height / 2);
-  mapContainer.addChild(player);
+  otherPlayerObj.playerController.x = 15 + x*30;
+  otherPlayerObj.playerController.y = 15 + y*30;
+  mapContainer.addChild(otherPlayerObj.playerController);
   otherPlayerObj.playerController.play();
-  otherPlayerObj.playerController = createPlayer( otherPlayerObj.playerController);
+  // otherPlayerObj.playerController = createPlayer( otherPlayerObj.playerController);
   return otherPlayerObj;
 }
 
+setInterval(() => {
+  otherPlayers.push(createOtherPlayer({x:otherPlayers.length, y:5, id: otherPlayers.length}));
+}, 3000); 
 
-setTimeout(() => createOtherPlayer(), 5000);
+// setTimeout(() => createOtherPlayer({x:3, y:5, id: 4}), 5000);
 
 function doneLoading(e) {
   playerSheet = createPlayerSheet(playerSheet);
@@ -166,8 +170,14 @@ function calculatePlayerPosition() {
   }
 }
 
+
+function calculateOtherPlayersPosition() {
+  
+}
+
 function gameLoop() {
   calculatePlayerPosition();
+  calculateOtherPlayersPosition();
 }
 
 let map = [
