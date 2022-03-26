@@ -96,6 +96,10 @@ function effectBlock(blockType) {
     if (blockType == 2) {
       seededTile();
     }
+    // Watered Tile
+    if (blockTile == 3) {
+      wateredTile();
+    }
 
 }
 
@@ -109,4 +113,8 @@ function plowedTile() {
 
 function seededTile() {
   console.log("Seeded Tile"); 
+}
+
+function wateredTile() {
+  console.log("Watered Tile");
 }
