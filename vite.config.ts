@@ -1,9 +1,10 @@
 import vitePluginSocketIO from "vite-plugin-socket-io";
 import { defineConfig } from "vite";
+import { updateLanguageServiceSourceFile } from "typescript";
 
-// Config
-const mapWidth = 50;
-const mapHeight = 50;
+// import fs from "fs";
+// let rawdata = fs.readFileSync("src/map.json");
+// let map: Tile[][] = JSON.parse(rawdata.toString());
 
 // Types
 export type Tile =
@@ -15,7 +16,8 @@ export type Tile =
   | "watered" // germinating land
   | "tree" // A tree entity
   | "shrub" // little bush
-  | "garbage"; // Garbage
+  // | "garbage" // Garbage
+  | "grass";
 export type UserRole = "worker" | "cultivator" | "waterer" | "treater";
 export type User = {
   // UUID
@@ -53,9 +55,33 @@ function genMap(width: number, height: number) {
 
 // Database xD ptdr
 // TODO parse from serialized file
-let map: Tile[][] = genMap(mapWidth, mapHeight);
+let map: Tile[][] = genMap(50, 50);
 let users: { [key: string]: User } = {};
 let stats: Stats = { co2: 10000 };
+
+// Round robin roles
+function selectRole(): UserRole {
+  if (this.index === undefined) this.index = 0;
+  let role: UserRole;
+
+  switch (this.index) {
+    case 0:
+      role = "worker";
+      break;
+    case 1:
+      role = "cultivator";
+      break;
+    case 2:
+      role = "treater";
+      break;
+    case 3:
+      role = "waterer";
+      break;
+  }
+
+  this.index++;
+  if (this.index >= 4) return role;
+}
 
 /// Doctumentation:
 /// Front:
@@ -84,10 +110,10 @@ export const server = (io, socket) => {
     socket.on("create", ({ name }, callback: ({}) => void) => {
       if (!users[socket.id]) {
         users[socket.id] = {
-          role: "worker",
+          role: selectRole(),
           id: socket.id,
-          x: mapWidth / 2,
-          y: mapHeight / 2,
+          x: map.length / 2,
+          y: map[0].length / 2,
           name: name,
           capacity: 0,
         };
@@ -107,7 +133,6 @@ export const server = (io, socket) => {
         {
           user,
           position: { x, y },
-          ...rest
         }: {
           user: User;
           position: { x: number; y: number };
@@ -185,8 +210,12 @@ export const server = (io, socket) => {
             "->",
             tile
           );
+
+          // Update tile for the server
           map[x][y] = tile;
+          // Transmits the user data to himself
           io.emit("edit", { position: { x, y }, tile: tile });
+          // Edits the user
           callback({ user: users[user.id] });
         }
       }
