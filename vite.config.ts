@@ -59,12 +59,13 @@ let map: Tile[][] = genMap(50, 50);
 let users: { [key: string]: User } = {};
 let stats: Stats = { co2: 10000 };
 
+let index = 0;
+
 // Round robin roles
 function selectRole(): UserRole {
-  if (this.index === undefined) this.index = 0;
   let role: UserRole;
 
-  switch (this.index) {
+  switch (index) {
     case 0:
       role = "worker";
       break;
@@ -79,8 +80,8 @@ function selectRole(): UserRole {
       break;
   }
 
-  this.index++;
-  if (this.index >= 4) return role;
+  index++;
+  if (index >= 4) return role;
 }
 
 /// Doctumentation:
