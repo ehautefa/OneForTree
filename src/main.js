@@ -29,10 +29,7 @@ socket.on("connect", (e) => {
 
 async function launchGame() {
   let player;
-  let keys = {};
-  let keysDiv;
   let playerSheet = {};
-  let speed = 2;
   let playerPosition = { x: 0, y: 0 };
 
   // Create the application helper and add its render target to the page
@@ -55,7 +52,7 @@ async function launchGame() {
   // Create the sprite and add it to the stage
 
   function createSquare(position) {
-    let square = new PIXI.Sprite.from("/src/assets/map_case.png");
+    let square = new PIXI.Sprite.from("/src/assets/Grass2.png");
     square.position.set(position.x * 30, position.y * 30);
     square.width = 30;
     square.height = 30;
