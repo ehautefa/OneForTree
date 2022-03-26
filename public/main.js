@@ -300,7 +300,7 @@ function markerType(posX, posY) {
 // ----------------------------------------------------------
 // UI Player Activities Init
 var playersActivitiesSprite = PIXI.Sprite.from('./public/ressources/players_activities_sprite.png');
-playersActivitiesSprite.x = 640 - 185;
+playersActivitiesSprite.x = 1366 - 260;
 playersActivitiesSprite.y = 10;
 
 var playersActivitiesSpriteTitle = PIXI.Sprite.from('./public/ressources/players_activities_title_sprite.png');
@@ -310,7 +310,7 @@ playersActivitiesSprite.addChild(playersActivitiesSpriteTitle);
 
 // UI LifeBar Init
 var healthBarSprite = PIXI.Sprite.from('./public/ressources/lifebar_sprite.png');
-healthBarSprite.x = 640 - 210;
+healthBarSprite.x = 1366 - 300;
 healthBarSprite.y = 10;
 
 
