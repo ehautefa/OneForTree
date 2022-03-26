@@ -5,132 +5,105 @@ document.body.appendChild(app.view);
 // Create the sprite and add it to the stage
 
 function createSquare(position) {
-  let square = new PIXI.Sprite(PIXI.Texture.WHITE);
-  square.position.set(position.x, position.y);
-  square.width = 10;
-  square.height = 10;
-  square.tint = '0x00FF00';
-  return (square);
+  let square = new PIXI.Sprite.from("/public/map_case.png");
+  square.position.set(position.x * 30, position.y * 30);
+  square.width = 30;
+  square.height = 30;
+  if (position.type == 1) square.tint = "0x00FF00";
+  return square;
 }
 
-let square = createSquare({x:10, y:10});
-let squareList = [];
-
-let direction = 0;
-
-for (let i = 0; i < 10; i++)
-{
-  squareList.push(createSquare({x:10*i, y:10}));
-}
-// let sprite = PIXI.Sprite.from("/public/sample.png");
-// app.stage.addChild(sprite);
-for (let i = 0; i < 10; i++)
-{
-  app.stage.addChild(squareList[i]);
+function createPlayer() {
+  let player = new PIXI.Sprite.from("/public/map_case.png");
+  console.log(app.view.width);
+  player.position.set(app.view.width / 2, app.view.height / 2);
+  player.width = 30;
+  player.height = 30;
+  player.tint = "0x0000FF";
+  return player;
 }
 
+let playerPosition = {x:0, y:0}
 
-app.stage.addChild(square);
+let map = [
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+  [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+];
 
-document.addEventListener('keydown', (event) => {
-  var name = event.key;
-  var code = event.code;
-  // Alert the key name and key code on keydown
-  // alert(`Key pressed ${name} \r\n Key code value: ${code}`);
-  if (name == "ArrowRight")
-    direction = 0;
-  if (name == "ArrowLeft")
-    direction = 2;
-  if (name == "ArrowDown")
-    direction = 1;
-  if (name == "ArrowUp")
-    direction = 3;
+const offset = {x:app.view.width / 2, y:app.view.height / 2}
 
+let mapContainer = new PIXI.Container();
 
+let playerDestination = {x:0, y:0};
+playerDestination.setPlayerPosition = (val) => {
+  playerPosition = val;
+  val.x != undefined ? playerDestination.x = val.x * 30 + offset.x : null
+  val.y != undefined ? playerDestination.y = val.y * 30 + offset.y : null
+};
 
-}, false);
+playerDestination.setPlayerPosition({x:0, y:0})
 
 setInterval(() => {
-  
-  for (let i = 9; i >= 1; i--)
+  if (playerDestination.x > mapContainer.x)
   {
-    // console.log(squareList[i - 1]);
-    squareList[i].x = squareList[i - 1].x
-    squareList[i].y = squareList[i - 1].y
+    mapContainer.x++;
   }
+  else if (playerDestination.x < mapContainer.x)
+  {
+    mapContainer.x--;
+  }
+  if (playerDestination.y > mapContainer.y)
+  {
+    mapContainer.y++;
+  }
+  else if (playerDestination.y < mapContainer.y)
+  {
+    mapContainer.y--;
+  }
+}, 10)
 
-  if (direction == 0)
-    squareList[0].x = squareList[0].x + 10;
-    if (direction == 1)
-    squareList[0].y = squareList[0].y + 10;
-    if (direction == 2)
-    squareList[0].x = squareList[0].x - 10;
-    if (direction == 3)
-    squareList[0].y = squareList[0].y - 10;
-
-
-}, 200);
-
-// Add a ticker callback to move the sprite back and forth
-// let elapsed = 0.0;
-// app.ticker.add((delta) => {
-//   elapsed += delta;
-//   sprite.x = 100.0 + Math.cos(elapsed / 50.0) * 100.0;
-// });
-
-
-
-// PROFILE CHARACTERS
-// ----------------------------------------------------------
-planterCarac = {
-  nbSeeds: 0
-}
-
-sprinklerCarac = {
-  liters: 0
-}
+let itemsMap = map.map((row, y) => {
+  let currentRow = row.map((cell, x) => {
+    console.log("cell :", cell);
+    let currentCell = createSquare({ x: x, y: y, type: cell });
+    currentCell.interactive = true;
+    currentCell.on('pointerdown', (e) => {
+      console.log("ptr dw:", y, x)
+      playerDestination.setPlayerPosition({x:-x, y:-y});
+    });
+    mapContainer.addChild(currentCell);
+    return currentCell;
+  });
+  return currentRow;
+});
 
 
+app.stage.addChild(mapContainer);
 
 
-// EFFECTS BLOCKS
-// ----------------------------------------------------------
+let player = createPlayer();
 
-function effectBlock(blockType) {
-    // Dry Tile
-    if (blockType == 0) {
-      dryTile();
-    }
-    // Plowed Tile
-    if (blockType == 1) {
-      plowedTile();
-    }
-    // Seeded Tile
-    if (blockType == 2) {
-      seededTile();
-    }
-    // Watered Tile
-    if (blockTile == 3) {
-      wateredTile();
-    }
-}
+app.stage.addChild(player);
 
-function dryTile(){
-  console.log("Dry Tile");
-}
-
-function plowedTile() {
-  planter = planterCarac;
-  planter.nbSeeds - 1;
-  console.log("Plowed Tile");
-}
-
-function seededTile() {
-  sprinkler = sprinklerCarac;
-  sprinkler.liters - 50;
-  console.log("Seeded Tile"); 
-}
-
-function wateredTile() {
-  console.log("Watered Tile");
-}
+document.addEventListener(
+  "keydown",
+  (event) => {
+    var name = event.key;
+    if (name == "ArrowRight") playerPosition.x--;
+    if (name == "ArrowLeft") playerPosition.x++;
+    if (name == "ArrowDown") playerPosition.y--;
+    if (name == "ArrowUp") playerPosition.y++;
+    playerDestination.setPlayerPosition(playerPosition);
+  
+  },
+  false
+);
