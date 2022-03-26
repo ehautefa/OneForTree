@@ -17,11 +17,11 @@ socket.on("connect", (e) => {
 
     launchGame();
   });
-
+  
   socket.on("login", (data) => {
     console.log(data);
   });
-
+  
   socket.on("move", ({ uuid, next, prev }) => {
     console.log("player moved: ", uuid, next, prev);
   });
@@ -31,9 +31,11 @@ async function launchGame() {
   let player;
   let keys = {};
   let keysDiv;
-  let playerSheet = {};
+  // let playerSheet = {};
   let speed = 2;
   let playerPosition = { x: 0, y: 0 };
+  let otherPlayers = []
+  let mapContainer = new PIXI.Container();
 
   // Create the application helper and add its render target to the page
 
@@ -63,16 +65,16 @@ async function launchGame() {
     return square;
   }
 
-  function doneLoading(e) {
-    createPlayerSheet();
-    createPlayer();
-    app.ticker.add(gameLoop);
-  }
+  // function doneLoading(e) {
+  //   createPlayerSheet();
+  //   createPlayer();
+  //   app.ticker.add(gameLoop);
+  // }
 
   app.loader.add("viking", "/src/assets/viking.png");
   app.loader.load(doneLoading);
 
-  function createPlayer() {
+  function createPlayer(playerSheet) {
     player = new PIXI.AnimatedSprite(playerSheet.walkSouth);
     player.anchor.set(0.5);
     player.animationSpeed = 0.18;
@@ -81,9 +83,28 @@ async function launchGame() {
     player.y = parseInt(app.view.height / 2);
     app.stage.addChild(player);
     player.play();
+    player.playerSheet = playerSheet;
+  }
+
+
+  function createOtherPlayer({x, y, id},playerSheet) {
+    let otherPlayer = new PIXI.AnimatedSprite(playerSheet.walkSouth);
+    otherPlayer.id = id;
+    otherPlayer.anchor.set(0.5);
+    otherPlayer.animationSpeed = 0.18;
+    otherPlayer.loop = false;
+    otherPlayer.x = x * 30 + 15;
+    otherPlayer.y = y * 30 + 5;
+    mapContainer.addChild(otherPlayer);
+    otherPlayer.play();
+    otherPlayer.playerSheet = playerSheet;
+    otherPlayer.currentPosition = {x:x * 30 + 15, y:y * 30 + 5};
+    otherPlayer.futurePosition = {x:x * 30 + 15, y:y * 30 + 5};
+    return (otherPlayer);
   }
 
   function createPlayerSheet() {
+    let playerSheet = {};
     let ssheet = new PIXI.BaseTexture.from(app.loader.resources["viking"].url);
     let w = 26;
     let h = 36;
@@ -122,47 +143,71 @@ async function launchGame() {
       new PIXI.Texture(ssheet, new PIXI.Rectangle(10 * w, 0, w, h)),
       new PIXI.Texture(ssheet, new PIXI.Rectangle(11 * w, 0, w, h)),
     ];
+    return (playerSheet);
   }
 
   function doneLoading(e) {
-    createPlayerSheet();
-    createPlayer();
+    let playerSheet = createPlayerSheet();
+    createPlayer(playerSheet);
     app.ticker.add(gameLoop);
   }
 
-  function gameLoop() {
+  setInterval(() => {
+    
+    let playerSheet = createPlayerSheet();
+    otherPlayers.push( createOtherPlayer({x:otherPlayers.length, y: 3, id: otherPlayers.length}, playerSheet));
+
+    // function createOtherPlayer({x, y},playerSheet)
+  }, 5000);
+
+  setInterval(() => {
+    let selectId = Math.floor(Math.random() * otherPlayers.length);
+    let rdmX =  Math.floor(Math.random() * 40) * 30 + 15;
+    let rdmy =  Math.floor(Math.random() * 40) * 30 + 5;
+    console.log("PPPPP", selectId)
+    otherPlayers[selectId].futurePosition = {x:rdmX, y:rdmy};
+
+  }, 1000);
+
+
+
+  function computePlayerAnimation () {
     if (playerDestination.y > mapContainer.y) {
       if (!player.playing) {
-        player.textures = playerSheet.walkNorth;
+        player.textures = player.playerSheet.walkNorth;
         player.play();
       }
     }
     //a
     else if (playerDestination.x > mapContainer.x) {
       if (!player.playing) {
-        player.textures = playerSheet.walkWest;
+        player.textures = player.playerSheet.walkWest;
         player.play();
       }
     }
     //s
     else if (playerDestination.y < mapContainer.y) {
       if (!player.playing) {
-        player.textures = playerSheet.walkSouth;
+        player.textures = player.playerSheet.walkSouth;
         player.play();
       }
     }
     //d
     else if (playerDestination.x < mapContainer.x) {
       if (!player.playing) {
-        player.textures = playerSheet.walkEast;
+        player.textures = player.playerSheet.walkEast;
         player.play();
       }
     }
   }
 
+  
+  function gameLoop() {
+    computePlayerAnimation();
+  }
+
   const offset = { x: parseInt(app.view.width / 2) - 15, y: parseInt(app.view.height / 2) - 5};
 
-  let mapContainer = new PIXI.Container();
 
   let playerDestination = { x: 0, y: 0 };
   playerDestination.setPlayerDestination = (val) => {
@@ -170,10 +215,29 @@ async function launchGame() {
     val.x != undefined ? (playerDestination.x = val.x * 30 + offset.x) : null;
     val.y != undefined ? (playerDestination.y = val.y * 30 + offset.y) : null;
   };
-
+  
   playerDestination.setPlayerDestination({ x: 0, y: 0 });
 
-  setInterval(() => {
+  function computeOtherPlayerMoves() {
+    otherPlayers.forEach(otherPlayer => {
+      
+      if (otherPlayer.futurePosition.x > otherPlayer.x) {
+        otherPlayer.x++;
+      } else if (otherPlayer.futurePosition.x < otherPlayer.x) {
+        otherPlayer.x--;
+      }
+      if (otherPlayer.futurePosition.y > otherPlayer.y) {
+        otherPlayer.y++;
+      } else if (otherPlayer.futurePosition.y < otherPlayer.y) {
+        otherPlayer.y--;
+      }
+
+
+
+    });
+  }
+
+  function computePlayerMoves() {
     if (playerDestination.x > mapContainer.x) {
       mapContainer.x++;
     } else if (playerDestination.x < mapContainer.x) {
@@ -184,8 +248,13 @@ async function launchGame() {
     } else if (playerDestination.y < mapContainer.y) {
       mapContainer.y--;
     }
+  }
+  
+  setInterval(() => {
+    computePlayerMoves();
+    computeOtherPlayerMoves();
   }, 10);
-
+  
   let itemsMap = world.map((row, y) => {
     let currentRow = row.map((cell, x) => {
       console.log("cell :", cell);
