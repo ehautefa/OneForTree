@@ -54,12 +54,51 @@ const offset = {x:app.view.width / 2, y:app.view.height / 2}
 
 
 let mapContainer = new PIXI.Container();
-mapContainer.setPlayerPosition = (val) => {
-  val.x != undefined ? mapContainer.x = val.x * 30 + offset.x : null
-  val.y != undefined ? mapContainer.y = val.y * 30 + offset.y : null
+// mapContainer.setPlayerPosition = (val) => {
+//   val.x != undefined ? mapContainer.x = val.x * 30 + offset.x : null
+//   val.y != undefined ? mapContainer.y = val.y * 30 + offset.y : null
+// };
+
+let playerDestination = {x:0, y:0};
+playerDestination.setPlayerPosition = (val) => {
+  playerPosition = val;
+  val.x != undefined ? playerDestination.x = val.x * 30 + offset.x : null
+  val.y != undefined ? playerDestination.y = val.y * 30 + offset.y : null
 };
 
-mapContainer.setPlayerPosition(playerPosition);
+playerDestination.setPlayerPosition({x:0, y:0})
+
+setInterval(() => {
+ 
+  if (playerDestination.x > mapContainer.x)
+  {
+    mapContainer.x++
+  }
+  else if (playerDestination.x < mapContainer.x)
+  {
+    mapContainer.x--
+  }
+  if (playerDestination.y > mapContainer.y)
+  {
+    mapContainer.y++
+  }
+  else if (playerDestination.y < mapContainer.y)
+  {
+    mapContainer.y--
+  }
+
+
+  // mapContainer.x 
+  // mapContainer.y 
+
+
+
+  // playerDestination.x
+  // playerDestination.y
+}, 10)
+
+
+// mapContainer.setPlayerPosition(playerPosition);
 
 let itemsMap = map.map((row, y) => {
   let currentRow = row.map((cell, x) => {
@@ -67,7 +106,10 @@ let itemsMap = map.map((row, y) => {
     let currentCell = createSquare({ x: x, y: y, type: cell });
     currentCell.interactive = true;
     // currentCell.buttonMode = true;
-    currentCell.on('pointerdown', (e) => {console.log("ptr dw:", y, x)});
+    currentCell.on('pointerdown', (e) => {
+      console.log("ptr dw:", y, x)
+      playerDestination.setPlayerPosition({x:-x, y:-y});
+    });
 
     mapContainer.addChild(currentCell);
 
@@ -116,7 +158,7 @@ document.addEventListener(
     if (name == "ArrowLeft") playerPosition.x++;
     if (name == "ArrowDown") playerPosition.y--;
     if (name == "ArrowUp") playerPosition.y++;
-      mapContainer.setPlayerPosition(playerPosition);
+    playerDestination.setPlayerPosition(playerPosition);
   
   },
   false
