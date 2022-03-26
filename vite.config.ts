@@ -137,3 +137,4 @@ export const server = (io, socket) => {
 export default defineConfig({
   plugins: [vitePluginSocketIO({ socketEvents: server })],
 });
+

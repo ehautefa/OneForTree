@@ -2,6 +2,7 @@ import { io } from "socket.io-client";
 const socket = io();
 localStorage.debug = "socket.io-client:socket";
 var world = [];
+import { Scrollbox } from 'pixi-scrollbox'
 
 //Connect to server
 socket.on("connect", (e) => {
@@ -274,23 +275,30 @@ async function launchGame() {
   // PLAYER UI
   // ----------------------------------------------------------
   // UI Player Activities Init
-  var playersActivitiesSprite = PIXI.Sprite.from('./src/assets/players_activities_sprite.png');
-  playersActivitiesSprite.x = screen.width - 260;
-  playersActivitiesSprite.y = 10;
-  playersActivitiesSprite.height = visualViewport.height - 20;
-
-  let playersActivitiesSpriteTitle = new PIXI.Text("Player Activities", {
+  let playersActivities = new Scrollbox({ boxWidth: 300, boxHeight: visualViewport.height - 20 });
+  let playersActivitiesSprite = playersActivities.content.addChild(new PIXI.Sprite(PIXI.Texture.WHITE));
+  let playersActivitiesTitle = new PIXI.Text("Player Activities", {
     fontFamily : 'Arial', 
     fontSize: 24, 
     fill : 0x000000, 
     align : 'center'
   });
-  playersActivitiesSpriteTitle.x = screen.width - 250;
-  playersActivitiesSpriteTitle.y = 20;
+
+  playersActivitiesSprite.width = 300
+  playersActivitiesSprite.height = visualViewport.height - 20;
+  playersActivitiesSprite.tint = 0xffffff
+  playersActivities.x = screen.width - 310;
+  playersActivities.y = 10;
+
+  playersActivities.update();
+  playersActivitiesTitle.x = screen.width - 250;
+  playersActivitiesTitle.y = 20;
+
+
 
   // UI LifeBar Init
   var healthBarSprite = PIXI.Sprite.from('./src/assets/lifebar_sprite.png');
-  healthBarSprite.x = screen.width - 300;
+  healthBarSprite.x = screen.width - 350;
   healthBarSprite.y = 10;
   healthBarSprite.height = visualViewport.height - 20;
 
@@ -313,7 +321,5 @@ async function launchGame() {
   powerCapacityBar.drawRect(textProfile.width + 28, visualViewport.height - 50, 250, 30);
 
   // UI Deploy
-  app.stage.addChild(playersActivitiesSprite, playersActivitiesSpriteTitle, healthBarSprite, textProfile, powerCapacityBar);
-
-  console.log(textProfile.width);
+  app.stage.addChild(playersActivities, healthBarSprite, textProfile, powerCapacityBar);
 }
