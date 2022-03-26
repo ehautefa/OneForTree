@@ -1,3 +1,19 @@
+const socket = io();
+
+//Connect to server
+socket.on("connect", () => {
+	console.log(socket.connected);
+	socket.emit("create", "elise");
+	socket.on("created", ({ mappy, user }) => {
+		console.log(mappy);
+		console.log(user);
+	});
+});
+
+socket.on("disconnect", () => {
+	console.log(socket.connected); 
+});
+
 // Create the application helper and add its render target to the page
 let app = new PIXI.Application({ width: 640, height: 360 });
 document.body.appendChild(app.view);

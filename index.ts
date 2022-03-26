@@ -1,6 +1,7 @@
 const path = require("path");
 import { uuid } from "uuidv4";
 
+const serveIndex = require('serve-index');
 const express = require("express");
 const app = express();
 const http = require("http");
@@ -59,17 +60,20 @@ function genMap(width: number, height: number) {
 let map: Tile[][] = genMap(mapWidth, mapHeight);
 let users: { [key: string]: User } = {};
 
-// Default route to serve game html file
-app.get("/", (req: any, res: any) => {
-  res.sendFile(path.join(__dirname, "/index.html"));
-});
+app.get('/', (req:any, res:any) => {
+	//   res.send('Successful response.');
+	  res.sendFile('./index.html', { root: __dirname });
+	});
+	
+	app.use('/public', express.static('public'));
+	app.use('/public', serveIndex('public'));
 
 // Socket logic
 io.on("connection", (socket) => {
-  // User creation
+	console.log("here");
+	// User creation
   socket.on("create", ({ name }) => {
     const id = uuid();
-
     if (!users[id]) {
       users[id] = {
         role: "treater",
