@@ -2,10 +2,6 @@ import vitePluginSocketIO from "vite-plugin-socket-io";
 import { defineConfig } from "vite";
 import { updateLanguageServiceSourceFile } from "typescript";
 
-// import fs from "fs";
-// let rawdata = fs.readFileSync("src/map.json");
-// let map: Tile[][] = JSON.parse(rawdata.toString());
-
 // Types
 export type Tile =
   | "water" // A pound of water
@@ -55,7 +51,11 @@ function genMap(width: number, height: number) {
 
 // Database xD ptdr
 // TODO parse from serialized file
-let map: Tile[][] = genMap(50, 50);
+
+import fs from "fs";
+let rawdata = fs.readFileSync("src/map.json");
+let map: Tile[][] = JSON.parse(rawdata.toString());
+// let map: Tile[][] = genMap(50, 50);
 let users: { [key: string]: User } = {};
 let stats: Stats = { co2: 10000 };
 
@@ -87,9 +87,9 @@ function selectRole(): UserRole {
 /// Doctumentation:
 /// Front:
 /// > Create a new user
-///  - emit "create": { name } -> { user, map, leaderboard }
+///  - emit "create": { name: string } -> { user, map, leaderboard }
 /// > A user logged in
-///  - recieve "login": -> { user }
+///  - recieve "login": -> { user: User }
 /// > You want to move
 ///  - emit "move": { uuid, position: {x, y} } -> { position: {x, y} }
 /// > A User has moved
