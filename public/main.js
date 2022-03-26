@@ -3,6 +3,7 @@ let keys = {};
 let keysDiv;
 let playerSheet = {};
 let speed = 2;
+let playerPosition = { x: 0, y: 0 }
 
 
 // Create the application helper and add its render target to the page
@@ -196,11 +197,11 @@ document.addEventListener(
   "keydown",
   (event) => {
     var name = event.key;
-    if (name == "ArrowRight") playerDestination.x--;
-    if (name == "ArrowLeft") playerDestination.x++;
-    if (name == "ArrowDown") playerDestination.y--;
-    if (name == "ArrowUp") playerDestination.y++;
-    playerDestination.setPlayerDestination(playerDestination);
+    if (name == "ArrowRight") playerPosition.x--;
+    if (name == "ArrowLeft") playerPosition.x++;
+    if (name == "ArrowDown") playerPosition.y--;
+    if (name == "ArrowUp") playerPosition.y++;
+    playerDestination.setPlayerDestination(playerPosition);
   },
   false
 );
