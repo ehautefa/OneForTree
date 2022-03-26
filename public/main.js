@@ -48,6 +48,8 @@ function createPlayer() {
   player.anchor.set(0.5);
   player.animationSpeed = 0.18;
   player.loop = false;
+  player.width = 30;
+  player.height = 50;
   player.x = app.view.width / 2;
   player.y = app.view.height / 2;
   app.stage.addChild(player);
@@ -147,7 +149,7 @@ let map = [
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 ];
 
-const offset = { x: app.view.width / 2, y: app.view.height / 2 }
+const offset = { x: app.view.width / 2 - 15, y: app.view.height / 2 - 5 }
 
 let mapContainer = new PIXI.Container();
 
