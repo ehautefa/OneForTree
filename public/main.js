@@ -16,7 +16,7 @@ function createSquare(position) {
 function createPlayer() {
   let player = new PIXI.Sprite.from("/public/map_case.png");
   console.log(app.view.width);
-  player.position.set(app.view.width / 2, app.view.height / 2);
+  player.position.set(parseInt(app.view.width / 2), parseInt(app.view.height / 2));
   player.width = 30;
   player.height = 30;
   player.tint = "0x0000FF";
@@ -39,7 +39,7 @@ let map = [
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 ];
 
-const offset = {x:app.view.width / 2, y:app.view.height / 2}
+const offset = {x:parseInt(app.view.width / 2), y:parseInt(app.view.height / 2)}
 
 let mapContainer = new PIXI.Container();
 
