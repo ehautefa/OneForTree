@@ -1,6 +1,19 @@
 // Create the application helper and add its render target to the page
-let app = new PIXI.Application({ width: 640, height: 360 });
+
+let app = new PIXI.Application({
+	width: window.innerWidth,
+	height: window.innerHeight,
+	antialias: true,
+	transparent: false,
+	resolution: 1,
+	backgroundAlpha: 0
+});
 document.body.appendChild(app.view);
+app.renderer.view.style.display = "block";
+app.renderer.autoResize = true;
+window.onresize = function () {
+  app.renderer.resize(window.innerWidth, window.innerHeight);
+}
 
 // Create the sprite and add it to the stage
 
@@ -103,7 +116,7 @@ document.addEventListener(
     if (name == "ArrowDown") playerPosition.y--;
     if (name == "ArrowUp") playerPosition.y++;
     playerDestination.setPlayerPosition(playerPosition);
-  
+
   },
   false
 );
@@ -159,7 +172,7 @@ function plowedTile() {
 function seededTile() {
   sprinkler = sprinklerCarac;
   sprinkler.liters - 50;
-  console.log("Seeded Tile"); 
+  console.log("Seeded Tile");
 }
 
 function wateredTile() {
