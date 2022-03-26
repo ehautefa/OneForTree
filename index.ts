@@ -8,7 +8,6 @@ const http = require("http");
 const server = http.createServer(app);
 import { Server } from "socket.io";
 const io = new Server(server);
-const serveIndex = require("serve-index");
 
 // Config
 const port = 3000;
@@ -60,7 +59,6 @@ function genMap(width: number, height: number) {
 // TODO parse from serialized file
 let map: Tile[][] = genMap(mapWidth, mapHeight);
 let users: { [key: string]: User } = {};
-console.log("Map", map);
 
 // Default route to serve game html file
 app.get("/", (req: any, res: any) => {
@@ -85,9 +83,8 @@ io.on("connection", (socket) => {
         capacity: 0,
       };
     }
-
     // Sends to the user the finalized user and the map
-    socket.emit("created", { map: map, user: users[socket.id], users: users });
+    socket.emit("created", { map: map , user: users[socket.id], users: users });
     // Sends to other players that a new user connected
     socket.broadcast.emit("login", { user: users[socket.id] });
   });
@@ -133,7 +130,7 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     // Destroy the user
     // TODO Maybe we don't want this
-    users[socket.id] = undefined;
+    // users[socket.id] = undefined;
   });
 });
 

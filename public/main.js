@@ -1,15 +1,21 @@
 const socket = io();
 localStorage.debug = 'socket.io-client:socket'
-let world;
+var	world = [];
 //Connect to server
 socket.on("connect", () => {
 	console.log(socket.connected);
 	socket.emit("create", "elise");
-	socket.on("created", ({ mappy, user }) => {
-		world = mappy;
-		console.log(user);
+	socket.on("created", ({map, user, users}) => {
+		world = [...map];
+ 		// world = [42]
+		console.log("AAAAA", world);
+		
 	});
 });
+
+setTimeout(() => {
+console.log("BBBBBB", world);
+}, 200);
 
 socket.on("disconnect", () => {
 	console.log(socket.connected); 
@@ -42,21 +48,6 @@ function createPlayer() {
 
 let playerPosition = {x:0, y:0}
 
-
-let map = [
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
-  [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-];
-
 const offset = {x:app.view.width / 2, y:app.view.height / 2}
 
 let mapContainer = new PIXI.Container();
@@ -66,6 +57,7 @@ playerDestination.setPlayerPosition = (val) => {
   playerPosition = val;
   val.x != undefined ? playerDestination.x = val.x * 30 + offset.x : null
   val.y != undefined ? playerDestination.y = val.y * 30 + offset.y : null
+  socket.emit("move", {playerPosition, })
 };
 
 playerDestination.setPlayerPosition({x:0, y:0})
@@ -89,7 +81,8 @@ setInterval(() => {
   }
 }, 10)
 
-let itemsMap = map.map((row, y) => {
+
+let itemsMap = world.map((row, y) => {
   let currentRow = row.map((cell, x) => {
     console.log("cell :", cell);
     let currentCell = createSquare({ x: x, y: y, type: cell });
