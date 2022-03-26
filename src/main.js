@@ -49,15 +49,30 @@ async function launchGame() {
     app.renderer.resize(window.innerWidth, window.innerHeight);
   };
 
-  // Create the sprite and add it to the stage
+  function randomNumber(min, max) {
 
-  function createSquare(position) {
-    let square = new PIXI.Sprite.from("/src/assets/Grass2.png");
-    square.position.set(position.x * 30, position.y * 30);
-    square.width = 30;
-    square.height = 30;
-    if (position.type == 1) square.tint = "0x00FF00";
-    return square;
+    return Math.random() * (max - min) + min;
+  }
+
+  // Create the sprite and add it to the stage
+  var grass = createTile('/src/assets/Grass', 3);
+  var ground = createTile('/src/assets/Soft_Ground', 3);
+  var labored = createTile('/src/assets/Labored_Ground', 1);
+  var plant = createTile('/src/assets/Plant', 1);
+  var tileMethods = [{ tile: grass, type: 'shrub' }, { tile: ground, type: 'dry' }, { tile: labored, type: 'plowed' }, { tile: plant, type: 'seeded' }];
+
+  function createTile(name, tileNumber) {
+    return function (position) {
+      // console.log(parseInt(randomNumber(1, tileNumber)).toString());
+      let filename = name + (tileNumber > 1 ? parseInt(randomNumber(1, tileNumber)).toString() : '') + '.png';
+      //let filename = "/src/assets/Grass2.png"
+      let square = new PIXI.Sprite.from(filename);
+      square.position.set(position.x * 30, position.y * 30);
+      square.width = 30;
+      square.height = 30;
+      if (position.type == 1) square.tint = "0x00FF00";
+      return square;
+    }
   }
 
   function doneLoading(e) {
@@ -157,7 +172,7 @@ async function launchGame() {
     }
   }
 
-  const offset = { x: parseInt(app.view.width / 2) - 15, y: parseInt(app.view.height / 2) - 5};
+  const offset = { x: parseInt(app.view.width / 2) - 15, y: parseInt(app.view.height / 2) - 5 };
 
   let mapContainer = new PIXI.Container();
 
@@ -186,7 +201,7 @@ async function launchGame() {
   let itemsMap = world.map((row, y) => {
     let currentRow = row.map((cell, x) => {
       console.log("cell :", cell);
-      let currentCell = createSquare({ x: x, y: y, type: cell });
+      let currentCell = tileMethods.find((tile) => { return tile.type === cell }).tile({ x: x, y: y });
       currentCell.interactive = true;
       currentCell.on("pointerdown", (e) => {
         console.log("ptr dw:", y, x);
@@ -290,10 +305,10 @@ async function launchGame() {
   let powerCapacityBar = new PIXI.Graphics();
 
   let textProfile = new PIXI.Text(textProfileContent, {
-    fontFamily : 'Arial', 
-    fontSize: 24, 
-    fill : 0xffffff, 
-    align : 'center'
+    fontFamily: 'Arial',
+    fontSize: 24,
+    fill: 0xffffff,
+    align: 'center'
   });
 
   textProfile.position.x = 20;
