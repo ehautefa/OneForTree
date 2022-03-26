@@ -1,9 +1,10 @@
 import vitePluginSocketIO from "vite-plugin-socket-io";
 import { defineConfig } from "vite";
+import { updateLanguageServiceSourceFile } from "typescript";
 
-// Config
-const mapWidth = 50;
-const mapHeight = 50;
+// import fs from "fs";
+// let rawdata = fs.readFileSync("src/map.json");
+// let map: Tile[][] = JSON.parse(rawdata.toString());
 
 // Types
 export type Tile =
@@ -14,7 +15,9 @@ export type Tile =
   | "seeded" // planted land
   | "watered" // germinating land
   | "tree" // A tree entity
-  | "shrub"; // little bush
+  | "shrub" // little bush
+  // | "garbage" // Garbage
+  | "grass";
 export type UserRole = "worker" | "cultivator" | "waterer" | "treater";
 export type User = {
   // UUID
@@ -32,6 +35,10 @@ export type User = {
   // Inventory,
   capacity: number;
 };
+export type Stats = {
+  co2: number;
+  // TODO add more stats
+};
 
 // Utils
 function genMap(width: number, height: number) {
@@ -48,9 +55,53 @@ function genMap(width: number, height: number) {
 
 // Database xD ptdr
 // TODO parse from serialized file
-let map: Tile[][] = genMap(mapWidth, mapHeight);
+let map: Tile[][] = genMap(50, 50);
 let users: { [key: string]: User } = {};
+let stats: Stats = { co2: 10000 };
 
+let index = 0;
+
+// Round robin roles
+function selectRole(): UserRole {
+  let role: UserRole;
+
+  switch (index) {
+    case 0:
+      role = "worker";
+      break;
+    case 1:
+      role = "cultivator";
+      break;
+    case 2:
+      role = "treater";
+      break;
+    case 3:
+      role = "waterer";
+      break;
+  }
+
+  index++;
+  if (index >= 4) return role;
+}
+
+/// Doctumentation:
+/// Front:
+/// > Create a new user
+///  - emit "create": { name } -> { user, map, leaderboard }
+/// > A user logged in
+///  - recieve "login": -> { user }
+/// > You want to move
+///  - emit "move": { uuid, position: {x, y} } -> { position: {x, y} }
+/// > A User has moved
+///  - recieve "move": -> { uuid, prev: {x, y}, next: {x, y} }
+/// > A user emoted
+///  - recieve "emote": -> { reaction: string }
+/// > Emit an emote
+///  - emit "emote": { reaction: string }
+/// > Edit a tile
+///  - emit "edit": { user: User, position: {x, y} } -> { user: User }
+/// > A tile has been edited
+///  - recieve "edit": { position: {x, y}, tile: Tile }
 export const server = (io, socket) => {
   // Socket logic
   io.on("connection", (socket) => {
@@ -60,10 +111,10 @@ export const server = (io, socket) => {
     socket.on("create", ({ name }, callback: ({}) => void) => {
       if (!users[socket.id]) {
         users[socket.id] = {
-          role: "treater",
+          role: selectRole(),
           id: socket.id,
-          x: mapWidth / 2,
-          y: mapHeight / 2,
+          x: map.length / 2,
+          y: map[0].length / 2,
           name: name,
           capacity: 0,
         };
@@ -77,20 +128,103 @@ export const server = (io, socket) => {
     });
 
     // Update a tile
-    socket.on("edit", ({ user, x, y, state }) => {
-      // TODO check for correctness
-      // switch ([user.role, map[x][y]]) {
-      //   case ["worker", "dry"]:
-      //     map[x][y] = "plowed";
-      //     break;
-      // }
-      console.log("Map Update:", user.id, user.role, x, y, map[x][y]);
-      map[x][y] = state;
-    });
+    socket.on(
+      "edit",
+      (
+        {
+          user,
+          position: { x, y },
+        }: {
+          user: User;
+          position: { x: number; y: number };
+        },
+        callback: ({ user }: { user: User }) => void
+      ) => {
+        // TODO check for correctness
+        let tile: Tile = map[x][y];
+
+        // User possible edits
+        switch (user.role) {
+          case "worker":
+            switch (tile) {
+              case "dry":
+                tile = "plowed";
+                if (user.capacity < 5) users[user.id].capacity += 1;
+                break;
+              case "rock":
+                tile = "dry";
+                if (user.capacity < 5) users[user.id].capacity += 1;
+                break;
+            }
+            break;
+          case "cultivator":
+            switch (tile) {
+              case "plowed":
+                if (user.capacity > 0) {
+                  users[user.id].capacity -= 1;
+                  tile = "seeded";
+                }
+                break;
+              case "shrub":
+                if (user.capacity <= 5) {
+                  users[user.id].capacity = 5;
+                }
+                break;
+            }
+            break;
+          case "waterer":
+            switch (tile) {
+              case "seeded":
+                if (user.capacity > 0) {
+                  users[user.id].capacity -= 1;
+                  tile = "watered";
+                }
+                break;
+              case "water":
+                if (user.capacity <= 5) {
+                  users[user.id].capacity = 5;
+                }
+                break;
+            }
+            break;
+          case "treater":
+            switch (tile) {
+              case "watered":
+                // if (user.capacity > 0) {
+                //   users[user.id].capacity -= 1;
+                tile = "tree";
+                // }
+                break;
+            }
+            break;
+        }
+
+        // Maps gets edited
+        if (map[x][y] !== tile) {
+          console.log(
+            "Map Update:",
+            user.id,
+            user.role,
+            x,
+            y,
+            map[x][y],
+            "->",
+            tile
+          );
+
+          // Update tile for the server
+          map[x][y] = tile;
+          // Transmits the user data to himself
+          io.emit("edit", { position: { x, y }, tile: tile });
+          // Edits the user
+          callback({ user: users[user.id] });
+        }
+      }
+    );
 
     // Move a player
     socket.on("move", ({ position, uuid }, callback: ({}) => void) => {
-      // console.log("move", { position, uuid });
+      console.log("move", { position, uuid });
       for (const [id, user] of Object.entries(users)) {
         if (user.id === uuid) {
           if (
@@ -122,14 +256,14 @@ export const server = (io, socket) => {
     });
 
     // Player emote
-    io.on("emote", (emote) => {
-      io.emit("react", emote);
+    socket.on("emote", (emote) => {
+      socket.broadcast.emit("emote", emote);
     });
 
     socket.on("disconnect", () => {
       // Destroy the user
       // TODO Maybe we don't want this
-      delete users[socket.id];
+      // delete users[socket.id];
     });
   });
 };
