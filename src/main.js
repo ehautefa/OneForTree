@@ -275,18 +275,24 @@ async function launchGame() {
   // ----------------------------------------------------------
   // UI Player Activities Init
   var playersActivitiesSprite = PIXI.Sprite.from('./src/assets/players_activities_sprite.png');
-  playersActivitiesSprite.x = 1366 - 260;
+  playersActivitiesSprite.x = screen.width - 260;
   playersActivitiesSprite.y = 10;
+  playersActivitiesSprite.height = visualViewport.height - 20;
 
-  var playersActivitiesSpriteTitle = PIXI.Sprite.from('./src/assets/players_activities_title_sprite.png');
-  playersActivitiesSpriteTitle.x = 10;
-  playersActivitiesSpriteTitle.y = 10;
-  playersActivitiesSprite.addChild(playersActivitiesSpriteTitle);
+  let playersActivitiesSpriteTitle = new PIXI.Text("Player Activities", {
+    fontFamily : 'Arial', 
+    fontSize: 24, 
+    fill : 0x000000, 
+    align : 'center'
+  });
+  playersActivitiesSpriteTitle.x = screen.width - 250;
+  playersActivitiesSpriteTitle.y = 20;
 
   // UI LifeBar Init
   var healthBarSprite = PIXI.Sprite.from('./src/assets/lifebar_sprite.png');
-  healthBarSprite.x = 1366 - 300;
+  healthBarSprite.x = screen.width - 300;
   healthBarSprite.y = 10;
+  healthBarSprite.height = visualViewport.height - 20;
 
   // UI ProfileType Init
   let textProfileContent = "Profile Type :";
@@ -299,15 +305,15 @@ async function launchGame() {
     align : 'center'
   });
 
+  textProfile.anchor.set(0, 0);
   textProfile.position.x = 20;
-  textProfile.position.y = 718;
-  textProfile.zIndex = 0;
+  textProfile.position.y = visualViewport.height - 50;
 
   powerCapacityBar.beginFill(0xffffff, 0.75);
-  powerCapacityBar.drawRect(textProfile.width + 28, 718, 250, 30);
+  powerCapacityBar.drawRect(textProfile.width + 28, visualViewport.height - 50, 250, 30);
 
   // UI Deploy
-  app.stage.addChild(playersActivitiesSprite, healthBarSprite, textProfile, powerCapacityBar);
+  app.stage.addChild(playersActivitiesSprite, playersActivitiesSpriteTitle, healthBarSprite, textProfile, powerCapacityBar);
 
   console.log(textProfile.width);
 }
