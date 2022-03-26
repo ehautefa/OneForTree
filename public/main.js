@@ -194,3 +194,27 @@ function markerType(posX, posY) {
   graphics.zIndex = 0;
   app.stage.addChild(graphics);
 }
+
+
+
+
+// PLAYER UI
+// ----------------------------------------------------------
+// UI Player Activities Init
+var playersActivitiesSprite = PIXI.Sprite.from('./public/ressources/players_activities_sprite.png');
+playersActivitiesSprite.x = 640 - 185;
+playersActivitiesSprite.y = 10;
+
+var playersActivitiesSpriteTitle = PIXI.Sprite.from('./public/ressources/players_activities_title_sprite.png');
+playersActivitiesSpriteTitle.x = 10;
+playersActivitiesSpriteTitle.y = 10;
+playersActivitiesSprite.addChild(playersActivitiesSpriteTitle);
+
+// UI LifeBar Init
+var healthBarSprite = PIXI.Sprite.from('./public/ressources/lifebar_sprite.png');
+healthBarSprite.x = 640 - 210;
+healthBarSprite.y = 10;
+
+
+// UI Deploy
+app.stage.addChild(playersActivitiesSprite, healthBarSprite);
