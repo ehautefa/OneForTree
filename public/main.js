@@ -1,5 +1,13 @@
+let player;
+let keys = {};
+let keysDiv;
+let playerSheet = {};
+let speed = 2;
+
+
 // Create the application helper and add its render target to the page
 let app = new PIXI.Application({ width: 640, height: 360 });
+
 document.body.appendChild(app.view);
 
 // Create the sprite and add it to the stage
@@ -13,24 +21,119 @@ function createSquare(position) {
   return square;
 }
 
-
-function createPlayer() {
-  // let player = {x:0, y:0};
-  let player = new PIXI.Sprite.from("/public/map_case.png");
-  console.log(app.view.width);
-  player.position.set(app.view.width / 2, app.view.height / 2);
-  player.width = 30;
-  player.height = 30;
-  player.tint = "0x0000FF";
-
-  // player = {...player, setPosition : () => {},  get userPosition() {return({x:this.x/30, y:this.y/30})},
-  // set userPosition(val) {this.x=val.x*30, this.y=val.y*30} };
-  return player;
-
+function doneLoading(e) {
+  createPlayerSheet();
+  createPlayer();
+  app.ticker.add(gameLoop);
 }
 
+app.loader.add("viking", "/public/viking.png");
+app.loader.load(doneLoading);
 
-// console.log("Player getter :", player.userPosition);
+window.addEventListener("keydown", keysDown);
+window.addEventListener("keyup", keysUp);
+
+function createPlayer() {
+  player = new PIXI.AnimatedSprite(playerSheet.walkSouth);
+  player.anchor.set(0.5);
+  player.animationSpeed = 0.18;
+  player.loop = false;
+  player.x = app.view.width / 2;
+  player.y = app.view.height / 2;
+  app.stage.addChild(player);
+  player.play();
+}
+
+function createPlayerSheet() {
+  let ssheet = new PIXI.BaseTexture.from(
+    app.loader.resources["viking"].url
+  );
+  let w = 26;
+  let h = 36;
+
+  playerSheet["standSouth"] = [
+    new PIXI.Texture(ssheet, new PIXI.Rectangle(1 * w, 0, w, h)),
+  ];
+
+  playerSheet["standWest"] = [
+    new PIXI.Texture(ssheet, new PIXI.Rectangle(4 * w, 0, w, h)),
+  ];
+  playerSheet["standEast"] = [
+    new PIXI.Texture(ssheet, new PIXI.Rectangle(7 * w, 0, w, h)),
+  ];
+  playerSheet["standNorth"] = [
+    new PIXI.Texture(ssheet, new PIXI.Rectangle(10 * w, 0, w, h)),
+  ];
+
+  playerSheet["walkSouth"] = [
+    new PIXI.Texture(ssheet, new PIXI.Rectangle(0 * w, 0, w, h)),
+    new PIXI.Texture(ssheet, new PIXI.Rectangle(1 * w, 0, w, h)),
+    new PIXI.Texture(ssheet, new PIXI.Rectangle(2 * w, 0, w, h)),
+  ];
+  playerSheet["walkWest"] = [
+    new PIXI.Texture(ssheet, new PIXI.Rectangle(3 * w, 0, w, h)),
+    new PIXI.Texture(ssheet, new PIXI.Rectangle(4 * w, 0, w, h)),
+    new PIXI.Texture(ssheet, new PIXI.Rectangle(5 * w, 0, w, h)),
+  ];
+  playerSheet["walkEast"] = [
+    new PIXI.Texture(ssheet, new PIXI.Rectangle(6 * w, 0, w, h)),
+    new PIXI.Texture(ssheet, new PIXI.Rectangle(7 * w, 0, w, h)),
+    new PIXI.Texture(ssheet, new PIXI.Rectangle(8 * w, 0, w, h)),
+  ];
+  playerSheet["walkNorth"] = [
+    new PIXI.Texture(ssheet, new PIXI.Rectangle(9 * w, 0, w, h)),
+    new PIXI.Texture(ssheet, new PIXI.Rectangle(10 * w, 0, w, h)),
+    new PIXI.Texture(ssheet, new PIXI.Rectangle(11 * w, 0, w, h)),
+  ];
+}
+
+function doneLoading(e) {
+  createPlayerSheet();
+  createPlayer();
+  app.ticker.add(gameLoop);
+}
+
+function keysDown(e) {
+  keys[e.keyCode] = true;
+}
+
+function keysUp(e) {
+  keys[e.keyCode] = false;
+}
+
+function gameLoop() {
+  if (keys["87"]) {
+    if (!player.playing) {
+      player.textures = playerSheet.walkNorth;
+      player.play();
+    }
+    player.y -= speed;
+  }
+  //a
+  if (keys["65"]) {
+    if (!player.playing) {
+      player.textures = playerSheet.walkWest;
+      player.play();
+    }
+    player.x -= speed;
+  }
+  //s
+  if (keys["83"]) {
+    if (!player.playing) {
+      player.textures = playerSheet.walkSouth;
+      player.play();
+    }
+    player.y += speed;
+  }
+  //d
+  if (keys["68"]) {
+    if (!player.playing) {
+      player.textures = playerSheet.walkEast;
+      player.play();
+    }
+    player.x += speed;
+  }
+}
 
 let playerPosition = { x: 0, y: 0 }
 
@@ -50,94 +153,119 @@ let map = [
 
 const offset = { x: app.view.width / 2, y: app.view.height / 2 }
 
-
-
-
 let mapContainer = new PIXI.Container();
-mapContainer.setPlayerPosition = (val) => {
-  val.x != undefined ? mapContainer.x = val.x * 30 + offset.x : null
-  val.y != undefined ? mapContainer.y = val.y * 30 + offset.y : null
+
+let playerDestination = { x: 0, y: 0 };
+playerDestination.setPlayerPosition = (val) => {
+  playerPosition = val;
+  val.x != undefined ? playerDestination.x = val.x * 30 + offset.x : null
+  val.y != undefined ? playerDestination.y = val.y * 30 + offset.y : null
 };
 
-mapContainer.setPlayerPosition(playerPosition);
+playerDestination.setPlayerPosition({ x: 0, y: 0 })
+
+setInterval(() => {
+  if (playerDestination.x > mapContainer.x) {
+    mapContainer.x++;
+  }
+  else if (playerDestination.x < mapContainer.x) {
+    mapContainer.x--;
+  }
+  if (playerDestination.y > mapContainer.y) {
+    mapContainer.y++;
+  }
+  else if (playerDestination.y < mapContainer.y) {
+    mapContainer.y--;
+  }
+}, 10)
 
 let itemsMap = map.map((row, y) => {
   let currentRow = row.map((cell, x) => {
     console.log("cell :", cell);
     let currentCell = createSquare({ x: x, y: y, type: cell });
     currentCell.interactive = true;
-    // currentCell.buttonMode = true;
-    currentCell.on('pointerdown', (e) => { console.log("ptr dw:", y, x) });
-
+    currentCell.on('pointerdown', (e) => {
+      console.log("ptr dw:", y, x)
+      playerDestination.setPlayerPosition({ x: -x, y: -y });
+    });
     mapContainer.addChild(currentCell);
-
-    // app.stage.addChild(currentCell);
-
     return currentCell;
   });
   return currentRow;
 });
 
-// mapContainer.setPlayerPosition({x:3,  y:3});
 
 app.stage.addChild(mapContainer);
 
-
-let player = createPlayer();
-
-console.log("Map :", itemsMap);
-
-let square = createSquare({ x: 10, y: 10 });
-let squareList = [];
-
-let direction = 0;
-
-
-
-// for (let i = 0; i < 10; i++) {
-//   squareList.push(createSquare({ x: 10 * i, y: 10 }));
-// }
-// // let sprite = PIXI.Sprite.from("/public/sample.png");
-// // app.stage.addChild(sprite);
-// for (let i = 0; i < 10; i++) {
-//   app.stage.addChild(squareList[i]);
-// }
-
-app.stage.addChild(player);
+app.stage.addChild(player); d
 
 document.addEventListener(
   "keydown",
   (event) => {
     var name = event.key;
-    var code = event.code;
-    // Alert the key name and key code on keydown
-    // alert(`Key pressed ${name} \r\n Key code value: ${code}`);
     if (name == "ArrowRight") playerPosition.x--;
     if (name == "ArrowLeft") playerPosition.x++;
     if (name == "ArrowDown") playerPosition.y--;
     if (name == "ArrowUp") playerPosition.y++;
-    mapContainer.setPlayerPosition(playerPosition);
-
+    playerDestination.setPlayerPosition(playerPosition);
   },
   false
 );
 
-setInterval(() => {
-  // for (let i = 9; i >= 1; i--) {
-  //   // console.log(squareList[i - 1]);
-  //   squareList[i].x = squareList[i - 1].x;
-  //   squareList[i].y = squareList[i - 1].y;
-  // }
 
-  // if (direction == 0) squareList[0].x = squareList[0].x + 10;
-  // if (direction == 1) squareList[0].y = squareList[0].y + 10;
-  // if (direction == 2) squareList[0].x = squareList[0].x - 10;
-  // if (direction == 3) squareList[0].y = squareList[0].y - 10;
-}, 200);
 
-// Add a ticker callback to move the sprite back and forth
-// let elapsed = 0.0;
-// app.ticker.add((delta) => {
-//   elapsed += delta;
-//   sprite.x = 100.0 + Math.cos(elapsed / 50.0) * 100.0;
-// });
+
+// PROFILE CHARACTERS
+// ----------------------------------------------------------
+planterCarac = {
+  nbSeeds: 0
+}
+
+sprinklerCarac = {
+  liters: 0
+}
+
+
+
+
+// EFFECTS BLOCKS
+// ----------------------------------------------------------
+
+function effectBlock(blockType) {
+  // Dry Tile
+  if (blockType == 0) {
+    dryTile();
+  }
+  // Plowed Tile
+  if (blockType == 1) {
+    plowedTile();
+  }
+  // Seeded Tile
+  if (blockType == 2) {
+    seededTile();
+  }
+  // Watered Tile
+  if (blockTile == 3) {
+    wateredTile();
+  }
+}
+
+function dryTile() {
+  console.log("Dry Tile");
+}
+
+function plowedTile() {
+  planter = planterCarac;
+  planter.nbSeeds - 1;
+  console.log("Plowed Tile");
+}
+
+function seededTile() {
+  sprinkler = sprinklerCarac;
+  sprinkler.liters - 50;
+  console.log("Seeded Tile");
+}
+
+function wateredTile() {
+  console.log("Watered Tile");
+}
