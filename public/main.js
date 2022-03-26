@@ -4,6 +4,19 @@ let keysDiv;
 let playerSheet = {};
 let speed = 2;
 
+let otherPlayers = [];
+
+function createOtherPlayer() 
+{
+  return {
+    playerPosition : {x:5, y:5},
+    playerDestination : {x:5, y:5},
+  }
+}
+
+
+
+
 
 // Create the application helper and add its render target to the page
 
@@ -47,8 +60,8 @@ function createPlayer() {
   player.anchor.set(0.5);
   player.animationSpeed = 0.18;
   player.loop = false;
-  player.x = app.view.width / 2;
-  player.y = app.view.height / 2;
+  player.x = parseInt(app.view.width / 2);
+  player.y = parseInt(app.view.height / 2);
   app.stage.addChild(player);
   player.play();
 }
@@ -102,7 +115,8 @@ function doneLoading(e) {
   app.ticker.add(gameLoop);
 }
 
-function gameLoop() {
+
+function calculatePlayerPosition() {
   if (playerDestination.y > mapContainer.y) {
     if (!player.playing) {
       player.textures = playerSheet.walkNorth;
@@ -132,6 +146,10 @@ function gameLoop() {
   }
 }
 
+function gameLoop() {
+  calculatePlayerPosition();
+}
+
 let map = [
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -146,7 +164,7 @@ let map = [
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 ];
 
-const offset = { x: app.view.width / 2, y: app.view.height / 2 }
+const offset = { x: parseInt(app.view.width / 2), y: parseInt(app.view.height / 2 )}
 
 let mapContainer = new PIXI.Container();
 
