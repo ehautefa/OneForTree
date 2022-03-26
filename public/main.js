@@ -30,9 +30,6 @@ function doneLoading(e) {
 app.loader.add("viking", "/public/viking.png");
 app.loader.load(doneLoading);
 
-window.addEventListener("keydown", keysDown);
-window.addEventListener("keyup", keysUp);
-
 function createPlayer() {
   player = new PIXI.AnimatedSprite(playerSheet.walkSouth);
   player.anchor.set(0.5);
@@ -93,49 +90,35 @@ function doneLoading(e) {
   app.ticker.add(gameLoop);
 }
 
-function keysDown(e) {
-  keys[e.keyCode] = true;
-}
-
-function keysUp(e) {
-  keys[e.keyCode] = false;
-}
-
 function gameLoop() {
-  if (keys["87"]) {
+  if (playerDestination.y > mapContainer.y) {
     if (!player.playing) {
       player.textures = playerSheet.walkNorth;
       player.play();
     }
-    player.y -= speed;
   }
   //a
-  if (keys["65"]) {
+  else if (playerDestination.x > mapContainer.x) {
     if (!player.playing) {
       player.textures = playerSheet.walkWest;
       player.play();
     }
-    player.x -= speed;
   }
   //s
-  if (keys["83"]) {
+  else if (playerDestination.y < mapContainer.y) {
     if (!player.playing) {
       player.textures = playerSheet.walkSouth;
       player.play();
     }
-    player.y += speed;
   }
   //d
-  if (keys["68"]) {
+  else if (playerDestination.x < mapContainer.x) {
     if (!player.playing) {
       player.textures = playerSheet.walkEast;
       player.play();
     }
-    player.x += speed;
   }
 }
-
-let playerPosition = { x: 0, y: 0 }
 
 let map = [
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -156,13 +139,13 @@ const offset = { x: app.view.width / 2, y: app.view.height / 2 }
 let mapContainer = new PIXI.Container();
 
 let playerDestination = { x: 0, y: 0 };
-playerDestination.setPlayerPosition = (val) => {
+playerDestination.setPlayerDestination = (val) => {
   playerPosition = val;
   val.x != undefined ? playerDestination.x = val.x * 30 + offset.x : null
   val.y != undefined ? playerDestination.y = val.y * 30 + offset.y : null
 };
 
-playerDestination.setPlayerPosition({ x: 0, y: 0 })
+playerDestination.setPlayerDestination({ x: 0, y: 0 })
 
 setInterval(() => {
   if (playerDestination.x > mapContainer.x) {
@@ -186,7 +169,7 @@ let itemsMap = map.map((row, y) => {
     currentCell.interactive = true;
     currentCell.on('pointerdown', (e) => {
       console.log("ptr dw:", y, x)
-      playerDestination.setPlayerPosition({ x: -x, y: -y });
+      playerDestination.setPlayerDestination({ x: -x, y: -y });
     });
     mapContainer.addChild(currentCell);
     return currentCell;
@@ -197,17 +180,15 @@ let itemsMap = map.map((row, y) => {
 
 app.stage.addChild(mapContainer);
 
-app.stage.addChild(player); d
-
 document.addEventListener(
   "keydown",
   (event) => {
     var name = event.key;
-    if (name == "ArrowRight") playerPosition.x--;
-    if (name == "ArrowLeft") playerPosition.x++;
-    if (name == "ArrowDown") playerPosition.y--;
-    if (name == "ArrowUp") playerPosition.y++;
-    playerDestination.setPlayerPosition(playerPosition);
+    if (name == "ArrowRight") playerDestination.x--;
+    if (name == "ArrowLeft") playerDestination.x++;
+    if (name == "ArrowDown") playerDestination.y--;
+    if (name == "ArrowUp") playerDestination.y++;
+    playerDestination.setPlayerDestination(playerDestination);
   },
   false
 );
