@@ -59,15 +59,16 @@ async function launchGame() {
   var ground = createTile('/src/assets/Soft_Ground', 3);
   var labored = createTile('/src/assets/Labored_Ground', 1);
   var plant = createTile('/src/assets/Plant', 1);
-  var tileMethods = [{ tile: grass, type: 'shrub' }, { tile: ground, type: 'dry' }, { tile: labored, type: 'plowed' }, { tile: plant, type: 'seeded' }];
+  var water = createAnimatedTile('/src/assets/Water', 3);
+  var tileMethods = [{ tile: grass, type: 'shrub' }, { tile: ground, type: 'dry' }, { tile: labored, type: 'plowed' }, { tile: plant, type: 'seeded' }, { tile: water, type: 'water' }];
 
   function createTile(name, tileNumber) {
     return function (position) {
       let filename = name + (tileNumber > 1 ? parseInt(randomNumber(1, tileNumber)).toString() : '') + '.png';
       let square = new PIXI.Sprite.from(filename);
-      square.position.set(position.x * 100, position.y * 100);
-      square.width = 100;
-      square.height = 100;
+      square.position.set(position.x * 120, position.y * 120);
+      square.width = 120;
+      square.height = 120;
       return square;
     }
   }
@@ -90,12 +91,36 @@ async function launchGame() {
     player.y = parseInt(app.view.height / 2);
     app.stage.addChild(player);
     player.play();
-    player.width = 200;
-    player.height = 200;
+    player.width = 120;
+    player.height = 120;
+  }
+
+  function createAnimatedTile(filename, numberAnimation) {
+    return function (position) {
+      let w = 60;
+      let h = 60;
+
+      let ssheet = new PIXI.BaseTexture.from(filename + '.png');
+
+      let Images = [];
+      for (let i = 0; i < numberAnimation; i++) {
+        Images.push(new PIXI.Texture(ssheet, new PIXI.Rectangle(i * w, 0, w, h)))
+      }
+
+      let tile = new PIXI.AnimatedSprite(Images);
+      tile.animationSpeed = 0.1;
+      tile.loop = true;
+      tile.position.set(position.x * 120, position.y * 120);
+      tile.width = 120;
+      tile.height = 120;
+      tile.play();
+      return tile;
+    }
   }
 
   function createPlayerSheet() {
     let ssheet = new PIXI.BaseTexture.from(app.loader.resources["laboureur"].url);
+
     let w = 60;
     let h = 60;
 
@@ -217,15 +242,15 @@ async function launchGame() {
     }
   }
 
-  const offset = { x: parseInt(app.view.width / 2) - 50, y: parseInt(app.view.height / 2) + 50 };
+  const offset = { x: parseInt(app.view.width / 2) - 60, y: parseInt(app.view.height / 2) - 20 };
 
   let mapContainer = new PIXI.Container();
 
   let playerDestination = { x: 0, y: 0 };
   playerDestination.setPlayerDestination = (val) => {
     playerPosition = val;
-    val.x != undefined ? (playerDestination.x = val.x * 100 + offset.x) : null;
-    val.y != undefined ? (playerDestination.y = val.y * 100 + offset.y) : null;
+    val.x != undefined ? (playerDestination.x = val.x * 120 + offset.x) : null;
+    val.y != undefined ? (playerDestination.y = val.y * 120 + offset.y) : null;
   };
 
   playerDestination.setPlayerDestination({ x: 0, y: 0 });
@@ -246,7 +271,7 @@ async function launchGame() {
   let itemsMap = world.map((row, y) => {
     let currentRow = row.map((cell, x) => {
       console.log("cell :", cell);
-      let currentCell = tileMethods.find((tile) => { return tile.type === cell }).tile({ x: x, y: y });
+      let currentCell = tileMethods[x % 5].tile({ x: x, y: y });
       currentCell.interactive = true;
       currentCell.on("pointerdown", (e) => {
         console.log("ptr dw:", y, x);
