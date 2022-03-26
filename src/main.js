@@ -63,9 +63,7 @@ async function launchGame() {
 
   function createTile(name, tileNumber) {
     return function (position) {
-      // console.log(parseInt(randomNumber(1, tileNumber)).toString());
       let filename = name + (tileNumber > 1 ? parseInt(randomNumber(1, tileNumber)).toString() : '') + '.png';
-      //let filename = "/src/assets/Grass2.png"
       let square = new PIXI.Sprite.from(filename);
       square.position.set(position.x * 30, position.y * 30);
       square.width = 30;
@@ -240,45 +238,6 @@ async function launchGame() {
 
   // EFFECTS BLOCKS
   // ----------------------------------------------------------
-
-  function effectBlock(blockType) {
-    // Dry Tile
-    if (blockType == 0) {
-      dryTile();
-    }
-    // Plowed Tile
-    if (blockType == 1) {
-      plowedTile();
-    }
-    // Seeded Tile
-    if (blockType == 2) {
-      seededTile();
-    }
-    // Watered Tile
-    if (blockTile == 3) {
-      wateredTile();
-    }
-  }
-
-  function dryTile() {
-    console.log("Dry Tile");
-  }
-
-  function plowedTile() {
-    planter = planterCarac;
-    planter.nbSeeds - 1;
-    console.log("Plowed Tile");
-  }
-
-  function seededTile() {
-    sprinkler = sprinklerCarac;
-    sprinkler.liters - 50;
-    console.log("Seeded Tile");
-  }
-
-  function wateredTile() {
-    console.log("Watered Tile");
-  }
 
 
 
