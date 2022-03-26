@@ -1,10 +1,6 @@
 import vitePluginSocketIO from "vite-plugin-socket-io";
 import { defineConfig } from "vite";
 
-// Config
-const mapWidth = 50;
-const mapHeight = 50;
-
 // Types
 export type Tile =
   | "water" // A pound of water
@@ -53,16 +49,24 @@ function genMap(width: number, height: number) {
 
 // Database xD ptdr
 // TODO parse from serialized file
+<<<<<<< HEAD
 let map: Tile[][] = genMap(mapWidth, mapHeight);
+=======
+
+import fs from "fs";
+let rawdata = fs.readFileSync("src/map.json");
+let map: Tile[][] = JSON.parse(rawdata.toString());
+// let map: Tile[][] = genMap(50, 50);
+>>>>>>> master
 let users: { [key: string]: User } = {};
 let stats: Stats = { co2: 10000 };
 
 /// Doctumentation:
 /// Front:
 /// > Create a new user
-///  - emit "create": { name } -> { user, map, leaderboard }
+///  - emit "create": { name: string } -> { user, map, leaderboard }
 /// > A user logged in
-///  - recieve "login": -> { user }
+///  - recieve "login": -> { user: User }
 /// > You want to move
 ///  - emit "move": { uuid, position: {x, y} } -> { position: {x, y} }
 /// > A User has moved

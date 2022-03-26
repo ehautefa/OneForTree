@@ -1,7 +1,9 @@
 import { io } from "socket.io-client";
 const socket = io();
 localStorage.debug = "socket.io-client:socket";
-var world = [];
+let map = [];
+let user = {};
+let leaderboard = [];
 
 //Connect to server
 socket.on("connect", (e) => {
@@ -10,10 +12,9 @@ socket.on("connect", (e) => {
   socket.emit("create", { name: "mbeilles" }, (data) => {
     console.log(data);
 
-    // user = data.user;
-    // leaderboard = data.users;
-    // map = data.map;
-    world = data.map;
+    user = data.user;
+    leaderboard = data.users;
+    map = data.map;
 
     launchGame();
   });
@@ -50,7 +51,6 @@ async function launchGame() {
   };
 
   function randomNumber(min, max) {
-
     return Math.random() * (max - min) + min;
   }
 
@@ -59,17 +59,29 @@ async function launchGame() {
   var ground = createTile('/src/assets/Soft_Ground', 3);
   var labored = createTile('/src/assets/Labored_Ground', 1);
   var plant = createTile('/src/assets/Plant', 1);
-  var tileMethods = [{ tile: grass, type: 'shrub' }, { tile: ground, type: 'dry' }, { tile: labored, type: 'plowed' }, { tile: plant, type: 'seeded' }];
+  var water = createAnimatedTile('/src/assets/Water', 3);
+  var tileMethods = [
+    { tile: grass, type: "shrub" },
+    { tile: ground, type: "dry" },
+    { tile: labored, type: "plowed" },
+    { tile: plant, type: "seeded" },
+    { tile: water, type: 'water' }
+  ];
 
   function createTile(name, tileNumber) {
     return function (position) {
-      let filename = name + (tileNumber > 1 ? parseInt(randomNumber(1, tileNumber)).toString() : '') + '.png';
+      let filename =
+        name +
+        (tileNumber > 1
+          ? parseInt(randomNumber(1, tileNumber)).toString()
+          : "") +
+        ".png";
       let square = new PIXI.Sprite.from(filename);
-      square.position.set(position.x * 100, position.y * 100);
-      square.width = 100;
-      square.height = 100;
+      square.position.set(position.x * 120, position.y * 120);
+      square.width = 120;
+      square.height = 120;
       return square;
-    }
+    };
   }
 
   function doneLoading(e) {
@@ -90,12 +102,37 @@ async function launchGame() {
     player.y = parseInt(app.view.height / 2);
     app.stage.addChild(player);
     player.play();
-    player.width = 200;
-    player.height = 200;
+    player.width = 120;
+    player.height = 120;
+  }
+
+  function createAnimatedTile(filename, numberAnimation) {
+    return function (position) {
+      let w = 60;
+      let h = 60;
+
+      let ssheet = new PIXI.BaseTexture.from(filename + '.png');
+
+      let Images = [];
+      for (let i = 0; i < numberAnimation; i++) {
+        Images.push(new PIXI.Texture(ssheet, new PIXI.Rectangle(i * w, 0, w, h)))
+      }
+
+      let tile = new PIXI.AnimatedSprite(Images);
+      tile.animationSpeed = 0.1;
+      tile.loop = true;
+      tile.position.set(position.x * 120, position.y * 120);
+      tile.width = 120;
+      tile.height = 120;
+      tile.play();
+      return tile;
+    }
   }
 
   function createPlayerSheet() {
-    let ssheet = new PIXI.BaseTexture.from(app.loader.resources["laboureur"].url);
+    let ssheet = new PIXI.BaseTexture.from(
+      app.loader.resources["laboureur"].url
+    );
     let w = 60;
     let h = 60;
 
@@ -157,11 +194,11 @@ async function launchGame() {
     app.ticker.add(gameLoop);
   }
 
-  let dir = 'N';
+  let dir = "N";
   function gameLoop() {
     //	var dir = 'N';
     if (playerDestination.y > mapContainer.y) {
-      dir = 'N';
+      dir = "N";
       if (!player.playing) {
         player.textures = playerSheet.walkNorth;
         player.play();
@@ -169,7 +206,7 @@ async function launchGame() {
     }
     //a
     else if (playerDestination.x > mapContainer.x) {
-      dir = 'W';
+      dir = "W";
       if (!player.playing) {
         player.textures = playerSheet.walkWest;
         player.play();
@@ -177,7 +214,7 @@ async function launchGame() {
     }
     //s
     else if (playerDestination.y < mapContainer.y) {
-      dir = 'S';
+      dir = "S";
       if (!player.playing) {
         player.textures = playerSheet.walkSouth;
         player.play();
@@ -185,31 +222,28 @@ async function launchGame() {
     }
     //d
     else if (playerDestination.x < mapContainer.x) {
-      dir = 'E';
+      dir = "E";
       if (!player.playing) {
         player.textures = playerSheet.walkEast;
         player.play();
       }
     }
-    if (dir == 'N') {
+    if (dir == "N") {
       if (!player.playing) {
         player.textures = playerSheet.standNorth;
         player.play();
       }
-    }
-    else if (dir == 'S') {
+    } else if (dir == "S") {
       if (!player.playing) {
         player.textures = playerSheet.standSouth;
         player.play();
       }
-    }
-    else if (dir == 'W') {
+    } else if (dir == "W") {
       if (!player.playing) {
         player.textures = playerSheet.standWest;
         player.play();
       }
-    }
-    else if (dir == 'E') {
+    } else if (dir == "E") {
       if (!player.playing) {
         player.textures = playerSheet.standEast;
         player.play();
@@ -217,15 +251,18 @@ async function launchGame() {
     }
   }
 
-  const offset = { x: parseInt(app.view.width / 2) - 50, y: parseInt(app.view.height / 2) + 50 };
+  const offset = {
+    x: parseInt(app.view.width / 2) - 60,
+    y: parseInt(app.view.height / 2) - 20
+  };
 
   let mapContainer = new PIXI.Container();
 
   let playerDestination = { x: 0, y: 0 };
   playerDestination.setPlayerDestination = (val) => {
     playerPosition = val;
-    val.x != undefined ? (playerDestination.x = val.x * 100 + offset.x) : null;
-    val.y != undefined ? (playerDestination.y = val.y * 100 + offset.y) : null;
+    val.x != undefined ? (playerDestination.x = val.x * 120 + offset.x) : null;
+    val.y != undefined ? (playerDestination.y = val.y * 120 + offset.y) : null;
   };
 
   playerDestination.setPlayerDestination({ x: 0, y: 0 });
@@ -243,19 +280,22 @@ async function launchGame() {
     }
   }, 10);
 
-  let itemsMap = world.map((row, y) => {
-    let currentRow = row.map((cell, x) => {
-      console.log("cell :", cell);
-      let currentCell = tileMethods.find((tile) => { return tile.type === cell }).tile({ x: x, y: y });
+  map.forEach((row, y) => {
+    row.forEach((cell, x) => {
+      //let currentCell = tileMethods[x % 5].tile({ x: x, y: y });
+      let currentCell = tileMethods
+        .find((tile) => {
+          return tile.type === cell;
+        })
+        ?.tile({ x, y });
+      if (!currentCell) return;
       currentCell.interactive = true;
       currentCell.on("pointerdown", (e) => {
         console.log("ptr dw:", y, x);
         playerDestination.setPlayerDestination({ x: -x, y: -y });
       });
       mapContainer.addChild(currentCell);
-      return currentCell;
     });
-    return currentRow;
   });
 
   app.stage.addChild(mapContainer);
@@ -286,28 +326,27 @@ async function launchGame() {
   // EFFECTS BLOCKS
   // ----------------------------------------------------------
 
-
-
-
   // PLAYER UI
   // ----------------------------------------------------------
   // UI Player Activities Init
-  var playersActivitiesSprite = PIXI.Sprite.from('./src/assets/players_activities_sprite.png');
+  var playersActivitiesSprite = PIXI.Sprite.from(
+    "./src/assets/players_activities_sprite.png"
+  );
   playersActivitiesSprite.x = screen.width - 260;
   playersActivitiesSprite.y = 10;
   playersActivitiesSprite.height = visualViewport.height - 20;
 
   let playersActivitiesSpriteTitle = new PIXI.Text("Player Activities", {
-    fontFamily: 'Arial',
+    fontFamily: "Arial",
     fontSize: 24,
     fill: 0x000000,
-    align: 'center'
+    align: "center",
   });
   playersActivitiesSpriteTitle.x = screen.width - 250;
   playersActivitiesSpriteTitle.y = 20;
 
   // UI LifeBar Init
-  var healthBarSprite = PIXI.Sprite.from('./src/assets/lifebar_sprite.png');
+  var healthBarSprite = PIXI.Sprite.from("./src/assets/lifebar_sprite.png");
   healthBarSprite.x = screen.width - 300;
   healthBarSprite.y = 10;
   healthBarSprite.height = visualViewport.height - 20;
@@ -317,10 +356,10 @@ async function launchGame() {
   let powerCapacityBar = new PIXI.Graphics();
 
   let textProfile = new PIXI.Text(textProfileContent, {
-    fontFamily: 'Arial',
+    fontFamily: "Arial",
     fontSize: 24,
     fill: 0xffffff,
-    align: 'center'
+    align: "center",
   });
 
   textProfile.anchor.set(0, 0);
@@ -328,10 +367,21 @@ async function launchGame() {
   textProfile.position.y = visualViewport.height - 50;
 
   powerCapacityBar.beginFill(0xffffff, 0.75);
-  powerCapacityBar.drawRect(textProfile.width + 28, visualViewport.height - 50, 250, 30);
+  powerCapacityBar.drawRect(
+    textProfile.width + 28,
+    visualViewport.height - 50,
+    250,
+    30
+  );
 
   // UI Deploy
-  app.stage.addChild(playersActivitiesSprite, playersActivitiesSpriteTitle, healthBarSprite, textProfile, powerCapacityBar);
+  app.stage.addChild(
+    playersActivitiesSprite,
+    playersActivitiesSpriteTitle,
+    healthBarSprite,
+    textProfile,
+    powerCapacityBar
+  );
 
   console.log(textProfile.width);
 }
