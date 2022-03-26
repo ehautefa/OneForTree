@@ -116,12 +116,12 @@ function effectBlock(blockType) {
 }
 
 function dryTile(){
-  planter = planterCarac;
-  planter.nbSeeds - 1;
   console.log("Dry Tile");
 }
 
 function plowedTile() {
+  planter = planterCarac;
+  planter.nbSeeds - 1;
   console.log("Plowed Tile");
 }
 
