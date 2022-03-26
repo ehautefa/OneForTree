@@ -11,8 +11,8 @@ const serveIndex = require("serve-index");
 
 // Config
 const port = 3000;
-const mapWidth = 1000;
-const mapHeight = 1000;
+const mapWidth = 50;
+const mapHeight = 50;
 
 // Types
 export type Tile =
@@ -59,7 +59,6 @@ function genMap(width: number, height: number) {
 // TODO parse from serialized file
 let map: Tile[][] = genMap(mapWidth, mapHeight);
 let users: { [key: string]: User } = {};
-console.log("Map", map);
 
 // Default route to serve game html file
 app.get("/", (req: any, res: any) => {
@@ -73,7 +72,7 @@ app.use("/public", serveIndex("public"));
 io.on("connection", (socket) => {
   // User creation
   // Note: You need to create a user to interract with the world
-  socket.on("create", ({ name }) => {
+  socket.on("create", ({ name }, callback) => {
     if (!users[socket.id]) {
       users[socket.id] = {
         role: "treater",
@@ -86,7 +85,8 @@ io.on("connection", (socket) => {
     }
 
     // Sends to the user the finalized user and the map
-    socket.emit("created", { map: map, user: users[socket.id], users: users });
+    // socket.emit("created", { map: map, user: users[socket.id], users: users });
+    callback({ map: map, user: users[socket.id], leaderboard: users });
     // Sends to other players that a new user connected
     socket.broadcast.emit("login", { user: users[socket.id] });
   });
@@ -104,22 +104,34 @@ io.on("connection", (socket) => {
   });
 
   // Move a player
-  socket.on("move", ({ position, uuid }) => {
+  socket.on("move", ({ position, uuid }, callback) => {
+    // console.log("move", { position, uuid });
     for (const [id, user] of Object.entries(users)) {
-      if (
-        user.id === uuid &&
-        // Check for valid position
-        Math.abs(user.x - position.x) <= 1 &&
-        Math.abs(user.y - position.y) <= 1
-      ) {
-        // Update player position
-        users[id] = {
-          ...user,
-          x: position.x,
-          y: position.y,
-        };
-        // And broadcast it
-        io.emit("update", { user: users[id] });
+      if (user.id === uuid) {
+        if (
+          // Check for valid position
+          Math.abs(user.x - position.x) <= 1 &&
+          Math.abs(user.y - position.y) <= 1
+        ) {
+          const prev = { x: users[id].x, y: users[id].y };
+          // Update player position
+          users[id] = {
+            ...user,
+            x: position.x,
+            y: position.y,
+          };
+          console.log("allowed move", {
+            position: { x: users[uuid].x, y: users[id].y },
+          });
+          callback({ position });
+          // And broadcast it
+          socket.broadcast.emit("move", { uuid, prev: prev, next: position });
+        } else {
+          console.log("denied move", {
+            position: { x: users[uuid].x, y: users[id].y },
+          });
+          callback({ position: { x: users[uuid].x, y: users[id].y } });
+        }
       }
     }
   });
@@ -132,7 +144,7 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     // Destroy the user
     // TODO Maybe we don't want this
-    users[socket.id] = undefined;
+    delete users[socket.id];
   });
 });
 
