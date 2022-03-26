@@ -13,6 +13,7 @@ socket.on("connect", (e) => {
     console.log(data);
 
     user = data.user;
+
     leaderboard = data.users;
     map = data.map;
 
@@ -22,7 +23,7 @@ socket.on("connect", (e) => {
   socket.on("login", (data) => {
     console.log(data);
   });
-
+  
   socket.on("move", ({ uuid, next, prev }) => {
     console.log("player moved: ", uuid, next, prev);
   });
@@ -30,11 +31,16 @@ socket.on("connect", (e) => {
 
 async function launchGame() {
   let player;
-  let playerSheet = {};
-  let playerPosition = { x: 0, y: 0 };
-
+  let keys = {};
+  let keysDiv;
+  // let playerSheet = {};
+  let speed = 2;
+  // let playerPosition = { x: 0, y: 0 };
+  let othersPlayers = [];
+  let mapContainer = new PIXI.Container();
+  
   // Create the application helper and add its render target to the page
-
+  
   let app = new PIXI.Application({
     width: window.innerWidth,
     height: window.innerHeight,
@@ -50,10 +56,11 @@ async function launchGame() {
     app.renderer.resize(window.innerWidth, window.innerHeight);
   };
 
+  
   function randomNumber(min, max) {
     return Math.random() * (max - min) + min;
   }
-
+  
   // Create the sprite and add it to the stage
   var grass = createTile("/src/assets/Grass", 3);
   var ground = createTile("/src/assets/Soft_Ground", 3);
@@ -65,6 +72,16 @@ async function launchGame() {
     { tile: labored, type: "plowed" },
     { tile: plant, type: "seeded" },
   ];
+  
+  function doneLoading(e) {
+    let playerSheet = createPlayerSheet(app.loader.resources["laboureur"].url);
+    createPlayer(user, playerSheet);
+    app.ticker.add(gameLoop);
+  }
+
+  app.loader.add("laboureur", "/src/assets/Anim_Laboureur_AllSprites.png");
+  app.loader.load(doneLoading);
+
 
   function createTile(name, tileNumber) {
     return function (position) {
@@ -82,17 +99,13 @@ async function launchGame() {
     };
   }
 
-  function doneLoading(e) {
-    createPlayerSheet();
-    createPlayer();
-    app.ticker.add(gameLoop);
-  }
 
-  app.loader.add("laboureur", "/src/assets/Anim_Laboureur_AllSprites.png");
-  app.loader.load(doneLoading);
+  
 
-  function createPlayer() {
+
+  function createPlayer({ x, y }, playerSheet) {
     player = new PIXI.AnimatedSprite(playerSheet.walkSouth);
+    player.playerSheet = playerSheet;
     player.anchor.set(0.5);
     player.animationSpeed = 0.18;
     player.loop = false;
@@ -102,12 +115,74 @@ async function launchGame() {
     player.play();
     player.width = 200;
     player.height = 200;
+    player.destination = {
+      pixels: { x: x * 60 + 15, y: y * 60 + 5 },
+      tiles: { x, y },
+    };
+
+    player.setDestination = (val) => {
+      // playerPosition = val;
+      val.x != undefined
+        ? (player.destination.pixels.x = -val.x * 100 + offset.x)
+        : null;
+      val.y != undefined
+        ? (player.destination.pixels.y = -val.y * 100 + offset.y)
+        : null;
+      val.x != undefined ? (player.destination.tiles.x = val.x) : null;
+      val.y != undefined ? (player.destination.tiles.y = val.y) : null;
+    };
   }
 
-  function createPlayerSheet() {
-    let ssheet = new PIXI.BaseTexture.from(
-      app.loader.resources["laboureur"].url
-    );
+  // function createPlayerSheet() {
+  //   let ssheet = new PIXI.BaseTexture.from(
+  //     app.loader.resources["laboureur"].url
+  //   );
+  //   let w = 60;
+  //   let h = 60;
+  //   player.playerSheet = playerSheet;
+  // }
+
+  function createOtherPlayer({ x, y, id }, playerSheet) {
+    let otherPlayer = new PIXI.AnimatedSprite(playerSheet.walkSouth);
+    otherPlayer.id = id;
+    otherPlayer.anchor.set(0.5);
+    otherPlayer.animationSpeed = 0.18;
+    otherPlayer.loop = false;
+    otherPlayer.x = x * 30 + 15;
+    otherPlayer.y = y * 30 + 5;
+    mapContainer.addChild(otherPlayer);
+    otherPlayer.play();
+    otherPlayer.playerSheet = playerSheet;
+    otherPlayer.currentPosition = { x: x * 30 + 15, y: y * 30 + 5 };
+    otherPlayer.futurePosition = {
+      pixels: { x: x * 30 + 15, y: y * 30 + 5 },
+      tiles: { x, y },
+    };
+    //  { x: x * 30 + 15, y: y * 30 + 5 };
+    otherPlayer.width = 200;
+    otherPlayer.height = 200;
+
+    // tiles: {x:0, y:0},
+    // pixels: {x:0, y:0},
+    // x: 0, y: 0
+    otherPlayer.setPlayerDestination = (val) => {
+      // playerPosition = val;
+      val.x != undefined
+        ? (otherPlayer.futurePosition.pixels.x = val.x * 100 + offset.x)
+        : null;
+      val.y != undefined
+        ? (otherPlayer.futurePosition.pixels.y = val.y * 100 + offset.y)
+        : null;
+      val.x != undefined ? (otherPlayer.futurePosition.tiles.x = val.x) : null;
+      val.y != undefined ? (otherPlayer.futurePosition.tiles.y = val.y) : null;
+    };
+
+    return otherPlayer;
+  }
+
+  function createPlayerSheet(texture) {
+    let playerSheet = {};
+    let ssheet = new PIXI.BaseTexture.from(texture);
     let w = 60;
     let h = 60;
 
@@ -161,66 +236,93 @@ async function launchGame() {
       new PIXI.Texture(ssheet, new PIXI.Rectangle(10 * w, 0, w, h)),
       new PIXI.Texture(ssheet, new PIXI.Rectangle(11 * w, 0, w, h)),
     ];
+    return playerSheet;
   }
 
-  function doneLoading(e) {
-    createPlayerSheet();
-    createPlayer();
-    app.ticker.add(gameLoop);
-  }
 
+
+  // FAKE SOCKETS EVENT
+  //
+  //
+  //
+  setInterval(() => {
+    let othersPlayerSheet = createPlayerSheet(
+      app.loader.resources["laboureur"].url
+    );
+    othersPlayers.push(
+      createOtherPlayer(
+        { x: othersPlayers.length, y: 3, id: othersPlayers.length },
+        othersPlayerSheet
+      )
+    );
+    // function createOtherPlayer({x, y},playerSheet)
+  }, 5000);
+
+  setInterval(() => {
+    let selectId = Math.floor(Math.random() * othersPlayers.length);
+    let rdmX = Math.floor(Math.random() * 40);
+    let rdmy = Math.floor(Math.random() * 40);
+    console.log("PPPPP", selectId);
+    othersPlayers[selectId].setPlayerDestination({ x: rdmX, y: rdmy });
+
+    // othersPlayers[selectId].futurePosition = { x: rdmX, y: rdmy };
+  }, 1000);
+  //
+  //
+  //
+  // FAKE SOCKETS EVENT
   let dir = "N";
-  function gameLoop() {
-    //	var dir = 'N';
-    if (playerDestination.y > mapContainer.y) {
-      dir = "N";
+
+  function computePlayerAnimation() {
+    if (player.destination.pixels.y > mapContainer.y) {
       if (!player.playing) {
-        player.textures = playerSheet.walkNorth;
+        player.textures = player.playerSheet.walkNorth;
         player.play();
       }
+      dir = "N";
     }
     //a
-    else if (playerDestination.x > mapContainer.x) {
-      dir = "W";
+    else if (player.destination.pixels.x > mapContainer.x) {
       if (!player.playing) {
-        player.textures = playerSheet.walkWest;
+        player.textures = player.playerSheet.walkWest;
         player.play();
       }
+      dir = "W";
     }
     //s
-    else if (playerDestination.y < mapContainer.y) {
-      dir = "S";
+    else if (player.destination.pixels.y < mapContainer.y) {
       if (!player.playing) {
-        player.textures = playerSheet.walkSouth;
+        player.textures = player.playerSheet.walkSouth;
         player.play();
       }
+      dir = "S";
     }
     //d
-    else if (playerDestination.x < mapContainer.x) {
-      dir = "E";
+    else if (player.destination.pixels.x < mapContainer.x) {
       if (!player.playing) {
-        player.textures = playerSheet.walkEast;
+        player.textures = player.playerSheet.walkEast;
         player.play();
       }
+      dir = "E";
     }
     if (dir == "N") {
       if (!player.playing) {
-        player.textures = playerSheet.standNorth;
+        player.textures = player.playerSheet.standNorth;
         player.play();
       }
     } else if (dir == "S") {
       if (!player.playing) {
-        player.textures = playerSheet.standSouth;
+        player.textures = player.playerSheet.standSouth;
         player.play();
       }
     } else if (dir == "W") {
       if (!player.playing) {
-        player.textures = playerSheet.standWest;
+        player.textures = player.playerSheet.standWest;
         player.play();
       }
     } else if (dir == "E") {
       if (!player.playing) {
-        player.textures = playerSheet.standEast;
+        player.textures = player.playerSheet.standEast;
         player.play();
       }
     }
@@ -230,29 +332,135 @@ async function launchGame() {
     x: parseInt(app.view.width / 2) - 50,
     y: parseInt(app.view.height / 2) + 50,
   };
+  function computeOthersPlayersAnimation() {
+    othersPlayers.forEach((otherPlayer) => {
+      if (otherPlayer.futurePosition.pixels.y > otherPlayer.y) {
+        if (!otherPlayer.playing) {
+          otherPlayer.textures = otherPlayer.playerSheet.walkSouth;
+          otherPlayer.play();
+        }
+      }
+      //a
+      else if (otherPlayer.futurePosition.pixels.x > otherPlayer.x) {
+        if (!otherPlayer.playing) {
+          otherPlayer.textures = otherPlayer.playerSheet.walkEast;
+          otherPlayer.play();
+        }
+      }
+      //s
+      else if (otherPlayer.futurePosition.pixels.y < otherPlayer.y) {
+        if (!otherPlayer.playing) {
+          otherPlayer.textures = otherPlayer.playerSheet.walkNorth;
+          otherPlayer.play();
+        }
+      }
+      //d
+      else if (otherPlayer.futurePosition.pixels.x < otherPlayer.x) {
+        if (!otherPlayer.playing) {
+          otherPlayer.textures = otherPlayer.playerSheet.walkWest;
+          otherPlayer.play();
+        }
+      }
+    });
+  }
 
-  let mapContainer = new PIXI.Container();
+  function gameLoop() {
+    computePlayerAnimation();
+    computeOthersPlayersAnimation();
+  }
 
-  let playerDestination = { x: 0, y: 0 };
-  playerDestination.setPlayerDestination = (val) => {
-    playerPosition = val;
-    val.x != undefined ? (playerDestination.x = val.x * 100 + offset.x) : null;
-    val.y != undefined ? (playerDestination.y = val.y * 100 + offset.y) : null;
+  // const offset = {
+  //   x: parseInt(app.view.width / 2) - 15,
+  //   y: parseInt(app.view.height / 2) - 5,
+  // };
+
+  let playerDestination = {
+    tiles: { x: 0, y: 0 },
+    pixels: { x: 0, y: 0 },
+    // x: 0, y: 0
+    setPlayerDestination: (val) => {
+      // playerPosition = val;
+      val.x != undefined
+        ? (playerDestination.pixels.x = -val.x * 100 + offset.x)
+        : null;
+      val.y != undefined
+        ? (playerDestination.pixels.y = -val.y * 100 + offset.y)
+        : null;
+      val.x != undefined ? (playerDestination.tiles.x = val.x) : null;
+      val.y != undefined ? (playerDestination.tiles.y = val.y) : null;
+    },
   };
 
-  playerDestination.setPlayerDestination({ x: 0, y: 0 });
+ 
+
+  function computeOtherPlayerMoves() {
+    othersPlayers.forEach((otherPlayer) => {
+      if (otherPlayer.futurePosition.pixels.x > otherPlayer.x) {
+        otherPlayer.x++;
+      } else if (otherPlayer.futurePosition.pixels.x < otherPlayer.x) {
+        otherPlayer.x--;
+      }
+      if (otherPlayer.futurePosition.pixels.y > otherPlayer.y) {
+        otherPlayer.y++;
+      } else if (otherPlayer.futurePosition.pixels.y < otherPlayer.y) {
+        otherPlayer.y--;
+      }
+    });
+  }
+
+  function computePlayerMoves() {
+    let isDestinationReached = undefined;
+
+    if (player.destination.pixels.x > mapContainer.x) {
+      mapContainer.x++;
+      if (
+        !(player.destination.pixels.x > mapContainer.x) &&
+        isDestinationReached == undefined
+      ) {
+        isDestinationReached = true;
+      } else {
+        isDestinationReached = false;
+      }
+    } else if (player.destination.pixels.x < mapContainer.x) {
+      mapContainer.x--;
+      if (
+        !(player.destination.pixels.x < mapContainer.x) &&
+        isDestinationReached == undefined
+      ) {
+        isDestinationReached = true;
+      } else {
+        isDestinationReached = false;
+      }
+    }
+    if (player.destination.pixels.y > mapContainer.y) {
+      mapContainer.y++;
+      if (
+        !(player.destination.pixels.y > mapContainer.y) &&
+        isDestinationReached == undefined
+      ) {
+        isDestinationReached = true;
+      } else {
+        isDestinationReached = false;
+      }
+    } else if (player.destination.pixels.y < mapContainer.y) {
+      mapContainer.y--;
+      if (
+        !(player.destination.pixels.y < mapContainer.y) &&
+        isDestinationReached == undefined
+      ) {
+        isDestinationReached = true;
+      } else {
+        isDestinationReached = false;
+      }
+    }
+    if (isDestinationReached) {
+      console.log("destination atteinte :", player.destination.tiles);
+    }
+  }
 
   setInterval(() => {
-    if (playerDestination.x > mapContainer.x) {
-      mapContainer.x++;
-    } else if (playerDestination.x < mapContainer.x) {
-      mapContainer.x--;
-    }
-    if (playerDestination.y > mapContainer.y) {
-      mapContainer.y++;
-    } else if (playerDestination.y < mapContainer.y) {
-      mapContainer.y--;
-    }
+    computePlayerMoves();
+    computeOtherPlayerMoves();
   }, 10);
 
   map.forEach((row, y) => {
@@ -266,7 +474,8 @@ async function launchGame() {
       currentCell.interactive = true;
       currentCell.on("pointerdown", (e) => {
         console.log("ptr dw:", y, x);
-        playerDestination.setPlayerDestination({ x: -x, y: -y });
+        // player.setDestination({ x: x, y: y });
+        player.setDestination({ x: x, y: y });
       });
       mapContainer.addChild(currentCell);
     });
@@ -278,14 +487,16 @@ async function launchGame() {
     "keydown",
     (event) => {
       var name = event.key;
-      if (name == "ArrowRight") playerPosition.x--;
-      if (name == "ArrowDown") playerPosition.y--;
-      if (name == "ArrowUp") playerPosition.y++;
-      if (name == "ArrowLeft") playerPosition.x++;
-      playerDestination.setPlayerDestination(playerPosition);
+      let tmpDestination = player.destination.tiles;
+      if (name == "ArrowRight") tmpDestination.x++;
+      if (name == "ArrowDown") tmpDestination.y++;
+      if (name == "ArrowUp") tmpDestination.y--;
+      if (name == "ArrowLeft") tmpDestination.x--;
+      player.setDestination(tmpDestination);
     },
     false
   );
+
 
   // PROFILE CHARACTERS
   // ----------------------------------------------------------
