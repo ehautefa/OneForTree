@@ -47,29 +47,22 @@ function genMap(width: number, height: number) {
   return map;
 }
 
-// Database xD ptdr
-// TODO parse from serialized file
-<<<<<<< HEAD
-let map: Tile[][] = genMap(mapWidth, mapHeight);
-=======
-
 import fs from "fs";
 let rawdata = fs.readFileSync("src/map.json");
-<<<<<<< HEAD
+
 let map: Tile[][] = JSON.parse(rawdata.toString());
 // let map: Tile[][] = genMap(50, 50);
->>>>>>> master
-let users: { [key: string]: User } = {};
-let stats: Stats = { co2: 10000 };
-
-=======
-// let map: Tile[][] = JSON.parse(rawdata.toString());
-let map: Tile[][] = genMap(5, 10);
 const mapWidth = map[0].length;
 const mapHeight = map.length;
 
 let users: { [key: string]: User } = {};
-let stats: Stats = { co2: 10000 };
+let stats: Stats = {
+  co2: map.reduce(
+    (total, col) =>
+      total + col.reduce((total, tile) => total + (tile === "tree" && 1), 0),
+    0
+  ),
+};
 
 let index = 0;
 // Round robin roles
@@ -82,7 +75,6 @@ function selectRole(): UserRole {
   return role;
 }
 
->>>>>>> master
 /// Doctumentation:
 /// Front:
 /// > Create a new user
@@ -104,23 +96,6 @@ function selectRole(): UserRole {
 export const server = (io, socket) => {
   console.log("Connect:", socket.id);
   // Socket logic
-<<<<<<< HEAD
-  io.on("connection", (socket) => {
-    console.log("Connection:", socket.id);
-    // User creation
-    // Note: You need to create a user to interract with the world
-    socket.on("create", ({ name }, callback: ({}) => void) => {
-      if (!users[socket.id]) {
-        users[socket.id] = {
-          role: "worker",
-          id: socket.id,
-          x: mapWidth / 2,
-          y: mapHeight / 2,
-          name: name,
-          capacity: 0,
-        };
-      }
-=======
   // User creation
   // Note: You need to create a user to interract with the world
   socket.on("create", ({ name }, callback: ({}) => void) => {
@@ -134,7 +109,6 @@ export const server = (io, socket) => {
         capacity: 0,
       };
     }
->>>>>>> master
 
     // Sends to the user the finalized user and the map
     // socket.emit("created", { map: map, user: users[socket.id], users: users });
@@ -143,24 +117,6 @@ export const server = (io, socket) => {
     socket.broadcast.emit("login", { user: users[socket.id] });
   });
 
-<<<<<<< HEAD
-    // Update a tile
-    socket.on(
-      "edit",
-      (
-        {
-          user,
-          position: { x, y },
-          ...rest
-        }: {
-          user: User;
-          position: { x: number; y: number };
-        },
-        callback: ({ user }: { user: User }) => void
-      ) => {
-        // TODO check for correctness
-        let tile: Tile = map[x][y];
-=======
   // Update a tile
   socket.on(
     "edit",
@@ -176,7 +132,6 @@ export const server = (io, socket) => {
     ) => {
       // TODO check for correctness
       let tile: Tile = map[x][y];
->>>>>>> master
 
       // User possible edits
       switch (user.role) {
@@ -234,24 +189,6 @@ export const server = (io, socket) => {
           break;
       }
 
-<<<<<<< HEAD
-        // Maps gets edited
-        if (map[x][y] !== tile) {
-          console.log(
-            "Map Update:",
-            user.id,
-            user.role,
-            x,
-            y,
-            map[x][y],
-            "->",
-            tile
-          );
-          map[x][y] = tile;
-          io.emit("edit", { position: { x, y }, tile: tile });
-          callback({ user: users[user.id] });
-        }
-=======
       // Maps gets edited
       if (map[x][y] !== tile) {
         console.log(
@@ -271,43 +208,10 @@ export const server = (io, socket) => {
         io.emit("edit", { position: { x, y }, tile: tile });
         // Edits the user
         callback({ user: users[user.id] });
->>>>>>> master
       }
     }
   );
 
-<<<<<<< HEAD
-    // Move a player
-    socket.on("move", ({ position, uuid }, callback: ({}) => void) => {
-      console.log("move", { position, uuid });
-      for (const [id, user] of Object.entries(users)) {
-        if (user.id === uuid) {
-          if (
-            // Check for valid position
-            position.x >= 0 && position.x < mapWidth &&
-            position.y >= 0 && position.y < mapHeight
-          ) {
-            const prev = { x: users[id].x, y: users[id].y };
-            // Update player position
-			console.log("POS MOVE", position.x, " ", position.y);
-            users[id] = {
-              ...user,
-              x: position.x,
-              y: position.y,
-            };
-            console.log("allowed move", {
-              position: { x: users[uuid].x, y: users[id].y },
-            });
-            callback({ position });
-            // And broadcast it
-            socket.broadcast.emit("move", { uuid, prev: prev, next: position });
-          } else {
-            console.log("denied move", {
-              position: { x: users[uuid].x, y: users[id].y },
-            });
-            callback({ position: { x: users[uuid].x, y: users[id].y } });
-          }
-=======
   // Move a player
   socket.on("move", ({ position, uuid }, callback: ({}) => void) => {
     console.log("move", { position, uuid });
@@ -339,7 +243,6 @@ export const server = (io, socket) => {
             position: { x: users[uuid].x, y: users[id].y },
           });
           callback({ position: { x: users[uuid].x, y: users[id].y } });
->>>>>>> master
         }
       }
     }
