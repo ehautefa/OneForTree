@@ -325,11 +325,10 @@ async function launchGame() {
 
   // PLAYER UI
   // ----------------------------------------------------------
-  // UI Player Activities Init
 
   // UI LifeBar Init
   var healthBarSprite = PIXI.Sprite.from("./src/assets/lifebar_sprite.png");
-  healthBarSprite.x = screen.width - 300;
+  healthBarSprite.x = screen.width - 400;
   healthBarSprite.y = 10;
   healthBarSprite.height = visualViewport.height - 20;
 
