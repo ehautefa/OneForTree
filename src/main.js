@@ -65,10 +65,9 @@ async function launchGame() {
     return function (position) {
       let filename = name + (tileNumber > 1 ? parseInt(randomNumber(1, tileNumber)).toString() : '') + '.png';
       let square = new PIXI.Sprite.from(filename);
-      square.position.set(position.x * 30, position.y * 30);
-      square.width = 30;
-      square.height = 30;
-      if (position.type == 1) square.tint = "0x00FF00";
+      square.position.set(position.x * 100, position.y * 100);
+      square.width = 100;
+      square.height = 100;
       return square;
     }
   }
@@ -91,6 +90,8 @@ async function launchGame() {
     player.y = parseInt(app.view.height / 2);
     app.stage.addChild(player);
     player.play();
+    player.width = 100;
+    player.height = 100
   }
 
   function createPlayerSheet() {
@@ -177,8 +178,8 @@ async function launchGame() {
   let playerDestination = { x: 0, y: 0 };
   playerDestination.setPlayerDestination = (val) => {
     playerPosition = val;
-    val.x != undefined ? (playerDestination.x = val.x * 30 + offset.x) : null;
-    val.y != undefined ? (playerDestination.y = val.y * 30 + offset.y) : null;
+    val.x != undefined ? (playerDestination.x = val.x * 100 + offset.x) : null;
+    val.y != undefined ? (playerDestination.y = val.y * 100 + offset.y) : null;
   };
 
   playerDestination.setPlayerDestination({ x: 0, y: 0 });
