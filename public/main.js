@@ -6,13 +6,7 @@ let speed = 2;
 
 let otherPlayers = [];
 
-function createOtherPlayer() 
-{
-  return {
-    playerPosition : {x:5, y:5},
-    playerDestination : {x:5, y:5},
-  }
-}
+let mapContainer = new PIXI.Container();
 
 
 
@@ -46,16 +40,16 @@ function createSquare(position) {
   return square;
 }
 
-function doneLoading(e) {
-  createPlayerSheet();
-  createPlayer();
-  app.ticker.add(gameLoop);
-}
+// function doneLoading(e) {
+//   createPlayerSheet(playerSheet);
+//   createPlayer();
+//   app.ticker.add(gameLoop);
+// }
 
 app.loader.add("viking", "/public/assets/viking.png");
 app.loader.load(doneLoading);
 
-function createPlayer() {
+function createPlayer(player) {
   player = new PIXI.AnimatedSprite(playerSheet.walkSouth);
   player.anchor.set(0.5);
   player.animationSpeed = 0.18;
@@ -64,41 +58,42 @@ function createPlayer() {
   player.y = parseInt(app.view.height / 2);
   app.stage.addChild(player);
   player.play();
+  return player;
 }
 
-function createPlayerSheet() {
+function createPlayerSheet(playerSheet) {
   let ssheet = new PIXI.BaseTexture.from(
     app.loader.resources["viking"].url
-  );
-  let w = 26;
-  let h = 36;
-
-  playerSheet["standSouth"] = [
-    new PIXI.Texture(ssheet, new PIXI.Rectangle(1 * w, 0, w, h)),
-  ];
-
-  playerSheet["standWest"] = [
-    new PIXI.Texture(ssheet, new PIXI.Rectangle(4 * w, 0, w, h)),
-  ];
-  playerSheet["standEast"] = [
-    new PIXI.Texture(ssheet, new PIXI.Rectangle(7 * w, 0, w, h)),
-  ];
-  playerSheet["standNorth"] = [
-    new PIXI.Texture(ssheet, new PIXI.Rectangle(10 * w, 0, w, h)),
-  ];
-
-  playerSheet["walkSouth"] = [
-    new PIXI.Texture(ssheet, new PIXI.Rectangle(0 * w, 0, w, h)),
-    new PIXI.Texture(ssheet, new PIXI.Rectangle(1 * w, 0, w, h)),
-    new PIXI.Texture(ssheet, new PIXI.Rectangle(2 * w, 0, w, h)),
-  ];
-  playerSheet["walkWest"] = [
-    new PIXI.Texture(ssheet, new PIXI.Rectangle(3 * w, 0, w, h)),
-    new PIXI.Texture(ssheet, new PIXI.Rectangle(4 * w, 0, w, h)),
-    new PIXI.Texture(ssheet, new PIXI.Rectangle(5 * w, 0, w, h)),
-  ];
-  playerSheet["walkEast"] = [
-    new PIXI.Texture(ssheet, new PIXI.Rectangle(6 * w, 0, w, h)),
+    );
+    let w = 26;
+    let h = 36;
+    
+    playerSheet["standSouth"] = [
+      new PIXI.Texture(ssheet, new PIXI.Rectangle(1 * w, 0, w, h)),
+    ];
+    
+    playerSheet["standWest"] = [
+      new PIXI.Texture(ssheet, new PIXI.Rectangle(4 * w, 0, w, h)),
+    ];
+    playerSheet["standEast"] = [
+      new PIXI.Texture(ssheet, new PIXI.Rectangle(7 * w, 0, w, h)),
+    ];
+    playerSheet["standNorth"] = [
+      new PIXI.Texture(ssheet, new PIXI.Rectangle(10 * w, 0, w, h)),
+    ];
+    
+    playerSheet["walkSouth"] = [
+      new PIXI.Texture(ssheet, new PIXI.Rectangle(0 * w, 0, w, h)),
+      new PIXI.Texture(ssheet, new PIXI.Rectangle(1 * w, 0, w, h)),
+      new PIXI.Texture(ssheet, new PIXI.Rectangle(2 * w, 0, w, h)),
+    ];
+    playerSheet["walkWest"] = [
+      new PIXI.Texture(ssheet, new PIXI.Rectangle(3 * w, 0, w, h)),
+      new PIXI.Texture(ssheet, new PIXI.Rectangle(4 * w, 0, w, h)),
+      new PIXI.Texture(ssheet, new PIXI.Rectangle(5 * w, 0, w, h)),
+    ];
+    playerSheet["walkEast"] = [
+      new PIXI.Texture(ssheet, new PIXI.Rectangle(6 * w, 0, w, h)),
     new PIXI.Texture(ssheet, new PIXI.Rectangle(7 * w, 0, w, h)),
     new PIXI.Texture(ssheet, new PIXI.Rectangle(8 * w, 0, w, h)),
   ];
@@ -107,11 +102,36 @@ function createPlayerSheet() {
     new PIXI.Texture(ssheet, new PIXI.Rectangle(10 * w, 0, w, h)),
     new PIXI.Texture(ssheet, new PIXI.Rectangle(11 * w, 0, w, h)),
   ];
+  return (playerSheet);
 }
 
+function createOtherPlayer() 
+{
+  let otherPlayerObj = {
+    playerPosition : {x:5, y:5},
+    playerDestination : {x:5, y:5},
+    playerSheet: {},
+    playerController:{}}
+    otherPlayerObj.playerSheet = createPlayerSheet(otherPlayerObj.playerSheet);
+    console.log("ZZZZZZ",otherPlayerObj.playerSheet )
+  otherPlayerObj.playerController  = new PIXI.AnimatedSprite(otherPlayerObj.playerSheet.walkSouth);
+  otherPlayerObj.playerController.anchor.set(0.5);
+  otherPlayerObj.playerController.animationSpeed = 0.18;
+  otherPlayerObj.playerController.loop = false;
+  otherPlayerObj.playerController.x = parseInt(app.view.width / 2);
+  otherPlayerObj.playerController.y = parseInt(app.view.height / 2);
+  mapContainer.addChild(player);
+  otherPlayerObj.playerController.play();
+  otherPlayerObj.playerController = createPlayer( otherPlayerObj.playerController);
+  return otherPlayerObj;
+}
+
+
+setTimeout(() => createOtherPlayer(), 5000);
+
 function doneLoading(e) {
-  createPlayerSheet();
-  createPlayer();
+  playerSheet = createPlayerSheet(playerSheet);
+  player = createPlayer(player);
   app.ticker.add(gameLoop);
 }
 
@@ -166,7 +186,6 @@ let map = [
 
 const offset = { x: parseInt(app.view.width / 2), y: parseInt(app.view.height / 2 )}
 
-let mapContainer = new PIXI.Container();
 
 let playerDestination = { x: 0, y: 0 };
 playerDestination.setPlayerDestination = (val) => {
