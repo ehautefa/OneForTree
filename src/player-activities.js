@@ -1,9 +1,5 @@
-const fs = require('fs')
+function readActivitiesFile() {
+    document.getElementById("listActivities").innerHTML = '<object type="text/html" data="./src/activities-list.html" ></object>';
+}
 
-fs.readFile('./activities-list.txt', 'utf8' , (err, data) => {
-  if (err) {
-    console.error(err)
-    return
-  }
-  console.log(data)
-})
+readActivitiesFile();
