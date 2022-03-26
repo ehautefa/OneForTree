@@ -323,27 +323,9 @@ async function launchGame() {
     liters: 0,
   };
 
-  // EFFECTS BLOCKS
-  // ----------------------------------------------------------
-
   // PLAYER UI
   // ----------------------------------------------------------
   // UI Player Activities Init
-  var playersActivitiesSprite = PIXI.Sprite.from(
-    "./src/assets/players_activities_sprite.png"
-  );
-  playersActivitiesSprite.x = screen.width - 260;
-  playersActivitiesSprite.y = 10;
-  playersActivitiesSprite.height = visualViewport.height - 20;
-
-  let playersActivitiesSpriteTitle = new PIXI.Text("Player Activities", {
-    fontFamily: "Arial",
-    fontSize: 24,
-    fill: 0x000000,
-    align: "center",
-  });
-  playersActivitiesSpriteTitle.x = screen.width - 250;
-  playersActivitiesSpriteTitle.y = 20;
 
   // UI LifeBar Init
   var healthBarSprite = PIXI.Sprite.from("./src/assets/lifebar_sprite.png");
@@ -376,8 +358,6 @@ async function launchGame() {
 
   // UI Deploy
   app.stage.addChild(
-    playersActivitiesSprite,
-    playersActivitiesSpriteTitle,
     healthBarSprite,
     textProfile,
     powerCapacityBar
