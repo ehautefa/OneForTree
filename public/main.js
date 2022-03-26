@@ -23,6 +23,7 @@ async function launchGame() {
 	let keysDiv;
 	let playerSheet = {};
 	let speed = 2;
+	let playerPosition = { x: 0, y: 0 }
 	
 	// Create the application helper and add its render target to the page
 	
@@ -44,7 +45,7 @@ async function launchGame() {
 	// Create the sprite and add it to the stage
 	
 	function createSquare(position) {
-		let square = new PIXI.Sprite.from("/public/map_case.png");
+ 		let square = new PIXI.Sprite.from("/public/assets/map_case.png");
 		square.position.set(position.x * 30, position.y * 30);
 		square.width = 30;
 		square.height = 30;
@@ -58,7 +59,7 @@ async function launchGame() {
 		app.ticker.add(gameLoop);
 	}
 	
-	app.loader.add("viking", "/public/viking.png");
+	app.loader.add("viking", "/public/assets/viking.png");
 	app.loader.load(doneLoading);
 	
 	function createPlayer() {
@@ -201,11 +202,11 @@ async function launchGame() {
 	"keydown",
 	(event) => {
 		var name = event.key;
-		if (name == "ArrowRight") playerDestination.x--;
-		if (name == "ArrowLeft") playerDestination.x++;
-		if (name == "ArrowDown") playerDestination.y--;
-		if (name == "ArrowUp") playerDestination.y++;
-		playerDestination.setPlayerDestination(playerDestination);
+		if (name == "ArrowRight") playerPosition.x--;
+		if (name == "ArrowDown") playerPosition.y--;
+		if (name == "ArrowUp") playerPosition.y++;
+		if (name == "ArrowLeft") playerPosition.x++;
+    	playerDestination.setPlayerDestination(playerPosition);;
 	},
 	false
 	);
