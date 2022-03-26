@@ -65,7 +65,12 @@ let itemsMap = map.map((row, y) => {
   let currentRow = row.map((cell, x) => {
     console.log("cell :", cell);
     let currentCell = createSquare({ x: x, y: y, type: cell });
+    currentCell.interactive = true;
+    // currentCell.buttonMode = true;
+    currentCell.on('pointerdown', (e) => {console.log("ptr dw:", y, x)});
+
     mapContainer.addChild(currentCell);
+
     // app.stage.addChild(currentCell);
     
     return currentCell;
