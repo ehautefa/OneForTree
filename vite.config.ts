@@ -53,13 +53,19 @@ function genMap(width: number, height: number) {
 
 import fs from "fs";
 let rawdata = fs.readFileSync("src/map.json");
-// let map: Tile[][] = JSON.parse(rawdata.toString());
-let map: Tile[][] = genMap(5, 10);
+let map: Tile[][] = JSON.parse(rawdata.toString());
+// let map: Tile[][] = genMap(5, 10);
 const mapWidth = map[0].length;
 const mapHeight = map.length;
 
 let users: { [key: string]: User } = {};
-let stats: Stats = { co2: 10000 };
+let stats: Stats = {
+  co2: map.reduce(
+    (total, col) =>
+      total + col.reduce((total, tile) => total + (tile === "tree" && 1), 0),
+    0
+  ),
+};
 
 let index = 0;
 // Round robin roles
