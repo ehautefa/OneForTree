@@ -26,7 +26,7 @@ window.onresize = function () {
 // Create the sprite and add it to the stage
 
 function createSquare(position) {
-  let square = new PIXI.Sprite.from("/public/map_case.png");
+  let square = new PIXI.Sprite.from("/public/assets/map_case.png");
   square.position.set(position.x * 30, position.y * 30);
   square.width = 30;
   square.height = 30;
@@ -40,7 +40,7 @@ function doneLoading(e) {
   app.ticker.add(gameLoop);
 }
 
-app.loader.add("viking", "/public/viking.png");
+app.loader.add("viking", "/public/assets/viking.png");
 app.loader.load(doneLoading);
 
 function createPlayer() {
