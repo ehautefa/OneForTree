@@ -11,8 +11,8 @@ const io = new Server(server);
 
 // Config
 const port = 3000;
-const mapWidth = 1000;
-const mapHeight = 1000;
+const mapWidth = 50;
+const mapHeight = 50;
 
 // Types
 export type Tile =
