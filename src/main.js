@@ -1,27 +1,33 @@
 import animationSheet from "./animation.js";
 import * as PIXI from "pixi.js";
 import { io } from "socket.io-client";
-import { setTokenSourceMapRange } from "typescript";
-import { createSheet } from "./sheet";
 import { createNpc, createPlayer } from "./player";
-import { createTileMap } from "./tilemap";
 
-const socket = io();
+document.getElementById("Connect").onclick = () => {
+  const username = document.getElementById("Username").value;
 
-//Connect to server
-socket.on("connect", (e) => {
-  console.log("connection established");
+  if (username.length > 0) {
+    document.getElementById("cl").classList.toggle("cloudLeft-active");
+    document.getElementById("cr").classList.toggle("cloudRight-active");
+    setTimeout(function () {
+      document.getElementById("login").classList.toggle("loginClass-active");
 
-  socket.emit("create", { name: "mbeilles" }, (data) => {
-    console.log(data);
-    launchGame({ ...data, socket });
-  });
+      console.log("Clicked");
+      const socket = io();
+      //Connect to server
+      socket.on("connect", (e) => {
+        console.log("connection established");
 
-  // socket.on("edit", ({ position, tile }) => {
-  //   map[position.x][position.y] = tile;
-  //   console.log("Edit tile:", position, tile);
-  // });
-});
+        socket.emit("create", { name: username }, (data) => {
+          console.log(data);
+          launchGame({ ...data, socket });
+        });
+      });
+    }, 1500);
+  } else {
+    document.getElementById("Username").classList.add("error");
+  }
+};
 
 async function launchGame({ user, leaderboard, map, socket }) {
   // Create the application helper and add its render target to the page
@@ -133,7 +139,10 @@ async function launchGame({ user, leaderboard, map, socket }) {
   }
 
   function setup(e) {
-    let playerSheet = animationSheet.createAnimationSheet(user.role, app.loader.resources[user.role].url);
+    let playerSheet = animationSheet.createAnimationSheet(
+      user.role,
+      app.loader.resources[user.role].url
+    );
     let [player, setPosition, setAnimation] = createPlayer({
       x: app.view.width / 2,
       y: app.view.height / 2,
@@ -371,7 +380,7 @@ async function launchGame({ user, leaderboard, map, socket }) {
   // PLAYER UI
   // ----------------------------------------------------------
 
-  window.addEventListener('resize', function(event){
+  window.addEventListener("resize", function (event) {
     var newWidth = window.innerWidth;
     var newHeight = window.innerHeight;
   });
@@ -384,7 +393,7 @@ async function launchGame({ user, leaderboard, map, socket }) {
     10,
     25,
     visualViewport.height - 20
-  )
+  );
 
   var healthBarSpriteBlack = new PIXI.Graphics();
   healthBarSpriteBlack.beginFill(0xbababa, 1);
@@ -392,8 +401,8 @@ async function launchGame({ user, leaderboard, map, socket }) {
     screen.width - 40,
     10,
     25,
-    healthBarSprite.height * .75
-  )
+    healthBarSprite.height * 0.75
+  );
 
   // UI ProfileType Init
   let textProfileContent = user.role;
