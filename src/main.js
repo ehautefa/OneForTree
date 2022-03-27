@@ -203,7 +203,7 @@ async function launchGame({ user, leaderboard, map, socket }) {
           let animal;
           if (nu == 0) animal = butterflyWhite({ x, y });
           else if (nu == 1) animal = butterflyYellow({ x, y });
-          else if (nu == 2) animal = birds({ x, y });
+          // else if (nu == 2) animal = birds({ x, y });
           else if (nu == 3) animal = bee({ x, y });
           else if (nu == 4) animal = frog({ x, y });
 
@@ -304,6 +304,34 @@ async function launchGame({ user, leaderboard, map, socket }) {
       currentTile.addChild(newChild);
     }
 
+    let flyingBirds = [];
+    // let bioContainer = new PIXI.Container();
+    setTimeout(() => {
+      for (let i = 0; i < 50; i++) {
+        let currentbird = birds({
+          x: parseInt(Math.random() * 32),
+          y: parseInt(Math.random() * 32),
+        });
+        currentbird.posTarget = {
+          x: parseInt(Math.random() * 32 * 120),
+          y: parseInt(Math.random() * 32 * 120),
+        };
+        currentbird.pivot.set(30, 30);
+        console.log("bird created");
+        mapContainer.addChild(currentbird);
+        flyingBirds.push(currentbird);
+      }
+
+      setInterval(() => {
+        flyingBirds.forEach((element) => {
+          element.posTarget = {
+            x: parseInt(Math.random() * 32 * 120),
+            y: parseInt(Math.random() * 32 * 120),
+          };
+        });
+      }, 4000);
+    }, 500);
+
     // Move players position
     setInterval(() => {
       // Player
@@ -328,6 +356,22 @@ async function launchGame({ user, leaderboard, map, socket }) {
           npc.render.y++;
         } else if (npc.position.pixel.y < npc.render.y) {
           npc.render.y--;
+        }
+      });
+
+      flyingBirds.forEach((element) => {
+        if (element.posTarget.x > element.x) {
+          element.x++;
+          element.rotation = 90;
+        } else if (element.posTarget.x < element.x) {
+          element.x--;
+          element.rotation = 250;
+        } else if (element.posTarget.y > element.y) {
+          element.y++;
+          element.rotation = 180;
+        } else if (element.posTarget.y < element.y) {
+          element.y--;
+          element.rotation = 20;
         }
       });
     }, 10);
