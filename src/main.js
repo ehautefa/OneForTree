@@ -177,16 +177,18 @@ async function launchGame({ user, leaderboard, map, socket }) {
           ?.tile({ x, y });
         if (!currentCell) return;
         currentCell.interactive = true;
-        currentCell.on("pointerdown", (e) => {
-          console.log("ptr dw:", x, y);
-          socket.emit(
-            "move",
-            { uuid: user.id, position: { x, y } },
-            ({ position }) => {
-              setPosition(() => position);
-            }
-          );
-        });
+        if (cell != 'cloud') {
+          currentCell.on("pointerdown", (e) => {
+            console.log("ptr dw:", x, y);
+            socket.emit(
+              "move",
+              { uuid: user.id, position: { x, y } },
+              ({ position }) => {
+                setPosition(() => position);
+              }
+            );
+          });
+        }
         currentCell.type = "ground";
         cellContainer.tilePosition = { x, y };
         cellContainer.addChild(currentCell);
