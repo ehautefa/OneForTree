@@ -250,6 +250,15 @@ async function launchGame() {
 
   // UI LifeBar Init
   var healthBarSprite = PIXI.Sprite.from("./src/assets/lifebar_sprite.png");
+  var healthBarSpriteBlack = new PIXI.Graphics();
+  healthBarSpriteBlack.beginFill(0x000000, 0.75);
+  healthBarSpriteBlack.drawRect(
+    screen.width - 400,
+    10,
+    25,
+    visualViewport.height - 20
+  )
+
   healthBarSprite.x = screen.width - 400;
   healthBarSprite.y = 10;
   healthBarSprite.height = visualViewport.height - 20;
@@ -257,6 +266,7 @@ async function launchGame() {
   // UI ProfileType Init
   let textProfileContent = "Profile Type :";
   let powerCapacityBar = new PIXI.Graphics();
+  let powerCapacityBarBlack = new PIXI.Graphics();
 
   let textProfile = new PIXI.Text(textProfileContent, {
     fontFamily: "Arial",
@@ -277,11 +287,21 @@ async function launchGame() {
     30
   );
 
+  powerCapacityBarBlack.beginFill(0xff0000, 0.75);
+  powerCapacityBarBlack.drawRect(
+    textProfile.width + 28,
+    visualViewport.height - 50,
+    250,
+    30
+  );
+
   // UI Deploy
   app.stage.addChild(
     healthBarSprite,
+    healthBarSpriteBlack,
     textProfile,
-    powerCapacityBar
+    powerCapacityBar,
+    powerCapacityBarBlack
   );
 
   console.log(textProfile.width);
