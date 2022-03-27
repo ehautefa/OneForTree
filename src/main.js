@@ -59,6 +59,20 @@ async function launchGame({ user, leaderboard, map, socket }) {
   var labored = createTile("/src/assets/Labored_Ground", 1);
   var plant = createTile("/src/assets/Plant", 1);
   var water = createAnimatedTile("/src/assets/Water", 3);
+  var butterflyWhite = createAnimatedTile(
+    "src/assets/papillons_blanc_sheet",
+    13
+  );
+  var butterflyYellow = createAnimatedTile(
+    "src/assets/papillons_jaune_sheet",
+    13
+  );
+
+  var birds = createAnimatedTile("src/assets/birds", 3);
+
+  var bee = createAnimatedTile("src/assets/Spritesheet_Bee", 28);
+  var frog = createAnimatedTile("src/assets/frog_sheet", 9);
+
   var tileMethods = [
     { tile: grass, type: "grass" },
     { tile: ground, type: "dry" },
@@ -182,8 +196,21 @@ async function launchGame({ user, leaderboard, map, socket }) {
           );
         });
         currentCell.type = "ground";
-        cellContainer.tilePosition = { x, y };
         cellContainer.addChild(currentCell);
+
+        let nu = parseInt(Math.random() * 10);
+        if (nu < 10) {
+          let animal;
+          if (nu == 0) animal = butterflyWhite({ x, y });
+          else if (nu == 1) animal = butterflyYellow({ x, y });
+          else if (nu == 2) animal = birds({ x, y });
+          else if (nu == 3) animal = bee({ x, y });
+          else if (nu == 4) animal = frog({ x, y });
+
+          if (animal) cellContainer.addChild(animal);
+        }
+
+        cellContainer.tilePosition = { x, y };
         mapContainer.addChild(cellContainer);
       });
     });
