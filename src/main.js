@@ -180,7 +180,7 @@ async function launchGame({ user, leaderboard, map, socket }) {
           );
         });
         currentCell.type = "ground";
-        cellContainer.tilePosition = {x, y};
+        cellContainer.tilePosition = { x, y };
         cellContainer.addChild(currentCell);
         mapContainer.addChild(cellContainer);
       });
@@ -238,30 +238,34 @@ async function launchGame({ user, leaderboard, map, socket }) {
     setInterval(() => {
       let rdmX = Math.floor(Math.random() * 10);
       let rdmY = Math.floor(Math.random() * 10);
-      const newCellType = tileMethods[Math.floor(Math.random() * 4)].type;
-      updateMapTile({x:rdmX, y:rdmY, cellType:newCellType})
-    }, 500)
-  
+      const newCellType =
+        tileMethods[Math.floor(Math.random() * (tileMethods.length - 1))].type;
+      updateMapTile({ x: rdmX, y: rdmY, cellType: newCellType });
+    }, 500);
 
-    function updateMapTile({x, y, cellType}) {
-      let currentTile = mapContainer.children.find((item) => item.tilePosition.x == x && item.tilePosition.y == x)
-      currentTile.removeChild(currentTile.children.find((item) => item.type == "ground"));
+    function updateMapTile({ x, y, cellType }) {
+      let rdmX = x;
+      let rdmY = y;
+      let currentTile = mapContainer.children.find(
+        (item) => item.tilePosition.x == rdmX && item.tilePosition.y == rdmY
+      );
+      currentTile.removeChild(
+        currentTile.children.find((item) => item.type == "ground")
+      );
       let newChild = tileMethods
-      .find((tile) => {
-        return tile.type === cellType;
-      })
-      ?.tile({ x:x, y:x });
+        .find((tile) => {
+          return tile.type === cellType;
+        })
+        ?.tile({ x: rdmX, y: rdmY });
       if (!newChild) return;
       newChild.interactive = true;
       newChild.on("pointerdown", (e) => {
-        console.log("ptr dw:", x, y);
-        setPosition(() => ({ x: x, y: y }));
+        console.log("ptr dw:", rdmX, rdmY);
+        setPosition(() => ({ x: rdmX, y: rdmY }));
       });
       newChild.type = "ground";
       currentTile.addChild(newChild);
     }
-
-
 
     // Move players position
     setInterval(() => {
