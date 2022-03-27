@@ -177,8 +177,6 @@ async function launchGame({ user, leaderboard, map, socket }) {
           ?.tile({ x, y });
         if (!currentCell) return;
         currentCell.interactive = true;
-        if (cell === "cloud")
-          console.log("HELP");
         if (cell != 'cloud') {
           currentCell.on("pointerdown", (e) => {
             console.log("ptr dw:", x, y);
@@ -243,7 +241,21 @@ async function launchGame({ user, leaderboard, map, socket }) {
     socket.on("edit", ({ position, tile }) => {
       console.log("edit", position, tile);
       updateMapTile({ x: position.x, y: position.y, cellType: tile });
-      writeActivity(user.name + " has " + tile);
+      let message = user.name;
+      if (tile === "tree") {
+        message += " planted a tree"
+      } else if (tile === "plowed") {
+        message += " plowed the ground"
+      } else if (tile === "watered") {
+        message += " watered a seed"
+      } else if (tile === "dry") {
+        message += " dried the ground"
+      } else if (tile === "seeded") {
+        message += " planted a seed"
+      }
+
+      writeActivity(message);
+
       // let npc = players.find(({ id }) => id === uuid)?.npc;
       // console.log("npc", npc);
       // mapContainer.removeChild(npc.render);
