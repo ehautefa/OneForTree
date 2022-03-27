@@ -13,14 +13,6 @@ socket.on("connect", (e) => {
     console.log(data);
     launchGame({ ...data, socket });
   });
-<<<<<<< HEAD
-=======
-
-  // socket.on("edit", ({ position, tile }) => {
-  //   map[position.x][position.y] = tile;
-  //   console.log("Edit tile:", position, tile);
-  // });
->>>>>>> b05619f ([ADD] tiles interactions)
 });
 
 async function launchGame({ user, leaderboard, map, socket }) {
@@ -166,8 +158,8 @@ async function launchGame({ user, leaderboard, map, socket }) {
     mapContainer.x = player.position.pixel.x;
     mapContainer.y = player.position.pixel.y;
 
-    map.forEach((row, y) => {
-      row.forEach((cell, x) => {
+    map.forEach((row, x) => {
+      row.forEach((cell, y) => {
         //let currentCell = tileMethods[x % 5].tile({ x: x, y: y });
         let cellContainer = new PIXI.Container();
         let currentCell = tileMethods
