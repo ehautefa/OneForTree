@@ -1,12 +1,13 @@
-const socket = io();
+
 
 async function sockets(username) {
   let user = null;
   let leaderboard = [];
   let map = [[]];
+  const socket = io();
 
   console.log("sockets...");
-
+  console.log("My username is " + username)
   function keydown(key, callback) {
     document.addEventListener(
       "keydown",
