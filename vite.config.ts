@@ -160,7 +160,7 @@ export const server = (io, socket) => {
                 tile = "seeded";
               }
               break;
-            case "shrub":
+            case "tree":
               if (user.capacity <= 5) {
                 users[socket.id].capacity = 5;
               }
@@ -185,10 +185,15 @@ export const server = (io, socket) => {
         case "treater":
           switch (tile) {
             case "watered":
-              // if (user.capacity > 0) {
-              //   users[user.id].capacity -= 1;
-              tile = "tree";
-              // }
+              if (user.capacity > 0) {
+                users[user.id].capacity -= 1;
+                tile = "tree";
+              }
+              break;
+            case "grass":
+              if (user.capacity <= 5) {
+                users[socket.id].capacity = 5;
+              }
               break;
           }
           break;
@@ -208,8 +213,6 @@ export const server = (io, socket) => {
         );
         // Update tile for the server
         map[x][y] = tile;
-        // Edits the user
-        callback?.({ user: users[user.id] });
         // Transmits the user data to himself
         io.emit("edit", { position: { x, y }, tile: tile });
       } else {
@@ -224,6 +227,8 @@ export const server = (io, socket) => {
           tile
         );
       }
+      // Edits the user
+      callback?.({ user: users[socket.id] });
     }
   );
 
