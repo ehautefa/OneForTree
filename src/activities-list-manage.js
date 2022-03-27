@@ -15,5 +15,5 @@
 function writeActivity(textToAdd) {
   // Réception du document
   document.getElementById("activitiesList").innerHTML += "<p>" + textToAdd + "</p>";
-  return false;
+  console.log("actif");
 }

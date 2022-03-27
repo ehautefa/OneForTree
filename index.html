@@ -1,188 +1,205 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <style>
-      @import url("https://fonts.googleapis.com/css2?family=VT323&display=swap");
 
-      body {
-        padding: 0;
-        margin: 0;
-        overflow: hidden;
+<head>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+    body {
+      padding: 0;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    button {
+      width: 16%;
+      height: 5%;
+      min-width: 400px;
+      font-size: xx-large;
+      font-family: 'VT323', monospace;
+    }
+
+    h1 {
+      font-size: 500%;
+      font-family: 'VT323', monospace;
+    }
+
+    input {
+      width: 16%;
+      height: 5%;
+      min-width: 400px;
+      font-size: xx-large;
+      font-family: 'VT323', monospace;
+    }
+
+    .cloudLeft {
+      bottom: -10%;
+      left: -10%;
+      width: 50%;
+      height: 100%;
+      position: absolute;
+      background-size: contain;
+      transform: scaleX(-1);
+      min-width: 400px;
+      background-position: bottom;
+      background-image: url("/src/assets/clouds.png");
+      background-repeat: no-repeat;
+      -webkit-animation-play-state: paused;
+      animation-play-state: paused;
+    }
+
+    .cloudRight {
+      top: -10%;
+      right: -10%;
+      width: 50%;
+      height: 100%;
+      position: absolute;
+      min-width: 400px;
+      transform: scaleY(-1);
+      background-image: url("/src/assets/clouds.png");
+      background-repeat: no-repeat;
+      background-position: bottom;
+      background-size: contain;
+      -webkit-animation-play-state: paused;
+      animation-play-state: paused;
+    }
+
+
+    .inputs {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .cloudLeft-active {
+      left: -50%;
+    }
+
+    .cloudRight-active {
+      right: -50%;
+    }
+
+    .loginClass-active {
+      opacity: 0;
+      pointer-events: none
+    }
+
+    .error {
+      border: 2px solid red;
+    }
+
+    .error::placeholder {
+      color: red;
+    }
+
+
+    .bgCloud {
+      top: 0;
+      right: 0;
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      background-image: url("/src/assets/bg_clouds.png");
+      background-size: cover;
+      background-repeat: no-repeat;
+    }
+
+    @keyframes beat {
+      0% {
+        -webkit-transform: scale(10, 1);
+        transform: scale(1, 1);
       }
 
-      button {
-        width: 16%;
-        height: 5%;
-        min-width: 400px;
-        font-size: xx-large;
-        font-family: "VT323", monospace;
+      50% {
+        -webkit-transform: scale(1000.8, 0.8);
+        transform: scale(0.8, 0.8);
       }
 
-      h1 {
-        font-size: 500%;
-        font-family: "VT323", monospace;
+      100% {
+        -webkit-transform: scale(10, 1);
+        transform: scale(1, 1);
       }
+    }
 
-      input {
-        width: 16%;
-        height: 5%;
-        min-width: 400px;
-        font-size: xx-large;
-        font-family: "VT323", monospace;
-      }
+    button:focus {
+      -webkit-animation: beat 1s ease-in-out backwards;
+      animation: beat 1s ease-in-out backwards;
+    }
 
-      .cloudLeft {
-        top: 10%;
-        left: 0;
-        width: 50%;
-        height: 90%;
-        position: absolute;
-        transform: scaleX(-1);
-        background-image: url("/src/assets/clouds.png");
-        background-repeat: no-repeat;
-        -webkit-animation-play-state: paused;
-        animation-play-state: paused;
-      }
+    div {
+      -webkit-animation-play-state: paused;
+      animation-play-state: paused;
+    }
 
-      .cloudRight {
-        top: 0;
-        right: 0;
-        width: 50%;
-        height: 90%;
-        position: absolute;
-        background-image: url("/src/assets/clouds.png");
-        background-repeat: no-repeat;
-        background-position: top;
-        background-size: contain;
-        -webkit-animation-play-state: paused;
-        animation-play-state: paused;
-      }
+    .transform {
+      -webkit-transition: all 2s ease;
+      -moz-transition: all 2s ease;
+      -o-transition: all 2s ease;
+      -ms-transition: all 2s ease;
+      transition: all 2s ease;
+    }
 
-      .inputs {
-        width: 100%;
-        height: 100%;
-        position: absolute;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        gap: 10px;
-      }
+    .transformSlow {
+      -webkit-transition: all 2s ease;
+      -moz-transition: all 2s ease;
+      -o-transition: all 2s ease;
+      -ms-transition: all 2s ease;
+      transition: all 2s ease;
+    }
 
-      .cloudLeft-active {
-        left: -50%;
-      }
+    #activitiesList {
+      position: fixed;
+      top: 10px;
+      right: 60px;
+      width: 350px;
+      height: calc(100vh - 20px);
+      background-color: rgba(255, 255, 255, 0.75);
+      padding: 20px;
+      box-sizing: border-box;
+      overflow-y: scroll;
+    }
 
-      .cloudRight-active {
-        right: -50%;
-      }
+    #activitiesList h2 {
+      font: 2.75em/1.0em 'VT323', monospace;
+      margin-top: 0;
+      margin-bottom: 20px;
+    }
 
-      .loginClass-active {
-        opacity: 0;
-        pointer-events: none;
-      }
+    #activitiesList p {
+      font: 1.6em/1.5em 'VT323', monospace;
+    }
 
-      .error {
-        border: 2px solid red;
-      }
-
-      .error::placeholder {
-        color: red;
-      }
-
-      .bgCloud {
-        top: 0;
-        right: 0;
-        width: 100%;
-        height: 100%;
-        position: absolute;
-        background-image: url("/src/assets/bg_clouds.png");
-        background-size: cover;
-        background-repeat: no-repeat;
-      }
-
-      @keyframes beat {
-        0% {
-          -webkit-transform: scale(10, 1);
-          transform: scale(1, 1);
-        }
-
-        50% {
-          -webkit-transform: scale(1000.8, 0.8);
-          transform: scale(0.8, 0.8);
-        }
-
-        100% {
-          -webkit-transform: scale(10, 1);
-          transform: scale(1, 1);
-        }
-      }
-
-      button:focus {
-        -webkit-animation: beat 1s ease-in-out backwards;
-        animation: beat 1s ease-in-out backwards;
-      }
-
-      div {
-        -webkit-animation-play-state: paused;
-        animation-play-state: paused;
-      }
-
-      .transform {
-        -webkit-transition: all 2s ease;
-        -moz-transition: all 2s ease;
-        -o-transition: all 2s ease;
-        -ms-transition: all 2s ease;
-        transition: all 2s ease;
-      }
-
-      .transformSlow {
-        -webkit-transition: all 2s ease;
-        -moz-transition: all 2s ease;
-        -o-transition: all 2s ease;
-        -ms-transition: all 2s ease;
-        transition: all 2s ease;
-      }
+    @media screen and (max-width: 1024px) {
       #activitiesList {
-        position: fixed;
-        top: 10px;
-        right: 60px;
-        width: 350px;
-        height: calc(100vh - 20px);
-        background-color: rgba(255, 255, 255, 0.75);
-        padding: 20px;
-        box-sizing: border-box;
+        display: none;
       }
+    }
+  </style>
+</head>
 
-      #activitiesList h2 {
-        font: 2.75em/1em "VT323", monospace;
-        margin-top: 0;
-        margin-bottom: 20px;
-      }
-
-      #activitiesList p {
-        font: 1.6em/1.5em "VT323", monospace;
-      }
-    </style>
-  </head>
-
-  <body>
-    <!-- <script src=""></script> -->
-    <section id="activitiesList">
-      <h2>Players activities</h2>
-    </section>
-    <script src="./src/activities-list-manage.js"></script>
-    <script type="module" src="/src/main.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
-    <div id="login" class="loginClass transformSlow">
-      <div class="bgCloud" id="idBgCloud"></div>
-      <div id="cl" class="transform cloudLeft"></div>
-      <div id="cr" class="transform cloudRight"></div>
-      <div class="inputs transform">
-        <h1>One For Tree !</h1>
-        <input type="text" id="Username" placeholder="Username" />
-        <button id="Connect">PLAY !</button>
-      </div>
+<body>
+  <!-- <script src=""></script> -->
+  <section id="activitiesList">
+    <h2>Radio</h2>
+  </section>
+  <script src="./src/activities-list-manage.js"></script>
+  <script type="module" src="/src/main.js"> </script>
+  <script src="/socket.io/socket.io.js"></script>
+  <div id="login" class="loginClass transformSlow">
+    <div class="bgCloud" id="idBgCloud"></div>
+    <div id="cl" class="transform cloudLeft"></div>
+    <div id="cr" class="transform cloudRight"></div>
+    <div class="inputs transform">
+      <h1>One For Tree !</h1>
+      <input type="text" id="Username" placeholder="Username">
+      <button id="Connect">PLAY !</button>
     </div>
-  </body>
+  </div>
+</body>
+
 </html>

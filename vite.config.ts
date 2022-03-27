@@ -11,7 +11,9 @@ export type Tile =
   | "watered" // germinating land
   | "tree" // A tree entity
   | "shrub" // little bush
-  // | "garbage" // Garbage
+  | "fertilizer" // fertilizant
+  | "cloud" // les nuages
+  | "berry" // berry
   | "grass";
 export type UserRole = "worker" | "cultivator" | "waterer" | "treater";
 export type User = {
@@ -160,10 +162,11 @@ export const server = (io, socket) => {
                 tile = "seeded";
               }
               break;
-            case "shrub":
+            case "berry":
               if (user.capacity <= 5) {
                 users[socket.id].capacity = 5;
               }
+			  tile="grass";
               break;
           }
           break;
@@ -185,10 +188,16 @@ export const server = (io, socket) => {
         case "treater":
           switch (tile) {
             case "watered":
-              // if (user.capacity > 0) {
-              //   users[user.id].capacity -= 1;
-              tile = "tree";
-              // }
+              if (user.capacity > 0) {
+                users[user.id].capacity -= 1;
+                tile = "tree";
+              }
+              break;
+            case "fertilizer":
+              if (user.capacity <= 5) {
+                users[socket.id].capacity = 5;
+              }
+			  tile = "grass";
               break;
           }
           break;
@@ -204,12 +213,11 @@ export const server = (io, socket) => {
           y,
           map[x][y],
           "->",
-          tile
+          tile,
+		  user.capacity
         );
         // Update tile for the server
         map[x][y] = tile;
-        // Edits the user
-        callback?.({ user: users[user.id] });
         // Transmits the user data to himself
         io.emit("edit", { position: { x, y }, tile: tile });
       } else {
@@ -224,6 +232,8 @@ export const server = (io, socket) => {
           tile
         );
       }
+      // Edits the user
+      callback?.({ user: users[socket.id] });
     }
   );
 
