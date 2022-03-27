@@ -54,8 +54,8 @@ function genMap(width: number, height: number) {
 import fs from "fs";
 import { setTokenSourceMapRange } from "typescript";
 let rawdata = fs.readFileSync("src/map.json");
-let map: Tile[][] = JSON.parse(rawdata.toString());
-// let map: Tile[][] = genMap(5, 10);
+// let map: Tile[][] = JSON.parse(rawdata.toString());
+let map: Tile[][] = genMap(10, 10);
 const mapWidth = map[0].length;
 const mapHeight = map.length;
 
@@ -114,8 +114,8 @@ export const server = (io, socket) => {
       };
     }
 
+    console.log(users);
     // Sends to the user the finalized user and the map
-    // socket.emit("created", { map: map, user: users[socket.id], users: users });
     callback?.({ map: map, user: users[socket.id], leaderboard: users });
     // Sends to other players that a new user connected
     socket.broadcast.emit("login", { user: users[socket.id] });
@@ -260,10 +260,11 @@ export const server = (io, socket) => {
 
   socket.on("disconnect", () => {
     console.log("Disconnect:", socket.id);
+    socket.broadcast.emit("logout", { uuid: socket.id });
     socket.disconnect();
     // Destroy the user
     // TODO Maybe we don't want this
-    // delete users[socket.id];
+    delete users[socket.id];
   });
 };
 

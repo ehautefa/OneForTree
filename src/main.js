@@ -5,9 +5,6 @@ import { setTokenSourceMapRange } from "typescript";
 import { createSheet } from "./sheet";
 import { createNpc, createPlayer } from "./player";
 const socket = io();
-let map = [];
-let user = {};
-let leaderboard = [];
 
 //Connect to server
 socket.on("connect", (e) => {
@@ -15,20 +12,7 @@ socket.on("connect", (e) => {
 
   socket.emit("create", { name: "mbeilles" }, (data) => {
     console.log(data);
-
-    user = data.user;
-    leaderboard = data.users;
-    map = data.map;
-
-    launchGame();
-  });
-
-  socket.on("login", (data) => {
-    console.log(data);
-  });
-
-  socket.on("move", ({ uuid, next, prev }) => {
-    console.log("player moved: ", uuid, next, prev);
+    launchGame({ ...data, socket });
   });
 
   socket.on("edit", ({position, tile}) => {
@@ -37,7 +21,7 @@ socket.on("connect", (e) => {
   });
 });
 
-async function launchGame() {
+async function launchGame({ user, leaderboard, map, socket }) {
   // Create the application helper and add its render target to the page
 
   let app = new PIXI.Application({
@@ -149,7 +133,12 @@ async function launchGame() {
       x: app.view.width / 2,
       y: app.view.height / 2,
       sheet: playerSheet,
-      idle: () => console.log("player idle"),
+      idle: (pos) => {
+        socket.emit("edit", { user, position: pos }, ({ user: u }) => {
+          user = u;
+          console.log("edit");
+        });
+      },
     });
     setPosition(({ x, y }) => ({ x: 0, y: 0 }));
 
@@ -170,7 +159,13 @@ async function launchGame() {
         currentCell.interactive = true;
         currentCell.on("pointerdown", (e) => {
           console.log("ptr dw:", x, y);
-          setPosition(() => ({ x: x, y: y }));
+          socket.emit(
+            "move",
+            { uuid: user.id, position: { x, y } },
+            ({ position }) => {
+              setPosition(() => position);
+            }
+          );
         });
         currentCell.type = "ground";
         cellContainer.tilePosition = {x, y};
@@ -180,27 +175,53 @@ async function launchGame() {
     });
 
     let players = [];
-    for (let i = 0; i < 10; i++) {
-      for (let j = 0; j < 10; j++) {
-        let [npc, setPosition, setAnimation] = createNpc({
-          x: i,
-          y: j,
-          sheet: playerSheet,
-        });
-        mapContainer.addChild(npc.render);
-        players.push({ npc, setPosition, setAnimation });
-      }
+    for (let [id, u] of Object.entries(leaderboard)) {
+      if (id === user.id) continue;
+      let [npc, setPosition, setAnimation] = createNpc({
+        x: u.x,
+        y: u.y,
+        sheet: playerSheet,
+      });
+      mapContainer.addChild(npc.render);
+      players.push({ id, npc, setPosition, setAnimation });
+      console.log("login+", id, u);
     }
 
-    // Make npc move
-    setInterval(() => {
-      players.forEach(({ npc, setPosition }) => {
-        setPosition(() => ({
-          x: Math.floor(Math.random() * map[0].length),
-          y: Math.floor(Math.random() * map.length),
-        }));
+    // Sockets for states updates
+
+    // A user logged in
+    socket.on("login", ({ user }) => {
+      console.log("login", user.id, user);
+      // TODO change playerSheet to reflect user.role
+      let [npc, setPosition, setAnimation] = createNpc({
+        x: user.x,
+        y: user.y,
+        sheet: playerSheet,
       });
-    }, 10_000);
+      players.push({ id: user.id, npc, setPosition, setAnimation });
+      mapContainer.addChild(npc.render);
+    });
+    socket.on("logout", ({ uuid }) => {
+      console.log("logout", uuid);
+      let npc = players.find(({ id }) => id === uuid)?.npc;
+      console.log("npc", npc);
+      mapContainer.removeChild(npc.render);
+    });
+
+    // Make npc move
+    socket.on("move", ({ uuid, next }) => {
+      console.log("players", players);
+      console.log(
+        players.find(({ id }) => {
+          console.log("find", user);
+          return id === uuid;
+        }),
+        uuid,
+        "moved"
+      );
+      let npc = players.find(({ id }) => id === uuid);
+      npc?.setPosition(() => ({ x: next.x, y: next.y }));
+    });
 
     setInterval(() => {
       let rdmX = Math.floor(Math.random() * 10);
@@ -263,18 +284,6 @@ async function launchGame() {
     player.render.play();
     app.stage.addChild(player.render);
 
-    document.addEventListener(
-      "keydown",
-      (event) => {
-        var name = event.key;
-        if (name == "ArrowRight") setPosition(({ x, y }) => ({ x: x - 1, y }));
-        if (name == "ArrowLeft") setPosition(({ x, y }) => ({ x: x + 1, y }));
-        if (name == "ArrowDown") setPosition(({ x, y }) => ({ x, y: y - 1 }));
-        if (name == "ArrowUp") setPosition(({ x, y }) => ({ x, y: y + 1 }));
-      },
-      false
-    );
-
     app.ticker.add(() =>
       gameLoop({
         player: [player, setPosition, setAnimation, mapContainer],
@@ -313,7 +322,7 @@ async function launchGame() {
       };
       idle[player.direction]();
       if (player.state === "working") {
-        player.idle();
+        player.idle(player.position.tile);
         player.state = "idle";
       }
     }
