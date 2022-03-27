@@ -1,3 +1,4 @@
+// Affichage de la liste des actions réalisées
 function showActivitiesList(file) {
     fetch(file)
         .then(response => response.text())
