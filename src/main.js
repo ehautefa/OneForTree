@@ -14,10 +14,10 @@ socket.on("connect", (e) => {
     launchGame({ ...data, socket });
   });
 
-  socket.on("edit", ({ position, tile }) => {
-    map[position.x][position.y] = tile;
-    console.log("Edit tile:", position, tile);
-  });
+  // socket.on("edit", ({ position, tile }) => {
+  //   map[position.x][position.y] = tile;
+  //   console.log("Edit tile:", position, tile);
+  // });
 });
 
 async function launchGame({ user, leaderboard, map, socket }) {
@@ -225,6 +225,14 @@ async function launchGame({ user, leaderboard, map, socket }) {
       mapContainer.removeChild(npc.render);
     });
 
+    socket.on("edit", ({ position, tile }) => {
+      console.log("edit", position, tile);
+      updateMapTile({ x: position.x, y: position.y, cellType: tile });
+      // let npc = players.find(({ id }) => id === uuid)?.npc;
+      // console.log("npc", npc);
+      // mapContainer.removeChild(npc.render);
+    });
+
     // Make npc move
     socket.on("move", ({ uuid, next }) => {
       console.log("players", players);
@@ -239,14 +247,6 @@ async function launchGame({ user, leaderboard, map, socket }) {
       let npc = players.find(({ id }) => id === uuid);
       npc?.setPosition(() => ({ x: next.x, y: next.y }));
     });
-
-    setInterval(() => {
-      let rdmX = Math.floor(Math.random() * 10);
-      let rdmY = Math.floor(Math.random() * 10);
-      const newCellType =
-        tileMethods[Math.floor(Math.random() * (tileMethods.length - 1))].type;
-      updateMapTile({ x: rdmX, y: rdmY, cellType: newCellType });
-    }, 500);
 
     function updateMapTile({ x, y, cellType }) {
       let rdmX = x;
