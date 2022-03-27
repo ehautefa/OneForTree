@@ -58,11 +58,15 @@ async function launchGame({ user, leaderboard, map, socket }) {
   var ground = createTile("/src/assets/Soft_Ground", 3);
   var labored = createTile("/src/assets/Labored_Ground", 1);
   var plant = createTile("/src/assets/Plant", 1);
+  var berry = createTile("/src/assets/single_berry", 1);
+  var fertilizer = createTile("/src/assets/fertilizer", 1);
   var water = createAnimatedTile("/src/assets/Water", 3);
   var clouds = createTile("src/assets/Clouds", 3);
   var tileMethods = [
     { tile: grass, type: "grass" },
     { tile: ground, type: "dry" },
+    { tile: berry, type: "berry" },
+    { tile: fertilizer, type: "fertilizer" },
     { tile: labored, type: "plowed" },
     { tile: plant, type: "seeded" },
     { tile: watered, type: "watered" },
@@ -173,16 +177,18 @@ async function launchGame({ user, leaderboard, map, socket }) {
           ?.tile({ x, y });
         if (!currentCell) return;
         currentCell.interactive = true;
-        currentCell.on("pointerdown", (e) => {
-          console.log("ptr dw:", x, y);
-          socket.emit(
-            "move",
-            { uuid: user.id, position: { x, y } },
-            ({ position }) => {
-              setPosition(() => position);
-            }
-          );
-        });
+        if (cell != 'cloud') {
+          currentCell.on("pointerdown", (e) => {
+            console.log("ptr dw:", x, y);
+            socket.emit(
+              "move",
+              { uuid: user.id, position: { x, y } },
+              ({ position }) => {
+                setPosition(() => position);
+              }
+            );
+          });
+        }
         currentCell.type = "ground";
         cellContainer.tilePosition = { x, y };
         cellContainer.addChild(currentCell);

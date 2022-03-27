@@ -11,7 +11,8 @@ export type Tile =
   | "watered" // germinating land
   | "tree" // A tree entity
   | "shrub" // little bush
-  // | "garbage" // Garbage
+  | "fertilizer" // fertilizant
+  | "berry" // berry
   | "grass";
 export type UserRole = "worker" | "cultivator" | "waterer" | "treater";
 export type User = {
@@ -160,10 +161,11 @@ export const server = (io, socket) => {
                 tile = "seeded";
               }
               break;
-            case "tree":
+            case "berry":
               if (user.capacity <= 5) {
                 users[socket.id].capacity = 5;
               }
+			  tile="grass";
               break;
           }
           break;
@@ -190,10 +192,11 @@ export const server = (io, socket) => {
                 tile = "tree";
               }
               break;
-            case "grass":
+            case "fertilizer":
               if (user.capacity <= 5) {
                 users[socket.id].capacity = 5;
               }
+			  tile = "grass";
               break;
           }
           break;
@@ -209,7 +212,8 @@ export const server = (io, socket) => {
           y,
           map[x][y],
           "->",
-          tile
+          tile,
+		  user.capacity
         );
         // Update tile for the server
         map[x][y] = tile;
