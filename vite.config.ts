@@ -12,6 +12,7 @@ export type Tile =
   | "tree" // A tree entity
   | "shrub" // little bush
   | "fertilizer" // fertilizant
+  | "cloud" // les nuages
   | "berry" // berry
   | "grass";
 export type UserRole = "worker" | "cultivator" | "waterer" | "treater";
