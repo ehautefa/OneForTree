@@ -245,37 +245,38 @@ async function launchGame() {
     liters: 0,
   };
 
-  // EFFECTS BLOCKS
-  // ----------------------------------------------------------
-
   // PLAYER UI
   // ----------------------------------------------------------
-  // UI Player Activities Init
-  var playersActivitiesSprite = PIXI.Sprite.from(
-    "./src/assets/players_activities_sprite.png"
-  );
-  playersActivitiesSprite.x = screen.width - 260;
-  playersActivitiesSprite.y = 10;
-  playersActivitiesSprite.height = visualViewport.height - 20;
 
-  let playersActivitiesSpriteTitle = new PIXI.Text("Player Activities", {
-    fontFamily: "Arial",
-    fontSize: 24,
-    fill: 0x000000,
-    align: "center",
+  window.addEventListener('resize', function(event){
+    var newWidth = window.innerWidth;
+    var newHeight = window.innerHeight; 
   });
-  playersActivitiesSpriteTitle.x = screen.width - 250;
-  playersActivitiesSpriteTitle.y = 20;
 
   // UI LifeBar Init
-  var healthBarSprite = PIXI.Sprite.from("./src/assets/lifebar_sprite.png");
-  healthBarSprite.x = screen.width - 300;
-  healthBarSprite.y = 10;
-  healthBarSprite.height = visualViewport.height - 20;
+  var healthBarSprite = new PIXI.Graphics();
+  healthBarSprite.beginFill(0xffffff, 1);
+  healthBarSprite.drawRect(
+    screen.width - 40,
+    10,
+    25,
+    visualViewport.height - 20
+  )
+
+  var healthBarSpriteBlack = new PIXI.Graphics();
+  healthBarSpriteBlack.beginFill(0x000000, 1);
+  healthBarSpriteBlack.drawRect(
+    screen.width - 40,
+    10,
+    25,
+    //(visualViewport.height - 20) * (100 / (visualViewport.height - 20))
+    (visualViewport.height - 20) * .75
+  )
 
   // UI ProfileType Init
   let textProfileContent = "Profile Type :";
   let powerCapacityBar = new PIXI.Graphics();
+  let powerCapacityBarBlack = new PIXI.Graphics();
 
   let textProfile = new PIXI.Text(textProfileContent, {
     fontFamily: "Arial",
@@ -296,13 +297,21 @@ async function launchGame() {
     30
   );
 
+  powerCapacityBarBlack.beginFill(0xff0000, 0.75);
+  powerCapacityBarBlack.drawRect(
+    textProfile.width + 28,
+    visualViewport.height - 50,
+    powerCapacityBar.width * 1,
+    30
+  );
+
   // UI Deploy
   app.stage.addChild(
-    playersActivitiesSprite,
-    playersActivitiesSpriteTitle,
     healthBarSprite,
+    healthBarSpriteBlack,
     textProfile,
-    powerCapacityBar
+    powerCapacityBar,
+    powerCapacityBarBlack
   );
 
   console.log(textProfile.width);
