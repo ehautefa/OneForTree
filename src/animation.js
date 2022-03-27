@@ -70,6 +70,27 @@ const animationSheet = {
 		animationSheet["action"] = createTextureArray(12, 21);
 		animationSheet["default"] = animationSheet["standSouth"];
 	}
+	else if (type == "treater")
+	{
+		animationSheet["walkSouth"] = createTextureArray(34, 37);
+		animationSheet["walkWest"] = createTextureArray(66, 69);
+		animationSheet["walkEast"] = createTextureArray(38, 41);
+		animationSheet["walkNorth"] = createTextureArray(50, 53);
+		animationSheet["standSouth"] = createTextureArray(0, 3);
+		animationSheet["standWest"] = createTextureArray(58, 61);
+		animationSheet["standEast"] = createTextureArray(4, 7);
+		animationSheet["standNorth"] = createTextureArray(8, 11);
+		animationSheet["walkSouthVide"] = createTextureArray(46, 49);
+		animationSheet["walkWestVide"] = createTextureArray(70, 73);
+		animationSheet["walkEastVide"] = createTextureArray(42, 45);
+		animationSheet["walkNorthVide"] = createTextureArray(54, 57);
+		animationSheet["standSouthVide"] = createTextureArray(22, 25);
+		animationSheet["standWestVide"] = createTextureArray(62, 65);
+		animationSheet["standEastVide"] = createTextureArray(26, 29);
+		animationSheet["standNorthVide"] = createTextureArray(30, 33);
+		animationSheet["action"] = createTextureArray(12, 21);
+		animationSheet["default"] = animationSheet["standSouth"];
+	}
 	else if (type == "papillionBlanc")
 	  animationSheet["animation"] = createTextureArray(0, 13);
 	else if (type == "papillionJaune")

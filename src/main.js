@@ -355,13 +355,11 @@ async function launchGame({ user, leaderboard, map, socket }) {
   }
 
   // Game start
-  if (user.role == "worker")
-  	app.loader.add(user.role, "/src/assets/Anim_Laboureur_AllSprites.png");
-  else if (user.role == "waterer")
-  	app.loader.add(user.role, "/src/assets/arroseur_sheet.png");
-  else
-  	app.loader.add(user.role, "/src/assets/planteur_sheet.png");
-  app.loader.load(setup);
+	app.loader.add("worker", "/src/assets/Anim_Laboureur_AllSprites.png");
+	app.loader.add("cultivator", "/src/assets/planteur_sheet.png");
+	app.loader.add("waterer", "/src/assets/arroseur_sheet.png");
+	app.loader.add("treater", "/src/assets/arroseur_sheet.png");
+  	app.loader.load(setup);
 
   // PLAYER UI
   // ----------------------------------------------------------
