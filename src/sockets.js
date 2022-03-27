@@ -1,12 +1,13 @@
-const socket = io();
 
-const sockets = async () => {
+
+async function sockets(username) {
   let user = null;
   let leaderboard = [];
   let map = [[]];
+  const socket = io();
 
   console.log("sockets...");
-
+  console.log("My username is " + username)
   function keydown(key, callback) {
     document.addEventListener(
       "keydown",
@@ -17,10 +18,11 @@ const sockets = async () => {
     );
   }
 
+
   socket.on("connect", (e) => {
     console.log("connection established");
 
-    socket.emit("create", { name: "mbeilles" }, (data) => {
+    socket.emit("create", { name: username }, (data) => {
       console.log(data);
 
       user = data.user;
@@ -91,5 +93,3 @@ const sockets = async () => {
     });
   });
 };
-
-sockets();
