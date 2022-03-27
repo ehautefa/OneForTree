@@ -93,6 +93,7 @@ export function createPlayer({
   };
   player.render.animationSpeed = 0.18;
   player.render.anchor.set(0.5);
+  player.render.texture.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
   // Texture coordinates
   player.render.x = x;
   player.render.y = y;
