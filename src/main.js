@@ -1,27 +1,33 @@
 import animationSheet from "./animation.js";
 import * as PIXI from "pixi.js";
 import { io } from "socket.io-client";
-import { setTokenSourceMapRange } from "typescript";
-import { createSheet } from "./sheet";
 import { createNpc, createPlayer } from "./player";
-import { createTileMap } from "./tilemap";
 
-const socket = io();
+document.getElementById("Connect").onclick = () => {
+  const username = document.getElementById("Username").value;
 
-//Connect to server
-socket.on("connect", (e) => {
-  console.log("connection established");
+  if (username.length > 0) {
+    document.getElementById("cl").classList.toggle("cloudLeft-active");
+    document.getElementById("cr").classList.toggle("cloudRight-active");
+    setTimeout(function () {
+      document.getElementById("login").classList.toggle("loginClass-active");
 
-  socket.emit("create", { name: "mbeilles" }, (data) => {
-    console.log(data);
-    launchGame({ ...data, socket });
-  });
+      console.log("Clicked");
+      const socket = io();
+      //Connect to server
+      socket.on("connect", (e) => {
+        console.log("connection established");
 
-  // socket.on("edit", ({ position, tile }) => {
-  //   map[position.x][position.y] = tile;
-  //   console.log("Edit tile:", position, tile);
-  // });
-});
+        socket.emit("create", { name: username }, (data) => {
+          console.log(data);
+          launchGame({ ...data, socket });
+        });
+      });
+    }, 1500);
+  } else {
+    document.getElementById("Username").classList.add("error");
+  }
+};
 
 async function launchGame({ user, leaderboard, map, socket }) {
   // Create the application helper and add its render target to the page
@@ -376,7 +382,7 @@ async function launchGame({ user, leaderboard, map, socket }) {
   app.loader.add("worker", "/src/assets/Anim_Laboureur_AllSprites.png");
   app.loader.add("cultivator", "/src/assets/planteur_sheet.png");
   app.loader.add("waterer", "/src/assets/arroseur_sheet.png");
-  app.loader.add("treater", "/src/assets/arroseur_sheet.png");
+  app.loader.add("treater", "/src/assets/fertilizer_sheet.png");
   app.loader.load(setup);
 
   // PLAYER UI
