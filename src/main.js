@@ -1,4 +1,6 @@
 import { io } from "socket.io-client";
+import { createTileMap } from "./tilemap";
+
 const socket = io();
 localStorage.debug = "socket.io-client:socket";
 let map = [];
@@ -32,6 +34,9 @@ async function launchGame() {
   let player;
   let playerSheet = {};
   let playerPosition = { x: 0, y: 0 };
+  let mapContainer = createTileMap(map, (x, y) => {
+    playerDestination.setPlayerDestination({ x: -x, y: -y });
+  });
 
   // Create the application helper and add its render target to the page
 
@@ -50,46 +55,6 @@ async function launchGame() {
     app.renderer.resize(window.innerWidth, window.innerHeight);
   };
 
-  function randomNumber(min, max) {
-    return Math.random() * (max - min) + min;
-  }
-
-  // Create the sprite and add it to the stage
-  var grass = createTile('/src/assets/Grass', 3);
-  var ground = createTile('/src/assets/Soft_Ground', 3);
-  var labored = createTile('/src/assets/Labored_Ground', 1);
-  var plant = createTile('/src/assets/Plant', 1);
-  var water = createAnimatedTile('/src/assets/Water', 3);
-  var tileMethods = [
-    { tile: grass, type: "shrub" },
-    { tile: ground, type: "dry" },
-    { tile: labored, type: "plowed" },
-    { tile: plant, type: "seeded" },
-    { tile: water, type: 'water' }
-  ];
-
-  function createTile(name, tileNumber) {
-    return function (position) {
-      let filename =
-        name +
-        (tileNumber > 1
-          ? parseInt(randomNumber(1, tileNumber)).toString()
-          : "") +
-        ".png";
-      let square = new PIXI.Sprite.from(filename);
-      square.position.set(position.x * 120, position.y * 120);
-      square.width = 120;
-      square.height = 120;
-      return square;
-    };
-  }
-
-  function doneLoading(e) {
-    createPlayerSheet();
-    createPlayer();
-    app.ticker.add(gameLoop);
-  }
-
   app.loader.add("laboureur", "/src/assets/Anim_Laboureur_AllSprites.png");
   app.loader.load(doneLoading);
 
@@ -104,29 +69,6 @@ async function launchGame() {
     player.play();
     player.width = 120;
     player.height = 120;
-  }
-
-  function createAnimatedTile(filename, numberAnimation) {
-    return function (position) {
-      let w = 60;
-      let h = 60;
-
-      let ssheet = new PIXI.BaseTexture.from(filename + '.png');
-
-      let Images = [];
-      for (let i = 0; i < numberAnimation; i++) {
-        Images.push(new PIXI.Texture(ssheet, new PIXI.Rectangle(i * w, 0, w, h)))
-      }
-
-      let tile = new PIXI.AnimatedSprite(Images);
-      tile.animationSpeed = 0.1;
-      tile.loop = true;
-      tile.position.set(position.x * 120, position.y * 120);
-      tile.width = 120;
-      tile.height = 120;
-      tile.play();
-      return tile;
-    }
   }
 
   function createPlayerSheet() {
@@ -256,8 +198,6 @@ async function launchGame() {
     y: parseInt(app.view.height / 2) - 20
   };
 
-  let mapContainer = new PIXI.Container();
-
   let playerDestination = { x: 0, y: 0 };
   playerDestination.setPlayerDestination = (val) => {
     playerPosition = val;
@@ -279,24 +219,6 @@ async function launchGame() {
       mapContainer.y--;
     }
   }, 10);
-
-  map.forEach((row, y) => {
-    row.forEach((cell, x) => {
-      //let currentCell = tileMethods[x % 5].tile({ x: x, y: y });
-      let currentCell = tileMethods
-        .find((tile) => {
-          return tile.type === cell;
-        })
-        ?.tile({ x, y });
-      if (!currentCell) return;
-      currentCell.interactive = true;
-      currentCell.on("pointerdown", (e) => {
-        console.log("ptr dw:", y, x);
-        playerDestination.setPlayerDestination({ x: -x, y: -y });
-      });
-      mapContainer.addChild(currentCell);
-    });
-  });
 
   app.stage.addChild(mapContainer);
 

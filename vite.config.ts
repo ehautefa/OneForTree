@@ -53,13 +53,19 @@ function genMap(width: number, height: number) {
 
 import fs from "fs";
 let rawdata = fs.readFileSync("src/map.json");
-// let map: Tile[][] = JSON.parse(rawdata.toString());
-let map: Tile[][] = genMap(5, 10);
+let map: Tile[][] = JSON.parse(rawdata.toString());
+// let map: Tile[][] = genMap(5, 10);
 const mapWidth = map[0].length;
 const mapHeight = map.length;
 
 let users: { [key: string]: User } = {};
-let stats: Stats = { co2: 10000 };
+let stats: Stats = {
+  co2: map.reduce(
+    (total, col) =>
+      total + col.reduce((total, tile) => total + (tile === "tree" && 1), 0),
+    0
+  ),
+};
 
 let index = 0;
 // Round robin roles
@@ -109,7 +115,7 @@ export const server = (io, socket) => {
 
     // Sends to the user the finalized user and the map
     // socket.emit("created", { map: map, user: users[socket.id], users: users });
-    callback({ map: map, user: users[socket.id], leaderboard: users });
+    callback?.({ map: map, user: users[socket.id], leaderboard: users });
     // Sends to other players that a new user connected
     socket.broadcast.emit("login", { user: users[socket.id] });
   });
@@ -204,7 +210,7 @@ export const server = (io, socket) => {
         // Transmits the user data to himself
         io.emit("edit", { position: { x, y }, tile: tile });
         // Edits the user
-        callback({ user: users[user.id] });
+        callback?.({ user: users[user.id] });
       }
     }
   );
@@ -232,14 +238,14 @@ export const server = (io, socket) => {
             position: { x: users[uuid].x, y: users[id].y },
           });
           console.log("callback", callback);
-          callback({ position });
+          callback?.({ position });
           // And broadcast it
           socket.broadcast.emit("move", { uuid, prev: prev, next: position });
         } else {
           console.log("denied move", {
             position: { x: users[uuid].x, y: users[id].y },
           });
-          callback({ position: { x: users[uuid].x, y: users[id].y } });
+          callback?.({ position: { x: users[uuid].x, y: users[id].y } });
         }
       }
     }
