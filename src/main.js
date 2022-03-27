@@ -1,7 +1,7 @@
 import * as PIXI from "pixi.js";
 import { io } from "socket.io-client";
 import { createSheet } from "./sheet";
-import { createPlayer } from "./player";
+import { createNpc, createPlayer } from "./player";
 const socket = io();
 let map = [];
 let user = {};
@@ -128,27 +128,13 @@ async function launchGame() {
       x: app.view.width / 2,
       y: app.view.height / 2,
       sheet: playerSheet,
-      proxy: (e) => e,
+      idle: () => console.log("player idle"),
     });
     setPosition(({ x, y }) => ({ x: 0, y: 0 }));
 
     let mapContainer = new PIXI.Container();
     mapContainer.x = app.view.width / 2 - 60;
     mapContainer.y = app.view.height / 2 - 30;
-
-    //
-    setInterval(() => {
-      if (player.position.pixel.x > mapContainer.x) {
-        mapContainer.x++;
-      } else if (player.position.pixel.x < mapContainer.x) {
-        mapContainer.x--;
-      }
-      if (player.position.pixel.y > mapContainer.y) {
-        mapContainer.y++;
-      } else if (player.position.pixel.y < mapContainer.y) {
-        mapContainer.y--;
-      }
-    }, 10);
 
     map.forEach((row, y) => {
       row.forEach((cell, x) => {
@@ -168,6 +154,57 @@ async function launchGame() {
       });
     });
 
+    let players = [];
+    for (let i = 0; i < 10; i++) {
+      for (let j = 0; j < 10; j++) {
+        let [npc, setPosition, setAnimation] = createNpc({
+          x: i,
+          y: j,
+          sheet: playerSheet,
+        });
+        mapContainer.addChild(npc.render);
+        players.push({ npc, setPosition, setAnimation });
+      }
+    }
+
+    // Make npc move
+    setInterval(() => {
+      players.forEach(({ npc, setPosition }) => {
+        setPosition(() => ({
+          x: Math.floor(Math.random() * map[0].length),
+          y: Math.floor(Math.random() * map.length),
+        }));
+      });
+    }, 10_000);
+
+    // Move players position
+    setInterval(() => {
+      // Player
+      if (player.position.pixel.x > mapContainer.x) {
+        mapContainer.x++;
+      } else if (player.position.pixel.x < mapContainer.x) {
+        mapContainer.x--;
+      }
+      if (player.position.pixel.y > mapContainer.y) {
+        mapContainer.y++;
+      } else if (player.position.pixel.y < mapContainer.y) {
+        mapContainer.y--;
+      }
+      // Npc
+      players.forEach(({ npc }) => {
+        if (npc.position.pixel.x > npc.render.x) {
+          npc.render.x++;
+        } else if (npc.position.pixel.x < npc.render.x) {
+          npc.render.x--;
+        }
+        if (npc.position.pixel.y > npc.render.y) {
+          npc.render.y++;
+        } else if (npc.position.pixel.y < npc.render.y) {
+          npc.render.y--;
+        }
+      });
+    }, 10);
+
     app.stage.addChild(mapContainer);
 
     player.render.play();
@@ -186,21 +223,31 @@ async function launchGame() {
     );
 
     app.ticker.add(() =>
-      gameLoop([player, setPosition, setAnimation, mapContainer])
+      gameLoop({
+        player: [player, setPosition, setAnimation, mapContainer],
+        players,
+      })
     );
   }
 
-  function gameLoop([player, setPosition, setAnimation, map]) {
+  function gameLoop({
+    player: [player, setPosition, setAnimation, map],
+    players,
+  }) {
     if (player.position.pixel.y > map.y) {
+      player.state = "working";
       player.direction = "N";
       setAnimation("walkNorth");
     } else if (player.position.pixel.x > map.x) {
+      player.state = "working";
       player.direction = "W";
       setAnimation("walkWest");
     } else if (player.position.pixel.y < map.y) {
+      player.state = "working";
       player.direction = "S";
       setAnimation("walkSouth");
     } else if (player.position.pixel.x < map.x) {
+      player.state = "working";
       player.direction = "E";
       setAnimation("walkEast");
     } else {
@@ -212,11 +259,38 @@ async function launchGame() {
         W: () => setAnimation("standWest"),
       };
       idle[player.direction]();
+      if (player.state === "working") {
+        player.idle();
+        player.state = "idle";
+      }
     }
+    players.forEach(({ npc, setAnimation }) => {
+      if (npc.position.pixel.y < npc.render.y) {
+        npc.direction = "N";
+        setAnimation("walkNorth");
+      } else if (npc.position.pixel.x < npc.render.x) {
+        npc.direction = "W";
+        setAnimation("walkWest");
+      } else if (npc.position.pixel.y > npc.render.y) {
+        npc.direction = "S";
+        setAnimation("walkSouth");
+      } else if (npc.position.pixel.x > npc.render.x) {
+        npc.direction = "E";
+        setAnimation("walkEast");
+      } else {
+        // TODO type this
+        let idle = {
+          N: () => setAnimation("standNorth"),
+          S: () => setAnimation("standSouth"),
+          E: () => setAnimation("standEast"),
+          W: () => setAnimation("standWest"),
+        };
+        idle[npc.direction]();
+      }
+    });
   }
 
   // Game start
-
   app.loader.add("laboureur", "/src/assets/Anim_Laboureur_AllSprites.png");
   app.loader.load(setup);
 
