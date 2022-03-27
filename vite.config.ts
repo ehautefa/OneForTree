@@ -224,6 +224,8 @@ export const server = (io, socket) => {
           tile
         );
       }
+	  else
+	  	console.log("EDIT: permission denied");
     }
   );
 

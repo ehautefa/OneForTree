@@ -13,6 +13,11 @@ socket.on("connect", (e) => {
     console.log(data);
     launchGame({ ...data, socket });
   });
+
+  // socket.on("edit", ({ position, tile }) => {
+  //   map[position.x][position.y] = tile;
+  //   console.log("Edit tile:", position, tile);
+  // });
 });
 
 async function launchGame({ user, leaderboard, map, socket }) {
