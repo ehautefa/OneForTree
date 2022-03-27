@@ -270,7 +270,7 @@ async function launchGame() {
     10,
     25,
     //(visualViewport.height - 20) * (100 / (visualViewport.height - 20))
-    (visualViewport.height - 20) * .75
+    healthBarSprite.height * .75
   )
 
   // UI ProfileType Init
