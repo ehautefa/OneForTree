@@ -4,6 +4,7 @@ localStorage.debug = "socket.io-client:socket";
 let map = [];
 let user = {};
 let leaderboard = [];
+let mapCells = [];
 
 //Connect to server
 socket.on("connect", (e) => {
@@ -23,10 +24,14 @@ socket.on("connect", (e) => {
   socket.on("login", (data) => {
     console.log(data);
   });
-  
+
   socket.on("move", ({ uuid, next, prev }) => {
     console.log("player moved: ", uuid, next, prev);
   });
+
+  socket.on("edit", (data) => {
+    console.log("tile edited:", data);
+  } ) 
 });
 
 async function launchGame() {
@@ -38,9 +43,9 @@ async function launchGame() {
   // let playerPosition = { x: 0, y: 0 };
   let othersPlayers = [];
   let mapContainer = new PIXI.Container();
-  
+
   // Create the application helper and add its render target to the page
-  
+
   let app = new PIXI.Application({
     width: window.innerWidth,
     height: window.innerHeight,
@@ -56,11 +61,10 @@ async function launchGame() {
     app.renderer.resize(window.innerWidth, window.innerHeight);
   };
 
-  
   function randomNumber(min, max) {
     return Math.random() * (max - min) + min;
   }
-  
+
   // Create the sprite and add it to the stage
   var grass = createTile("/src/assets/Grass", 3);
   var ground = createTile("/src/assets/Soft_Ground", 3);
@@ -72,8 +76,10 @@ async function launchGame() {
     { tile: labored, type: "plowed" },
     { tile: plant, type: "seeded" },
   ];
-  
+
   function doneLoading(e) {
+    createTileMap();
+
     let playerSheet = createPlayerSheet(app.loader.resources["laboureur"].url);
     createPlayer(user, playerSheet);
     app.ticker.add(gameLoop);
@@ -85,6 +91,62 @@ async function launchGame() {
 
   app.loader.add("laboureur", "/src/assets/Anim_Laboureur_AllSprites.png");
   app.loader.load(doneLoading);
+
+  function setDestination(value, player) {
+    socket.emit("move", { position: value, uuid: user.id }, (data) => {
+      console.log("Move received data :", data);
+
+      data.position.x != undefined
+        ? (player.destination.pixels.x = -data.position.x * 100 + offset.x)
+        : null;
+      data.position.y != undefined
+        ? (player.destination.pixels.y = -data.position.y * 100 + offset.y)
+        : null;
+      data.position.x != undefined
+        ? (player.destination.tiles.x = data.position.x)
+        : null;
+      data.position.y != undefined
+        ? (player.destination.tiles.y = data.position.y)
+        : null;
+    });
+  }
+
+  function setDestinationAchived(value) {
+    console.log("request edit", value);
+    socket.emit("edit", {position: value, user}, (data) => {
+      console.log("edit data :", data);
+    })
+  }
+
+  function createTileMap() {
+   mapCells = map.map((row, y) => {
+    const currentRow = row.map((cell, x) => {
+        let cellContainer = new PIXI.Container();
+        let currentCell = tileMethods
+          .find((tile) => {
+            return tile.type === cell;
+          })
+          ?.tile({ x, y });
+        if (!currentCell) return;
+        currentCell.interactive = true;
+        currentCell.on("pointerdown", (e) => {
+          console.log("ptr dw:", y, x);
+          // player.setDestination({ x: x, y: y });
+          player.setDestination({ x: x, y: y });
+        });
+        currentCell.type = "ground";
+        cellContainer.tilePosition = {x, y};
+        cellContainer.addChild(currentCell);
+
+        mapContainer.addChild(cellContainer);
+        return (currentCell);
+      });
+      return (currentRow);
+    });
+  
+    console.log("Map created :", mapCells);
+    app.stage.addChild(mapContainer);
+  }
 
 
   function createTile(name, tileNumber) {
@@ -103,10 +165,6 @@ async function launchGame() {
     };
   }
 
-
-  
-
-
   function createPlayer({ x, y }, playerSheet) {
     player = new PIXI.AnimatedSprite(playerSheet.walkSouth);
     player.playerSheet = playerSheet;
@@ -124,19 +182,21 @@ async function launchGame() {
       tiles: { x, y },
     };
 
-    player.setDestination = (val) => {
-      // playerPosition = val;
-      val.x != undefined
-        ? (player.destination.pixels.x = -val.x * 100 + offset.x)
-        : null;
-      val.y != undefined
-        ? (player.destination.pixels.y = -val.y * 100 + offset.y)
-        : null;
-      val.x != undefined ? (player.destination.tiles.x = val.x) : null;
-      val.y != undefined ? (player.destination.tiles.y = val.y) : null;
-    };
-  }
+    player.setDestination = (val) => setDestination(val, player);
 
+    // player.setDestination = (val) => {
+    //   // playerPosition = val;
+    //   val.x != undefined
+    //     ? (player.destination.pixels.x = -val.x * 100 + offset.x)
+    //     : null;
+    //   val.y != undefined
+    //     ? (player.destination.pixels.y = -val.y * 100 + offset.y)
+    //     : null;
+    //   val.x != undefined ? (player.destination.tiles.x = val.x) : null;
+    //   val.y != undefined ? (player.destination.tiles.y = val.y) : null;
+
+    // };
+  }
 
   function createOtherPlayer({ x, y, id }, playerSheet) {
     let otherPlayer = new PIXI.AnimatedSprite(playerSheet.walkSouth);
@@ -235,12 +295,45 @@ async function launchGame() {
     return playerSheet;
   }
 
-
-
   // FAKE SOCKETS EVENT
   //
   //
   //
+  setInterval(() => {
+    let rdmX = Math.floor(Math.random() * 10);
+    let rdmY = Math.floor(Math.random() * 10);
+    // let newCell = tileMethods
+    // .find((tile) => {
+    //   return tile.type === cell;
+    // })
+    // ?.tile({ x:rdmX, y:rdmY });
+    // newCell
+
+    // console.log("Map cell : ", mapCells[rdmY][rdmX])
+    // let texture01 = PIXI.Texture.from("/src/assets/Grass.png");
+    // mapCells[rdmY][rdmX].set(texture01);
+
+    const newCellType = tileMethods[Math.floor(Math.random() * 4)].type;
+
+    // console.log("MapContainer values", mapContainer.children)
+    // mapContainer.children.forEach((item, i) => console.log("mapitem,", item, i))
+    // let currentTileTest = mapContainer.children[0].tilePosition;
+    let currentTile = mapContainer.children.find((item) => item.tilePosition.x == rdmX && item.tilePosition.y == rdmY)
+    // console.log("current tile", currentTile, rdmX, rdmY);
+    // console.log("current tile AAAA", currentTileTest, rdmX, rdmY);
+    // let oldChild = currentTile.children.find((item) => item.type == "ground")
+    currentTile.removeChild(currentTile.children.find((item) => item.type == "ground"));
+    let newChild = tileMethods
+    .find((tile) => {
+      return tile.type === newCellType;
+    })
+    ?.tile({ x:rdmX, y:rdmY });
+    if (!newChild) return;
+    currentTile.addChild(newChild);
+  }, 500)
+
+
+
   setInterval(() => {
     let othersPlayerSheet = createPlayerSheet(
       app.loader.resources["laboureur"].url
@@ -258,7 +351,7 @@ async function launchGame() {
     let selectId = Math.floor(Math.random() * othersPlayers.length);
     let rdmX = Math.floor(Math.random() * 40);
     let rdmy = Math.floor(Math.random() * 40);
-    console.log("PPPPP", selectId);
+    // console.log("PPPPP", selectId);
     othersPlayers[selectId].setPlayerDestination({ x: rdmX, y: rdmy });
 
     // othersPlayers[selectId].futurePosition = { x: rdmX, y: rdmy };
@@ -387,8 +480,6 @@ async function launchGame() {
   //   },
   // };
 
- 
-
   function computeOtherPlayerMoves() {
     othersPlayers.forEach((otherPlayer) => {
       if (otherPlayer.futurePosition.pixels.x > otherPlayer.x) {
@@ -450,31 +541,12 @@ async function launchGame() {
       }
     }
     if (isDestinationReached) {
-      console.log("destination atteinte :", player.destination.tiles);
+      // console.log("destination atteinte :", player.destination.tiles);
+      setDestinationAchived(player.destination.tiles);
     }
   }
 
 
-
-  map.forEach((row, y) => {
-    row.forEach((cell, x) => {
-      let currentCell = tileMethods
-        .find((tile) => {
-          return tile.type === cell;
-        })
-        ?.tile({ x, y });
-      if (!currentCell) return;
-      currentCell.interactive = true;
-      currentCell.on("pointerdown", (e) => {
-        console.log("ptr dw:", y, x);
-        // player.setDestination({ x: x, y: y });
-        player.setDestination({ x: x, y: y });
-      });
-      mapContainer.addChild(currentCell);
-    });
-  });
-
-  app.stage.addChild(mapContainer);
 
   document.addEventListener(
     "keydown",
@@ -489,7 +561,6 @@ async function launchGame() {
     },
     false
   );
-
 
   // PROFILE CHARACTERS
   // ----------------------------------------------------------
@@ -550,16 +621,19 @@ async function launchGame() {
     visualViewport.height - 50,
     250,
     30
-  );
+    );
 
   // UI Deploy
-  app.stage.addChild(
-    playersActivitiesSprite,
-    playersActivitiesSpriteTitle,
-    healthBarSprite,
-    textProfile,
-    powerCapacityBar
-  );
+  setTimeout(() => {
+    app.stage.addChild(
+      // app.stage.setChild(
+        playersActivitiesSprite,
+        playersActivitiesSpriteTitle,
+        healthBarSprite,
+        textProfile,
+        powerCapacityBar
+        );
+      }, 1000);
 
   console.log(textProfile.width);
 }

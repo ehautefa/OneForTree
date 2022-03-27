@@ -229,8 +229,9 @@ export const server = (io, socket) => {
         if (user.id === uuid) {
           if (
             // Check for valid position
-            Math.abs(user.x - position.x) <= 1 &&
-            Math.abs(user.y - position.y) <= 1
+            true
+            // Math.abs(user.x - position.x) <= 1 &&
+            // Math.abs(user.y - position.y) <= 1
           ) {
             const prev = { x: users[id].x, y: users[id].y };
             // Update player position
