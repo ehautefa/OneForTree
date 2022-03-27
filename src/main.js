@@ -1,6 +1,7 @@
 import * as PIXI from "pixi.js";
 import { io } from "socket.io-client";
 import { createSheet } from "./sheet";
+import { createPlayer } from "./player";
 const socket = io();
 let map = [];
 let user = {};
@@ -30,10 +31,6 @@ socket.on("connect", (e) => {
 });
 
 async function launchGame() {
-  let player;
-  let playerSheet = {};
-  let playerPosition = { x: 0, y: 0 };
-
   // Create the application helper and add its render target to the page
 
   let app = new PIXI.Application({
@@ -85,28 +82,6 @@ async function launchGame() {
     };
   }
 
-  function doneLoading(e) {
-    createPlayerSheet();
-    createPlayer();
-    app.ticker.add(gameLoop);
-  }
-
-  app.loader.add("laboureur", "/src/assets/Anim_Laboureur_AllSprites.png");
-  app.loader.load(doneLoading);
-
-  function createPlayer() {
-    player = new PIXI.AnimatedSprite(playerSheet.walkSouth);
-    player.anchor.set(0.5);
-    player.animationSpeed = 0.18;
-    player.loop = false;
-    player.x = parseInt(app.view.width / 2);
-    player.y = parseInt(app.view.height / 2);
-    app.stage.addChild(player);
-    player.play();
-    player.width = 120;
-    player.height = 120;
-  }
-
   function createAnimatedTile(filename, numberAnimation) {
     return function (position) {
       let w = 60;
@@ -132,8 +107,8 @@ async function launchGame() {
     };
   }
 
-  function doneLoading(e) {
-    playerSheet = createSheet({
+  function setup(e) {
+    let playerSheet = createSheet({
       name: "laboureur",
       rect: { w: 60, h: 60 },
       animations: {
@@ -145,141 +120,105 @@ async function launchGame() {
         walkSouth: { start: 0, end: 2 },
         walkWest: { start: 3, end: 5 },
         walkEast: { start: 6, end: 8 },
+        default: { start: 13, end: 17 },
       },
       app,
     });
-    createPlayer();
-    app.ticker.add(gameLoop);
-  }
-
-  let dir = "N";
-  function gameLoop() {
-    //	var dir = 'N';
-    if (playerDestination.y > mapContainer.y) {
-      dir = "N";
-      if (!player.playing) {
-        player.textures = playerSheet.walkNorth;
-        player.play();
-      }
-    }
-    //a
-    else if (playerDestination.x > mapContainer.x) {
-      dir = "W";
-      if (!player.playing) {
-        player.textures = playerSheet.walkWest;
-        player.play();
-      }
-    }
-    //s
-    else if (playerDestination.y < mapContainer.y) {
-      dir = "S";
-      if (!player.playing) {
-        player.textures = playerSheet.walkSouth;
-        player.play();
-      }
-    }
-    //d
-    else if (playerDestination.x < mapContainer.x) {
-      dir = "E";
-      if (!player.playing) {
-        player.textures = playerSheet.walkEast;
-        player.play();
-      }
-    }
-    if (dir == "N") {
-      if (!player.playing) {
-        player.textures = playerSheet.standNorth;
-        player.play();
-      }
-    } else if (dir == "S") {
-      if (!player.playing) {
-        player.textures = playerSheet.standSouth;
-        player.play();
-      }
-    } else if (dir == "W") {
-      if (!player.playing) {
-        player.textures = playerSheet.standWest;
-        player.play();
-      }
-    } else if (dir == "E") {
-      if (!player.playing) {
-        player.textures = playerSheet.standEast;
-        player.play();
-      }
-    }
-  }
-
-  const offset = {
-    x: parseInt(app.view.width / 2) - 60,
-    y: parseInt(app.view.height / 2) - 20,
-  };
-
-  let mapContainer = new PIXI.Container();
-
-  let playerDestination = { x: 0, y: 0 };
-  playerDestination.setPlayerDestination = (val) => {
-    playerPosition = val;
-    val.x != undefined ? (playerDestination.x = val.x * 120 + offset.x) : null;
-    val.y != undefined ? (playerDestination.y = val.y * 120 + offset.y) : null;
-  };
-
-  playerDestination.setPlayerDestination({ x: 0, y: 0 });
-
-  setInterval(() => {
-    if (playerDestination.x > mapContainer.x) {
-      mapContainer.x++;
-    } else if (playerDestination.x < mapContainer.x) {
-      mapContainer.x--;
-    }
-    if (playerDestination.y > mapContainer.y) {
-      mapContainer.y++;
-    } else if (playerDestination.y < mapContainer.y) {
-      mapContainer.y--;
-    }
-  }, 10);
-
-  map.forEach((row, y) => {
-    row.forEach((cell, x) => {
-      //let currentCell = tileMethods[x % 5].tile({ x: x, y: y });
-      let currentCell = tileMethods
-        .find((tile) => {
-          return tile.type === cell;
-        })
-        ?.tile({ x, y });
-      if (!currentCell) return;
-      currentCell.interactive = true;
-      currentCell.on("pointerdown", (e) => {
-        console.log("ptr dw:", y, x);
-        playerDestination.setPlayerDestination({ x: -x, y: -y });
-      });
-      mapContainer.addChild(currentCell);
+    let [player, setPosition, setAnimation] = createPlayer({
+      x: app.view.width / 2,
+      y: app.view.height / 2,
+      sheet: playerSheet,
+      proxy: (e) => e,
     });
-  });
+    setPosition(({ x, y }) => ({ x: 0, y: 0 }));
 
-  app.stage.addChild(mapContainer);
+    let mapContainer = new PIXI.Container();
+    mapContainer.x = app.view.width / 2 - 60;
+    mapContainer.y = app.view.height / 2 - 30;
 
-  document.addEventListener(
-    "keydown",
-    (event) => {
-      var name = event.key;
-      if (name == "ArrowRight") playerPosition.x--;
-      if (name == "ArrowDown") playerPosition.y--;
-      if (name == "ArrowUp") playerPosition.y++;
-      if (name == "ArrowLeft") playerPosition.x++;
-      playerDestination.setPlayerDestination(playerPosition);
-    },
-    false
-  );
+    //
+    setInterval(() => {
+      if (player.position.pixel.x > mapContainer.x) {
+        mapContainer.x++;
+      } else if (player.position.pixel.x < mapContainer.x) {
+        mapContainer.x--;
+      }
+      if (player.position.pixel.y > mapContainer.y) {
+        mapContainer.y++;
+      } else if (player.position.pixel.y < mapContainer.y) {
+        mapContainer.y--;
+      }
+    }, 10);
 
-  // PROFILE CHARACTERS
-  // ----------------------------------------------------------
-  let planterCarac = {
-    nbSeeds: 0,
-  };
+    map.forEach((row, y) => {
+      row.forEach((cell, x) => {
+        //let currentCell = tileMethods[x % 5].tile({ x: x, y: y });
+        let currentCell = tileMethods
+          .find((tile) => {
+            return tile.type === cell;
+          })
+          ?.tile({ x, y });
+        if (!currentCell) return;
+        currentCell.interactive = true;
+        currentCell.on("pointerdown", (e) => {
+          console.log("ptr dw:", x, y);
+          setPosition(() => ({ x: x, y: y }));
+        });
+        mapContainer.addChild(currentCell);
+      });
+    });
 
-  let sprinklerCarac = {
-    liters: 0,
-  };
+    app.stage.addChild(mapContainer);
+
+    player.render.play();
+    app.stage.addChild(player.render);
+
+    document.addEventListener(
+      "keydown",
+      (event) => {
+        var name = event.key;
+        if (name == "ArrowRight") setPosition(({ x, y }) => ({ x: x - 1, y }));
+        if (name == "ArrowLeft") setPosition(({ x, y }) => ({ x: x + 1, y }));
+        if (name == "ArrowDown") setPosition(({ x, y }) => ({ x, y: y - 1 }));
+        if (name == "ArrowUp") setPosition(({ x, y }) => ({ x, y: y + 1 }));
+      },
+      false
+    );
+
+    app.ticker.add(() =>
+      gameLoop([player, setPosition, setAnimation, mapContainer])
+    );
+  }
+
+  function gameLoop([player, setPosition, setAnimation, map]) {
+    if (player.position.pixel.y > map.y) {
+      player.direction = "N";
+      setAnimation("walkNorth");
+    } else if (player.position.pixel.x > map.x) {
+      player.direction = "W";
+      setAnimation("walkWest");
+    } else if (player.position.pixel.y < map.y) {
+      player.direction = "S";
+      setAnimation("walkSouth");
+    } else if (player.position.pixel.x < map.x) {
+      player.direction = "E";
+      setAnimation("walkEast");
+    } else {
+      // TODO type this
+      let idle = {
+        N: () => setAnimation("standNorth"),
+        S: () => setAnimation("standSouth"),
+        E: () => setAnimation("standEast"),
+        W: () => setAnimation("standWest"),
+      };
+      idle[player.direction]();
+    }
+  }
+
+  // Game start
+
+  app.loader.add("laboureur", "/src/assets/Anim_Laboureur_AllSprites.png");
+  app.loader.load(setup);
 
   // EFFECTS BLOCKS
   // ----------------------------------------------------------

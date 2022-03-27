@@ -36,9 +36,7 @@ export const createSheet = ({
         )
       );
     }
-    console.log(frames);
     sheet[name] = frames;
   }
-  console.log(sheet);
   return sheet;
 };
