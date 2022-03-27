@@ -61,7 +61,7 @@ async function launchGame({ user, leaderboard, map, socket }) {
   var berry = createTile("/src/assets/single_berry", 1);
   var fertilizer = createTile("/src/assets/fertilizer", 1);
   var water = createAnimatedTile("/src/assets/Water", 3);
-  var clouds = createTile("src/assets/Clouds", 3);
+  var clouds = createTile("src/assets/CloudsTile", 3);
   var tileMethods = [
     { tile: grass, type: "grass" },
     { tile: ground, type: "dry" },
@@ -177,6 +177,8 @@ async function launchGame({ user, leaderboard, map, socket }) {
           ?.tile({ x, y });
         if (!currentCell) return;
         currentCell.interactive = true;
+        if (cell === "cloud")
+          console.log("HELP");
         if (cell != 'cloud') {
           currentCell.on("pointerdown", (e) => {
             console.log("ptr dw:", x, y);

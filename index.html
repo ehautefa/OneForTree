@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
@@ -13,6 +14,7 @@
     button {
       width: 16%;
       height: 5%;
+      min-width: 400px;
       font-size: xx-large;
       font-family: 'VT323', monospace;
     }
@@ -25,17 +27,21 @@
     input {
       width: 16%;
       height: 5%;
+      min-width: 400px;
       font-size: xx-large;
       font-family: 'VT323', monospace;
     }
 
     .cloudLeft {
-      top: 10%;
-      left: 0;
+      bottom: -10%;
+      left: -10%;
       width: 50%;
-      height: 90%;
+      height: 100%;
       position: absolute;
+      background-size: contain;
       transform: scaleX(-1);
+      min-width: 400px;
+      background-position: bottom;
       background-image: url("/src/assets/clouds.png");
       background-repeat: no-repeat;
       -webkit-animation-play-state: paused;
@@ -43,14 +49,16 @@
     }
 
     .cloudRight {
-      top: 0;
-      right: 0;
+      top: -10%;
+      right: -10%;
       width: 50%;
-      height: 90%;
+      height: 100%;
       position: absolute;
+      min-width: 400px;
+      transform: scaleY(-1);
       background-image: url("/src/assets/clouds.png");
       background-repeat: no-repeat;
-      background-position: top;
+      background-position: bottom;
       background-size: contain;
       -webkit-animation-play-state: paused;
       animation-play-state: paused;
@@ -68,17 +76,17 @@
       gap: 10px;
     }
 
-    .cloudLeft-active{
-      left:-50% ;
+    .cloudLeft-active {
+      left: -50%;
     }
 
-    .cloudRight-active{
-      right:-50%;
+    .cloudRight-active {
+      right: -50%;
     }
 
-    .loginClass-active{
-      opacity:0;
-      pointer-events: none    
+    .loginClass-active {
+      opacity: 0;
+      pointer-events: none
     }
 
     .error {
@@ -86,7 +94,7 @@
     }
 
     .error::placeholder {
-      color:red;
+      color: red;
     }
 
 
@@ -143,6 +151,7 @@
       -ms-transition: all 2s ease;
       transition: all 2s ease;
     }
+
     #activitiesList {
       position: fixed;
       top: 10px;
@@ -154,7 +163,7 @@
       box-sizing: border-box;
     }
 
-    #activitiesList h2{
+    #activitiesList h2 {
       font: 2.75em/1.0em 'VT323', monospace;
       margin-top: 0;
       margin-bottom: 20px;
@@ -163,8 +172,9 @@
     #activitiesList p {
       font: 1.6em/1.5em 'VT323', monospace;
     }
-    @media screen and (max-width: 1024px){
-      #activitiesList{
+
+    @media screen and (max-width: 1024px) {
+      #activitiesList {
         display: none;
       }
     }
@@ -176,19 +186,19 @@
   <section id="activitiesList">
     <h2>Players activities</h2>
   </section>
-	<script src="./src/activities-list-manage.js"></script>
+  <script src="./src/activities-list-manage.js"></script>
   <script type="module" src="/src/main.js"> </script>
   <script src="/socket.io/socket.io.js"></script>
   <div id="login" class="loginClass transformSlow">
-  <div class="bgCloud" id="idBgCloud"></div>
-  <div id="cl" class="transform cloudLeft"></div>
-  <div id="cr" class="transform cloudRight"></div>
-  <div class="inputs transform">
-    <h1>One For Tree !</h1>
-    <input type="text" id="Username" placeholder="Username">
-    <button id="Connect" >PLAY !</button>
+    <div class="bgCloud" id="idBgCloud"></div>
+    <div id="cl" class="transform cloudLeft"></div>
+    <div id="cr" class="transform cloudRight"></div>
+    <div class="inputs transform">
+      <h1>One For Tree !</h1>
+      <input type="text" id="Username" placeholder="Username">
+      <button id="Connect">PLAY !</button>
+    </div>
   </div>
-</div>
 </body>
 
 </html>
