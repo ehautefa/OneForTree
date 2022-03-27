@@ -248,20 +248,30 @@ async function launchGame() {
   // PLAYER UI
   // ----------------------------------------------------------
 
+  window.addEventListener('resize', function(event){
+    var newWidth = window.innerWidth;
+    var newHeight = window.innerHeight; 
+  });
+
   // UI LifeBar Init
-  var healthBarSprite = PIXI.Sprite.from("./src/assets/lifebar_sprite.png");
-  var healthBarSpriteBlack = new PIXI.Graphics();
-  healthBarSpriteBlack.beginFill(0x000000, 0.75);
-  healthBarSpriteBlack.drawRect(
-    screen.width - 400,
+  var healthBarSprite = new PIXI.Graphics();
+  healthBarSprite.beginFill(0xffffff, 1);
+  healthBarSprite.drawRect(
+    screen.width - 40,
     10,
     25,
     visualViewport.height - 20
   )
 
-  healthBarSprite.x = screen.width - 400;
-  healthBarSprite.y = 10;
-  healthBarSprite.height = visualViewport.height - 20;
+  var healthBarSpriteBlack = new PIXI.Graphics();
+  healthBarSpriteBlack.beginFill(0x000000, 1);
+  healthBarSpriteBlack.drawRect(
+    screen.width - 40,
+    10,
+    25,
+    //(visualViewport.height - 20) * (100 / (visualViewport.height - 20))
+    (visualViewport.height - 20) * .75
+  )
 
   // UI ProfileType Init
   let textProfileContent = "Profile Type :";
@@ -291,7 +301,7 @@ async function launchGame() {
   powerCapacityBarBlack.drawRect(
     textProfile.width + 28,
     visualViewport.height - 50,
-    250,
+    powerCapacityBar.width * 1,
     30
   );
 
