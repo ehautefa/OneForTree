@@ -243,15 +243,15 @@ async function launchGame({ user, leaderboard, map, socket }) {
       updateMapTile({ x: position.x, y: position.y, cellType: tile });
       let message = user.name;
       if(tile === "tree"){
-        message += " plant a tree"
+        message += " planted a tree"
       } else if(tile === "plowed") {
-        message += " plow the ground"
+        message += " plowed the ground"
       } else if(tile === "watered") {
-        message += " water a seed"
+        message += " watered a seed"
       } else if(tile === "dry") {
-        message += " dry the ground"
+        message += " dried the ground"
       } else if(tile === "seeded") {
-        message += " plant a seed"
+        message += " planted a seed"
       }
       
       writeActivity(message);
