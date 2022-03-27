@@ -1,3 +1,4 @@
+import animationSheet from "./animation.js";
 import * as PIXI from "pixi.js";
 import { io } from "socket.io-client";
 import { setTokenSourceMapRange } from "typescript";
@@ -143,22 +144,7 @@ async function launchGame() {
   }
 
   function setup(e) {
-    let playerSheet = createSheet({
-      name: "laboureur",
-      rect: { w: 60, h: 60 },
-      animations: {
-        standNorth: { start: 13, end: 17 },
-        standSouth: { start: 13, end: 17 },
-        standEast: { start: 18, end: 22 },
-        standWest: { start: 23, end: 27 },
-        walkNorth: { start: 9, end: 11 },
-        walkSouth: { start: 0, end: 2 },
-        walkWest: { start: 3, end: 5 },
-        walkEast: { start: 6, end: 8 },
-        default: { start: 13, end: 17 },
-      },
-      app,
-    });
+    let playerSheet = animationSheet.createAnimationSheet(user.role, app.loader.resources[user.role].url);
     let [player, setPosition, setAnimation] = createPlayer({
       x: app.view.width / 2,
       y: app.view.height / 2,
@@ -358,7 +344,12 @@ async function launchGame() {
   }
 
   // Game start
-  app.loader.add("laboureur", "/src/assets/Anim_Laboureur_AllSprites.png");
+  if (user.role == "worker")
+  	app.loader.add(user.role, "/src/assets/Anim_Laboureur_AllSprites.png");
+  else if (user.role == "waterer")
+  	app.loader.add(user.role, "/src/assets/arroseur_sheet.png");
+  else
+  	app.loader.add(user.role, "/src/assets/planteur_sheet.png");
   app.loader.load(setup);
 
   // EFFECTS BLOCKS
