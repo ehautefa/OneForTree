@@ -58,12 +58,12 @@ export function createTileMap(map, onClick) {
     let mapContainer = new PIXI.Container();
     map.forEach((row, y) => {
         row.forEach((cell, x) => {
-            let currentCell = tileMethods[x % 5].tile({ x: x, y: y });
-            // let currentCell = tileMethods
-            //   .find((tile) => {
-            //     return tile.type === cell;
-            //   })
-            //   ?.tile({ x, y });
+            // let currentCell = tileMethods[x % 5].tile({ x: x, y: y });
+            let currentCell = tileMethods
+              .find((tile) => {
+                return tile.type === cell;
+              })
+              ?.tile({ x, y });
             if (!currentCell) return;
             currentCell.interactive = true;
             currentCell.on("pointerdown", (e) => { onClick(x, y) });
