@@ -139,6 +139,7 @@ async function launchGame() {
     map.forEach((row, y) => {
       row.forEach((cell, x) => {
         //let currentCell = tileMethods[x % 5].tile({ x: x, y: y });
+        let cellContainer = new PIXI.Container();
         let currentCell = tileMethods
           .find((tile) => {
             return tile.type === cell;
@@ -150,7 +151,10 @@ async function launchGame() {
           console.log("ptr dw:", x, y);
           setPosition(() => ({ x: x, y: y }));
         });
-        mapContainer.addChild(currentCell);
+        currentCell.type = "ground";
+        cellContainer.tilePosition = {x, y};
+        cellContainer.addChild(currentCell);
+        mapContainer.addChild(cellContainer);
       });
     });
 
@@ -176,6 +180,34 @@ async function launchGame() {
         }));
       });
     }, 10_000);
+
+    setInterval(() => {
+      let rdmX = Math.floor(Math.random() * 10);
+      let rdmY = Math.floor(Math.random() * 10);
+      const newCellType = tileMethods[Math.floor(Math.random() * 4)].type;
+      updateMapTile({x:rdmX, y:rdmY, cellType:newCellType})
+    }, 500)
+  
+
+    function updateMapTile({x, y, cellType}) {
+      let currentTile = mapContainer.children.find((item) => item.tilePosition.x == x && item.tilePosition.y == x)
+      currentTile.removeChild(currentTile.children.find((item) => item.type == "ground"));
+      let newChild = tileMethods
+      .find((tile) => {
+        return tile.type === cellType;
+      })
+      ?.tile({ x:x, y:x });
+      if (!newChild) return;
+      newChild.interactive = true;
+      newChild.on("pointerdown", (e) => {
+        console.log("ptr dw:", x, y);
+        setPosition(() => ({ x: x, y: y }));
+      });
+      newChild.type = "ground";
+      currentTile.addChild(newChild);
+    }
+
+
 
     // Move players position
     setInterval(() => {
