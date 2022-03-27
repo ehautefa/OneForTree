@@ -191,10 +191,14 @@ async function launchGame({ user, leaderboard, map, socket }) {
     let players = [];
     for (let [id, u] of Object.entries(leaderboard)) {
       if (id === user.id) continue;
+      let npcSheet = animationSheet.createAnimationSheet(
+        leaderboard[id].role,
+        app.loader.resources[leaderboard[id].role].url
+      );
       let [npc, setPosition, setAnimation] = createNpc({
         x: u.x,
         y: u.y,
-        sheet: playerSheet,
+        sheet: npcSheet,
       });
       mapContainer.addChild(npc.render);
       players.push({ id, npc, setPosition, setAnimation });
@@ -206,11 +210,15 @@ async function launchGame({ user, leaderboard, map, socket }) {
     // A user logged in
     socket.on("login", ({ user }) => {
       console.log("login", user.id, user);
+      let npcSheet = animationSheet.createAnimationSheet(
+        user.role,
+        app.loader.resources[user.role].url
+      );
       // TODO change playerSheet to reflect user.role
       let [npc, setPosition, setAnimation] = createNpc({
         x: user.x,
         y: user.y,
-        sheet: playerSheet,
+        sheet: npcSheet,
       });
       players.push({ id: user.id, npc, setPosition, setAnimation });
       mapContainer.addChild(npc.render);
@@ -371,11 +379,11 @@ async function launchGame({ user, leaderboard, map, socket }) {
   }
 
   // Game start
-	app.loader.add("worker", "/src/assets/Anim_Laboureur_AllSprites.png");
-	app.loader.add("cultivator", "/src/assets/planteur_sheet.png");
-	app.loader.add("waterer", "/src/assets/arroseur_sheet.png");
-	app.loader.add("treater", "/src/assets/fertilizer_sheet.png");
-  	app.loader.load(setup);
+  app.loader.add("worker", "/src/assets/Anim_Laboureur_AllSprites.png");
+  app.loader.add("cultivator", "/src/assets/planteur_sheet.png");
+  app.loader.add("waterer", "/src/assets/arroseur_sheet.png");
+  app.loader.add("treater", "/src/assets/fertilizer_sheet.png");
+  app.loader.load(setup);
 
   // PLAYER UI
   // ----------------------------------------------------------
