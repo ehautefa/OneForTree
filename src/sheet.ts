@@ -1,13 +1,20 @@
 import * as PIXI from "pixi.js";
+import { Texture } from "pixi.js";
+
+export type AnimationSheet = {
+  [name: string]: Texture[];
+};
 
 export type AnimationConfig = {
   name: string;
   rect: { w: number; h: number };
   animations: {
-    name: string;
-    length: number;
-  }[];
-  app: any;
+    [name: string]: {
+      start: number;
+      end: number;
+    };
+  };
+  app: PIXI.Application;
 };
 
 export const createSheet = ({
@@ -18,20 +25,20 @@ export const createSheet = ({
 }: AnimationConfig) => {
   // Load the atlas from a loaded file
   let atlas = PIXI.BaseTexture.from(app.loader.resources[name].url);
-  let index = 0;
-  return animations.reduce((sheet, { name, length }) => {
-    // Frames buffer for a given animation
+  let sheet: { [name: string]: PIXI.Texture[] } = {};
+  for (let [name, range] of Object.entries(animations)) {
     let frames = [];
-    // Loads a frame from the atlas
-    for (let i = 0; i < length; i++, index++) {
+    for (let i = range.start; i <= range.end; i++) {
       frames.push(
         new PIXI.Texture(
           atlas,
-          new PIXI.Rectangle(index * rect.w, 0, rect.w, rect.h)
+          new PIXI.Rectangle(i * rect.w, 0, rect.w, rect.h)
         )
       );
     }
+    console.log(frames);
     sheet[name] = frames;
-    return sheet;
-  }, <{ [key: string]: any }>{});
+  }
+  console.log(sheet);
+  return sheet;
 };

@@ -1,6 +1,7 @@
+import * as PIXI from "pixi.js";
 import { io } from "socket.io-client";
+import { createSheet } from "./sheet";
 const socket = io();
-localStorage.debug = "socket.io-client:socket";
 let map = [];
 let user = {};
 let leaderboard = [];
@@ -55,17 +56,17 @@ async function launchGame() {
   }
 
   // Create the sprite and add it to the stage
-  var grass = createTile('/src/assets/Grass', 3);
-  var ground = createTile('/src/assets/Soft_Ground', 3);
-  var labored = createTile('/src/assets/Labored_Ground', 1);
-  var plant = createTile('/src/assets/Plant', 1);
-  var water = createAnimatedTile('/src/assets/Water', 3);
+  var grass = createTile("/src/assets/Grass", 3);
+  var ground = createTile("/src/assets/Soft_Ground", 3);
+  var labored = createTile("/src/assets/Labored_Ground", 1);
+  var plant = createTile("/src/assets/Plant", 1);
+  var water = createAnimatedTile("/src/assets/Water", 3);
   var tileMethods = [
     { tile: grass, type: "shrub" },
     { tile: ground, type: "dry" },
     { tile: labored, type: "plowed" },
     { tile: plant, type: "seeded" },
-    { tile: water, type: 'water' }
+    { tile: water, type: "water" },
   ];
 
   function createTile(name, tileNumber) {
@@ -111,11 +112,13 @@ async function launchGame() {
       let w = 60;
       let h = 60;
 
-      let ssheet = new PIXI.BaseTexture.from(filename + '.png');
+      let ssheet = new PIXI.BaseTexture.from(filename + ".png");
 
       let Images = [];
       for (let i = 0; i < numberAnimation; i++) {
-        Images.push(new PIXI.Texture(ssheet, new PIXI.Rectangle(i * w, 0, w, h)))
+        Images.push(
+          new PIXI.Texture(ssheet, new PIXI.Rectangle(i * w, 0, w, h))
+        );
       }
 
       let tile = new PIXI.AnimatedSprite(Images);
@@ -126,70 +129,25 @@ async function launchGame() {
       tile.height = 120;
       tile.play();
       return tile;
-    }
-  }
-
-  function createPlayerSheet() {
-    let ssheet = new PIXI.BaseTexture.from(
-      app.loader.resources["laboureur"].url
-    );
-    let w = 60;
-    let h = 60;
-
-    playerSheet["standSouth"] = [
-      new PIXI.Texture(ssheet, new PIXI.Rectangle(13 * w, 0, w, h)),
-      new PIXI.Texture(ssheet, new PIXI.Rectangle(14 * w, 0, w, h)),
-      new PIXI.Texture(ssheet, new PIXI.Rectangle(15 * w, 0, w, h)),
-      new PIXI.Texture(ssheet, new PIXI.Rectangle(16 * w, 0, w, h)),
-      new PIXI.Texture(ssheet, new PIXI.Rectangle(17 * w, 0, w, h)),
-    ];
-
-    playerSheet["standWest"] = [
-      new PIXI.Texture(ssheet, new PIXI.Rectangle(23 * w, 0, w, h)),
-      new PIXI.Texture(ssheet, new PIXI.Rectangle(24 * w, 0, w, h)),
-      new PIXI.Texture(ssheet, new PIXI.Rectangle(25 * w, 0, w, h)),
-      new PIXI.Texture(ssheet, new PIXI.Rectangle(26 * w, 0, w, h)),
-      new PIXI.Texture(ssheet, new PIXI.Rectangle(27 * w, 0, w, h)),
-    ];
-    playerSheet["standEast"] = [
-      new PIXI.Texture(ssheet, new PIXI.Rectangle(18 * w, 0, w, h)),
-      new PIXI.Texture(ssheet, new PIXI.Rectangle(19 * w, 0, w, h)),
-      new PIXI.Texture(ssheet, new PIXI.Rectangle(20 * w, 0, w, h)),
-      new PIXI.Texture(ssheet, new PIXI.Rectangle(21 * w, 0, w, h)),
-      new PIXI.Texture(ssheet, new PIXI.Rectangle(22 * w, 0, w, h)),
-    ];
-    playerSheet["standNorth"] = [
-      new PIXI.Texture(ssheet, new PIXI.Rectangle(13 * w, 0, w, h)),
-      new PIXI.Texture(ssheet, new PIXI.Rectangle(14 * w, 0, w, h)),
-      new PIXI.Texture(ssheet, new PIXI.Rectangle(15 * w, 0, w, h)),
-      new PIXI.Texture(ssheet, new PIXI.Rectangle(16 * w, 0, w, h)),
-      new PIXI.Texture(ssheet, new PIXI.Rectangle(17 * w, 0, w, h)),
-    ];
-
-    playerSheet["walkSouth"] = [
-      new PIXI.Texture(ssheet, new PIXI.Rectangle(0 * w, 0, w, h)),
-      new PIXI.Texture(ssheet, new PIXI.Rectangle(1 * w, 0, w, h)),
-      new PIXI.Texture(ssheet, new PIXI.Rectangle(2 * w, 0, w, h)),
-    ];
-    playerSheet["walkWest"] = [
-      new PIXI.Texture(ssheet, new PIXI.Rectangle(3 * w, 0, w, h)),
-      new PIXI.Texture(ssheet, new PIXI.Rectangle(4 * w, 0, w, h)),
-      new PIXI.Texture(ssheet, new PIXI.Rectangle(5 * w, 0, w, h)),
-    ];
-    playerSheet["walkEast"] = [
-      new PIXI.Texture(ssheet, new PIXI.Rectangle(6 * w, 0, w, h)),
-      new PIXI.Texture(ssheet, new PIXI.Rectangle(7 * w, 0, w, h)),
-      new PIXI.Texture(ssheet, new PIXI.Rectangle(8 * w, 0, w, h)),
-    ];
-    playerSheet["walkNorth"] = [
-      new PIXI.Texture(ssheet, new PIXI.Rectangle(9 * w, 0, w, h)),
-      new PIXI.Texture(ssheet, new PIXI.Rectangle(10 * w, 0, w, h)),
-      new PIXI.Texture(ssheet, new PIXI.Rectangle(11 * w, 0, w, h)),
-    ];
+    };
   }
 
   function doneLoading(e) {
-    createPlayerSheet();
+    playerSheet = createSheet({
+      name: "laboureur",
+      rect: { w: 60, h: 60 },
+      animations: {
+        standNorth: { start: 13, end: 17 },
+        standSouth: { start: 13, end: 17 },
+        standEast: { start: 18, end: 22 },
+        standWest: { start: 23, end: 27 },
+        walkNorth: { start: 9, end: 11 },
+        walkSouth: { start: 0, end: 2 },
+        walkWest: { start: 3, end: 5 },
+        walkEast: { start: 6, end: 8 },
+      },
+      app,
+    });
     createPlayer();
     app.ticker.add(gameLoop);
   }
@@ -253,7 +211,7 @@ async function launchGame() {
 
   const offset = {
     x: parseInt(app.view.width / 2) - 60,
-    y: parseInt(app.view.height / 2) - 20
+    y: parseInt(app.view.height / 2) - 20,
   };
 
   let mapContainer = new PIXI.Container();
