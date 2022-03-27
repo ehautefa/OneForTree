@@ -1,5 +1,6 @@
 import * as PIXI from "pixi.js";
 import { io } from "socket.io-client";
+import { setTokenSourceMapRange } from "typescript";
 import { createSheet } from "./sheet";
 import { createNpc, createPlayer } from "./player";
 const socket = io();
@@ -38,15 +39,19 @@ async function launchGame({ user, leaderboard, map, socket }) {
 
   // Create the sprite and add it to the stage
   var grass = createTile("/src/assets/Grass", 3);
+  var watered = createTile("/src/assets/WateredTile", 1);
+  var tree = createTreeTile("/src/assets/GrowingTree", 4);
   var ground = createTile("/src/assets/Soft_Ground", 3);
   var labored = createTile("/src/assets/Labored_Ground", 1);
   var plant = createTile("/src/assets/Plant", 1);
   var water = createAnimatedTile("/src/assets/Water", 3);
   var tileMethods = [
-    { tile: grass, type: "shrub" },
+    { tile: grass, type: "grass" },
     { tile: ground, type: "dry" },
     { tile: labored, type: "plowed" },
     { tile: plant, type: "seeded" },
+    { tile: watered, type: "watered" },
+    { tile: tree, type: "tree" },
     { tile: water, type: "water" },
   ];
 
@@ -63,6 +68,31 @@ async function launchGame({ user, leaderboard, map, socket }) {
       square.width = 120;
       square.height = 120;
       return square;
+    };
+  }
+
+  function createTreeTile(filename, numberAnimation) {
+    return function (position) {
+      let w = 60;
+      let h = 120;
+
+      let ssheet = new PIXI.BaseTexture.from(filename + ".png");
+
+      let Images = [];
+      for (let i = 0; i < numberAnimation; i++) {
+        Images.push(
+          new PIXI.Texture(ssheet, new PIXI.Rectangle(i * w, 0, w, h))
+        );
+      }
+
+      let tile = new PIXI.AnimatedSprite(Images);
+      tile.animationSpeed = 0.025;
+      tile.loop = false;
+      tile.position.set(position.x * 120, position.y * 120 - 120);
+      tile.width = 120;
+      tile.height = 240;
+      tile.play();
+      return tile;
     };
   }
 

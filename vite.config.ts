@@ -52,6 +52,7 @@ function genMap(width: number, height: number) {
 // TODO parse from serialized file
 
 import fs from "fs";
+import { setTokenSourceMapRange } from "typescript";
 let rawdata = fs.readFileSync("src/map.json");
 // let map: Tile[][] = JSON.parse(rawdata.toString());
 let map: Tile[][] = genMap(10, 10);
@@ -205,7 +206,6 @@ export const server = (io, socket) => {
           "->",
           tile
         );
-
         // Update tile for the server
         map[x][y] = tile;
         // Edits the user
@@ -213,6 +213,8 @@ export const server = (io, socket) => {
         // Transmits the user data to himself
         io.emit("edit", { position: { x, y }, tile: tile });
       }
+	  else
+	  	console.log("EDIT: permission denied");
     }
   );
 
