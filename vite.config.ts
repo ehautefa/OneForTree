@@ -197,7 +197,7 @@ export const server = (io, socket) => {
       // Maps gets edited
       if (map[x][y] !== tile) {
         console.log(
-          "Map Update:",
+          "Map Update: allowed",
           socket.id,
           user.role,
           x,
@@ -212,9 +212,18 @@ export const server = (io, socket) => {
         callback?.({ user: users[user.id] });
         // Transmits the user data to himself
         io.emit("edit", { position: { x, y }, tile: tile });
+      } else {
+        console.log(
+          "Map Update: denied",
+          socket.id,
+          user.role,
+          x,
+          y,
+          map[x][y],
+          "->",
+          tile
+        );
       }
-	  else
-	  	console.log("EDIT: permission denied");
     }
   );
 

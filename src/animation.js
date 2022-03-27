@@ -42,10 +42,10 @@ const animationSheet = {
 		animationSheet["standWest"] = animationSheet["walkWest"];
 		animationSheet["standEast"] = animationSheet["walkEast"];
 		animationSheet["standNorth"] = animationSheet["walkNorth"];
-		animationSheet["southSansBaie"] = createTextureArray(20, 23);
-		animationSheet["westSansBaie"] = createTextureArray(35, 38);
-		animationSheet["eastSansBaie"] = createTextureArray(16, 19);
-		animationSheet["northSansBaie"] = createTextureArray(12, 15);
+		animationSheet["southVide"] = createTextureArray(20, 23);
+		animationSheet["westVide"] = createTextureArray(35, 38);
+		animationSheet["eastVide"] = createTextureArray(16, 19);
+		animationSheet["northVide"] = createTextureArray(12, 15);
 		animationSheet["action"] = createTextureArray(24, 30);
 		animationSheet["default"] = animationSheet["standSouth"];
 	}
@@ -68,6 +68,27 @@ const animationSheet = {
 		animationSheet["standEastVide"] = createTextureArray(26, 29);
 		animationSheet["standNorthVide"] = createTextureArray(30, 33);
 		animationSheet["action"] = createTextureArray(12, 21);
+		animationSheet["default"] = animationSheet["standSouth"];
+	}
+	else if (type == "treater")
+	{
+		animationSheet["walkSouth"] = createTextureArray(44, 46);
+		animationSheet["walkWest"] = createTextureArray(53, 55);
+		animationSheet["walkEast"] = createTextureArray(50, 52);
+		animationSheet["walkNorth"] = createTextureArray(47, 49);
+		animationSheet["standSouth"] = createTextureArray(16, 19);
+		animationSheet["standWest"] = createTextureArray(28, 31);
+		animationSheet["standEast"] = createTextureArray(24, 27);
+		animationSheet["standNorth"] = createTextureArray(20, 23);
+		animationSheet["walkSouthVide"] = createTextureArray(32, 34);
+		animationSheet["walkWestVide"] = createTextureArray(41, 43);
+		animationSheet["walkEastVide"] = createTextureArray(38, 40);
+		animationSheet["walkNorthVide"] = createTextureArray(35, 37);
+		animationSheet["standSouthVide"] = createTextureArray(0, 3);
+		animationSheet["standWestVide"] = createTextureArray(12, 15);
+		animationSheet["standEastVide"] = createTextureArray(8, 11);
+		animationSheet["standNorthVide"] = createTextureArray(4, 7);
+		animationSheet["action"] = createTextureArray(56, 77);
 		animationSheet["default"] = animationSheet["standSouth"];
 	}
 	else if (type == "papillionBlanc")

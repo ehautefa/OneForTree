@@ -1,27 +1,33 @@
 import animationSheet from "./animation.js";
 import * as PIXI from "pixi.js";
 import { io } from "socket.io-client";
-import { setTokenSourceMapRange } from "typescript";
-import { createSheet } from "./sheet";
 import { createNpc, createPlayer } from "./player";
-import { createTileMap } from "./tilemap";
 
-const socket = io();
+document.getElementById("Connect").onclick = () => {
+  const username = document.getElementById("Username").value;
 
-//Connect to server
-socket.on("connect", (e) => {
-  console.log("connection established");
+  if (username.length > 0) {
+    document.getElementById("cl").classList.toggle("cloudLeft-active");
+    document.getElementById("cr").classList.toggle("cloudRight-active");
+    setTimeout(function () {
+      document.getElementById("login").classList.toggle("loginClass-active");
 
-  socket.emit("create", { name: "mbeilles" }, (data) => {
-    console.log(data);
-    launchGame({ ...data, socket });
-  });
+      console.log("Clicked");
+      const socket = io();
+      //Connect to server
+      socket.on("connect", (e) => {
+        console.log("connection established");
 
-  socket.on("edit", ({position, tile}) => {
-	map[position.x][position.y] = tile;
-	console.log("Edit tile:", position, tile); 
-  });
-});
+        socket.emit("create", { name: username }, (data) => {
+          console.log(data);
+          launchGame({ ...data, socket });
+        });
+      });
+    }, 1500);
+  } else {
+    document.getElementById("Username").classList.add("error");
+  }
+};
 
 async function launchGame({ user, leaderboard, map, socket }) {
   // Create the application helper and add its render target to the page
@@ -58,8 +64,8 @@ async function launchGame({ user, leaderboard, map, socket }) {
     { tile: ground, type: "dry" },
     { tile: labored, type: "plowed" },
     { tile: plant, type: "seeded" },
-	{ tile: watered, type: "watered" },
-	{ tile: tree, type: "tree" },
+    { tile: watered, type: "watered" },
+    { tile: tree, type: "tree" },
     { tile: water, type: "water" },
   ];
 
@@ -75,6 +81,7 @@ async function launchGame({ user, leaderboard, map, socket }) {
       square.position.set(position.x * 120, position.y * 120);
       square.width = 120;
       square.height = 120;
+      square.texture.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
       return square;
     };
   }
@@ -99,6 +106,7 @@ async function launchGame({ user, leaderboard, map, socket }) {
       tile.position.set(position.x * 120, position.y * 120 - 120);
       tile.width = 120;
       tile.height = 240;
+      tile.texture.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
       tile.play();
       return tile;
     };
@@ -124,13 +132,17 @@ async function launchGame({ user, leaderboard, map, socket }) {
       tile.position.set(position.x * 120, position.y * 120);
       tile.width = 120;
       tile.height = 120;
+      tile.texture.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
       tile.play();
       return tile;
     };
   }
 
   function setup(e) {
-    let playerSheet = animationSheet.createAnimationSheet(user.role, app.loader.resources[user.role].url);
+    let playerSheet = animationSheet.createAnimationSheet(
+      user.role,
+      app.loader.resources[user.role].url
+    );
     let [player, setPosition, setAnimation] = createPlayer({
       x: app.view.width / 2,
       y: app.view.height / 2,
@@ -148,8 +160,8 @@ async function launchGame({ user, leaderboard, map, socket }) {
     mapContainer.x = player.position.pixel.x;
     mapContainer.y = player.position.pixel.y;
 
-    map.forEach((row, y) => {
-      row.forEach((cell, x) => {
+    map.forEach((row, x) => {
+      row.forEach((cell, y) => {
         //let currentCell = tileMethods[x % 5].tile({ x: x, y: y });
         let cellContainer = new PIXI.Container();
         let currentCell = tileMethods
@@ -170,7 +182,7 @@ async function launchGame({ user, leaderboard, map, socket }) {
           );
         });
         currentCell.type = "ground";
-        cellContainer.tilePosition = {x, y};
+        cellContainer.tilePosition = { x, y };
         cellContainer.addChild(currentCell);
         mapContainer.addChild(cellContainer);
       });
@@ -210,6 +222,14 @@ async function launchGame({ user, leaderboard, map, socket }) {
       mapContainer.removeChild(npc.render);
     });
 
+    socket.on("edit", ({ position, tile }) => {
+      console.log("edit", position, tile);
+      updateMapTile({ x: position.x, y: position.y, cellType: tile });
+      // let npc = players.find(({ id }) => id === uuid)?.npc;
+      // console.log("npc", npc);
+      // mapContainer.removeChild(npc.render);
+    });
+
     // Make npc move
     socket.on("move", ({ uuid, next }) => {
       console.log("players", players);
@@ -225,33 +245,29 @@ async function launchGame({ user, leaderboard, map, socket }) {
       npc?.setPosition(() => ({ x: next.x, y: next.y }));
     });
 
-    setInterval(() => {
-      let rdmX = Math.floor(Math.random() * 10);
-      let rdmY = Math.floor(Math.random() * 10);
-      const newCellType = tileMethods[Math.floor(Math.random() * 4)].type;
-      updateMapTile({x:rdmX, y:rdmY, cellType:newCellType})
-    }, 500)
-  
-
-    function updateMapTile({x, y, cellType}) {
-      let currentTile = mapContainer.children.find((item) => item.tilePosition.x == x && item.tilePosition.y == x)
-      currentTile.removeChild(currentTile.children.find((item) => item.type == "ground"));
+    function updateMapTile({ x, y, cellType }) {
+      let rdmX = x;
+      let rdmY = y;
+      let currentTile = mapContainer.children.find(
+        (item) => item.tilePosition.x == rdmX && item.tilePosition.y == rdmY
+      );
+      currentTile.removeChild(
+        currentTile.children.find((item) => item.type == "ground")
+      );
       let newChild = tileMethods
-      .find((tile) => {
-        return tile.type === cellType;
-      })
-      ?.tile({ x:x, y:x });
+        .find((tile) => {
+          return tile.type === cellType;
+        })
+        ?.tile({ x: rdmX, y: rdmY });
       if (!newChild) return;
       newChild.interactive = true;
       newChild.on("pointerdown", (e) => {
-        console.log("ptr dw:", x, y);
-        setPosition(() => ({ x: x, y: y }));
+        console.log("ptr dw:", rdmX, rdmY);
+        setPosition(() => ({ x: rdmX, y: rdmY }));
       });
       newChild.type = "ground";
       currentTile.addChild(newChild);
     }
-
-
 
     // Move players position
     setInterval(() => {
@@ -355,20 +371,18 @@ async function launchGame({ user, leaderboard, map, socket }) {
   }
 
   // Game start
-  if (user.role == "worker")
-  	app.loader.add(user.role, "/src/assets/Anim_Laboureur_AllSprites.png");
-  else if (user.role == "waterer")
-  	app.loader.add(user.role, "/src/assets/arroseur_sheet.png");
-  else
-  	app.loader.add(user.role, "/src/assets/planteur_sheet.png");
-  app.loader.load(setup);
+	app.loader.add("worker", "/src/assets/Anim_Laboureur_AllSprites.png");
+	app.loader.add("cultivator", "/src/assets/planteur_sheet.png");
+	app.loader.add("waterer", "/src/assets/arroseur_sheet.png");
+	app.loader.add("treater", "/src/assets/fertilizer_sheet.png");
+  	app.loader.load(setup);
 
   // PLAYER UI
   // ----------------------------------------------------------
 
-  window.addEventListener('resize', function(event){
+  window.addEventListener("resize", function (event) {
     var newWidth = window.innerWidth;
-    var newHeight = window.innerHeight; 
+    var newHeight = window.innerHeight;
   });
 
   // UI LifeBar Init
@@ -379,7 +393,7 @@ async function launchGame({ user, leaderboard, map, socket }) {
     10,
     25,
     visualViewport.height - 20
-  )
+  );
 
   var healthBarSpriteBlack = new PIXI.Graphics();
   healthBarSpriteBlack.beginFill(0xbababa, 1);
@@ -387,8 +401,8 @@ async function launchGame({ user, leaderboard, map, socket }) {
     screen.width - 40,
     10,
     25,
-    healthBarSprite.height * .75
-  )
+    healthBarSprite.height * 0.75
+  );
 
   // UI ProfileType Init
   let textProfileContent = user.role;

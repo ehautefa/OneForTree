@@ -1,28 +1,6 @@
 <!DOCTYPE html>
-
 <html>
-
 <head>
-  <!-- <script src="https://pixijs.download/release/pixi.min.js"></script> -->
-  <script src="https://pixijs.download/release/pixi.min.js"></script>
-  <script> {
-      function play() {
-        const username = document.getElementById("Username").value;
-        if(username.length > 0)
-        {
-          document.getElementById('cl').classList.toggle('cloudLeft-active');
-          document.getElementById('cr').classList.toggle('cloudRight-active');
-          setTimeout(function(){ 
-            document.getElementById('login').classList.toggle('loginClass-active');
-            sockets(username);
-        },1500);
-        }
-        else
-        document.getElementById('Username').classList.add('error')
-      }
-
-    }
-  </script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
 
@@ -200,7 +178,6 @@
   </section>
 	<script src="./src/activities-list-manage.js"></script>
   <script type="module" src="/src/main.js"> </script>
-  <script type="text/javascript" src="/src/sockets.js"></script>
   <script src="/socket.io/socket.io.js"></script>
   <div id="login" class="loginClass transformSlow">
   <div class="bgCloud" id="idBgCloud"></div>
@@ -209,7 +186,7 @@
   <div class="inputs transform">
     <h1>One For Tree !</h1>
     <input type="text" id="Username" placeholder="Username">
-    <button onclick="play()">PLAY !</button>
+    <button id="Connect" >PLAY !</button>
   </div>
 </div>
 </body>
