@@ -33,7 +33,7 @@ export function createNpc({
       tile: { x, y },
       pixel: { x: x * 120 + 60, y: y * 120 + 30 },
     },
-    direction: "N",
+    direction: "S",
     idle: () => {},
     state: "idle",
   };
@@ -87,7 +87,7 @@ export function createPlayer({
       tile: { x: 0, y: 0 },
       pixel: { x: 0, y: 0 },
     },
-    direction: "N",
+    direction: "S",
     state: "idle",
     idle,
   };
