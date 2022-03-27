@@ -273,7 +273,7 @@ async function launchGame() {
   )
 
   // UI ProfileType Init
-  let textProfileContent = "Profile Type :";
+  let textProfileContent = user.role;
   let powerCapacityBar = new PIXI.Graphics();
   let powerCapacityBarBlack = new PIXI.Graphics();
 
