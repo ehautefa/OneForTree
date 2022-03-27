@@ -264,12 +264,11 @@ async function launchGame() {
   )
 
   var healthBarSpriteBlack = new PIXI.Graphics();
-  healthBarSpriteBlack.beginFill(0x000000, 1);
+  healthBarSpriteBlack.beginFill(0xbababa, 1);
   healthBarSpriteBlack.drawRect(
     screen.width - 40,
     10,
     25,
-    //(visualViewport.height - 20) * (100 / (visualViewport.height - 20))
     healthBarSprite.height * .75
   )
 
@@ -279,7 +278,7 @@ async function launchGame() {
   let powerCapacityBarBlack = new PIXI.Graphics();
 
   let textProfile = new PIXI.Text(textProfileContent, {
-    fontFamily: "Arial",
+    fontFamily: "VT323",
     fontSize: 24,
     fill: 0xffffff,
     align: "center",
@@ -292,7 +291,7 @@ async function launchGame() {
   powerCapacityBar.beginFill(0xffffff, 0.75);
   powerCapacityBar.drawRect(
     textProfile.width + 28,
-    visualViewport.height - 50,
+    visualViewport.height - 57,
     250,
     30
   );
@@ -300,7 +299,7 @@ async function launchGame() {
   powerCapacityBarBlack.beginFill(0xff0000, 0.75);
   powerCapacityBarBlack.drawRect(
     textProfile.width + 28,
-    visualViewport.height - 50,
+    visualViewport.height - 57,
     powerCapacityBar.width * 1,
     30
   );
