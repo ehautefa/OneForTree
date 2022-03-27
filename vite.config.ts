@@ -85,6 +85,8 @@ function selectRole(): UserRole {
 ///  - emit "create": { name: string } -> { user, map, leaderboard }
 /// > A user logged in
 ///  - recieve "login": -> { user: User }
+/// > A user logged in
+///  - recieve "logout": -> { uuid }
 /// > You want to move
 ///  - emit "move": { uuid, position: {x, y} } -> { position: {x, y} }
 /// > A User has moved
@@ -114,7 +116,6 @@ export const server = (io, socket) => {
       };
     }
 
-    console.log(users);
     // Sends to the user the finalized user and the map
     callback?.({ map: map, user: users[socket.id], leaderboard: users });
     // Sends to other players that a new user connected
@@ -207,10 +208,10 @@ export const server = (io, socket) => {
         );
         // Update tile for the server
         map[x][y] = tile;
-        // Transmits the user data to himself
-        io.emit("edit", { position: { x, y }, tile: tile });
         // Edits the user
         callback?.({ user: users[user.id] });
+        // Transmits the user data to himself
+        io.emit("edit", { position: { x, y }, tile: tile });
       }
 	  else
 	  	console.log("EDIT: permission denied");
@@ -219,37 +220,33 @@ export const server = (io, socket) => {
 
   // Move a player
   socket.on("move", ({ position, uuid }, callback: ({}) => void) => {
-    console.log("move", { position, uuid });
-    for (const [id, user] of Object.entries(users)) {
-      if (user.id === uuid) {
-        if (
-          // Check for valid position
-          position.x >= 0 &&
-          position.x < mapWidth &&
-          position.y >= 0 &&
-          position.y < mapHeight
-        ) {
-          const prev = { x: users[id].x, y: users[id].y };
-          // Update player position
-          users[id] = {
-            ...user,
-            x: position.x,
-            y: position.y,
-          };
-          console.log("allowed move", {
-            position: { x: users[uuid].x, y: users[id].y },
-          });
-          console.log("callback", callback);
-          callback?.({ position });
-          // And broadcast it
-          socket.broadcast.emit("move", { uuid, prev: prev, next: position });
-        } else {
-          console.log("denied move", {
-            position: { x: users[uuid].x, y: users[id].y },
-          });
-          callback?.({ position: { x: users[uuid].x, y: users[id].y } });
-        }
-      }
+    let id = socket.id;
+    let user = users[socket.id];
+    if (
+      // Check for valid position
+      position.x >= 0 &&
+      position.x < mapWidth &&
+      position.y >= 0 &&
+      position.y < mapHeight
+    ) {
+      const prev = { x: users[id].x, y: users[id].y };
+      // Update player position
+      users[id] = {
+        ...user,
+        x: position.x,
+        y: position.y,
+      };
+      console.log("allowed move", {
+        position: { x: users[uuid].x, y: users[id].y },
+      });
+      callback?.({ position });
+      // And broadcast it
+      socket.broadcast.emit("move", { uuid, prev: prev, next: position });
+    } else {
+      console.log("denied move", {
+        position: { x: users[uuid].x, y: users[id].y },
+      });
+      callback?.({ position: { x: users[uuid].x, y: users[id].y } });
     }
   });
 
