@@ -198,8 +198,18 @@ async function launchGame({ user, leaderboard, map, socket }) {
         currentCell.type = "ground";
         cellContainer.addChild(currentCell);
 
-        let nu = parseInt(Math.random() * 10);
-        if (nu < 10) {
+        let nu = parseInt(Math.random() * 20);
+        if (cell == "tree") {
+          if (nu < 10) {
+            let animal = bee({ x, y });
+            cellContainer.addChild(animal);
+          }
+        } else if (
+          cell == "grass" ||
+          cell == "dry" ||
+          cell == "plowed" ||
+          cell == "water"
+        ) {
           let animal;
           if (nu == 0) animal = butterflyWhite({ x, y });
           else if (nu == 1) animal = butterflyYellow({ x, y });
