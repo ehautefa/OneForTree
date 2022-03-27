@@ -140,11 +140,11 @@ async function launchGame({ user, leaderboard, map, socket }) {
         });
       },
     });
-    setPosition(({ x, y }) => ({ x: 0, y: 0 }));
+    setPosition(({ x, y }) => ({ x: user.x, y: user.y }));
 
     let mapContainer = new PIXI.Container();
-    mapContainer.x = app.view.width / 2 - 60;
-    mapContainer.y = app.view.height / 2 - 30;
+    mapContainer.x = player.position.pixel.x;
+    mapContainer.y = player.position.pixel.y;
 
     map.forEach((row, y) => {
       row.forEach((cell, x) => {
