@@ -235,7 +235,21 @@ async function launchGame({ user, leaderboard, map, socket }) {
     socket.on("edit", ({ position, tile }) => {
       console.log("edit", position, tile);
       updateMapTile({ x: position.x, y: position.y, cellType: tile });
-      writeActivity(user.name + " has " + tile);
+      let message = user.name;
+      if(tile === "tree"){
+        message += " plant a tree"
+      } else if(tile === "plowed") {
+        message += " plow the ground"
+      } else if(tile === "watered") {
+        message += " water a seed"
+      } else if(tile === "dry") {
+        message += " dry the ground"
+      } else if(tile === "seeded") {
+        message += " plant a seed"
+      }
+      
+      writeActivity(message);
+      
       // let npc = players.find(({ id }) => id === uuid)?.npc;
       // console.log("npc", npc);
       // mapContainer.removeChild(npc.render);
