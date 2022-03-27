@@ -59,6 +59,7 @@ async function launchGame({ user, leaderboard, map, socket }) {
   var labored = createTile("/src/assets/Labored_Ground", 1);
   var plant = createTile("/src/assets/Plant", 1);
   var water = createAnimatedTile("/src/assets/Water", 3);
+  var clouds = createTile("src/assets/Clouds", 3);
   var tileMethods = [
     { tile: grass, type: "grass" },
     { tile: ground, type: "dry" },
@@ -67,6 +68,7 @@ async function launchGame({ user, leaderboard, map, socket }) {
     { tile: watered, type: "watered" },
     { tile: tree, type: "tree" },
     { tile: water, type: "water" },
+    { tile: clouds, type: "cloud" },
   ];
 
   function createTile(name, tileNumber) {
