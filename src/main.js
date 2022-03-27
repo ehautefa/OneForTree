@@ -88,6 +88,7 @@ async function launchGame() {
       square.position.set(position.x * 120, position.y * 120);
       square.width = 120;
       square.height = 120;
+      square.texture.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
       return square;
     };
   }
@@ -112,6 +113,7 @@ async function launchGame() {
       tile.position.set(position.x * 120, position.y * 120 - 120);
       tile.width = 120;
       tile.height = 240;
+      tile.texture.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
       tile.play();
       return tile;
     };
@@ -137,6 +139,7 @@ async function launchGame() {
       tile.position.set(position.x * 120, position.y * 120);
       tile.width = 120;
       tile.height = 120;
+      tile.texture.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
       tile.play();
       return tile;
     };
