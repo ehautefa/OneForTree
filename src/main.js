@@ -233,6 +233,7 @@ async function launchGame({ user, leaderboard, map, socket }) {
     socket.on("edit", ({ position, tile }) => {
       console.log("edit", position, tile);
       updateMapTile({ x: position.x, y: position.y, cellType: tile });
+      writeActivity(user.name + " has " + tile);
       // let npc = players.find(({ id }) => id === uuid)?.npc;
       // console.log("npc", npc);
       // mapContainer.removeChild(npc.render);
