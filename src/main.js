@@ -365,7 +365,7 @@ async function launchGame({ user, leaderboard, map, socket }) {
 	app.loader.add("worker", "/src/assets/Anim_Laboureur_AllSprites.png");
 	app.loader.add("cultivator", "/src/assets/planteur_sheet.png");
 	app.loader.add("waterer", "/src/assets/arroseur_sheet.png");
-	app.loader.add("treater", "/src/assets/arroseur_sheet.png");
+	app.loader.add("treater", "/src/assets/fertilizer_sheet.png");
   	app.loader.load(setup);
 
   // PLAYER UI
@@ -373,7 +373,7 @@ async function launchGame({ user, leaderboard, map, socket }) {
 
   window.addEventListener('resize', function(event){
     var newWidth = window.innerWidth;
-    var newHeight = window.innerHeight; 
+    var newHeight = window.innerHeight;
   });
 
   // UI LifeBar Init
