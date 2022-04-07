@@ -276,27 +276,32 @@ async function launchGame({ user, leaderboard, map, socket }) {
       mapContainer.removeChild(npc.render);
     });
 
-    socket.on("edit", ({ position, tile }) => {
+    socket.on("edit", ({ position, tile, user }) => {
       console.log("edit", position, tile);
       updateMapTile({ x: position.x, y: position.y, cellType: tile });
       let message = user.name;
-      if (tile === "tree") {
-        message += " planted a tree";
-      } else if (tile === "plowed") {
-        message += " plowed the ground";
-      } else if (tile === "watered") {
-        message += " watered a seed";
-      } else if (tile === "dry") {
-        message += " dried the ground";
-      } else if (tile === "seeded") {
-        message += " planted a seed";
+
+      switch (tile) {
+        case "tree":
+          message += " planted a tree";
+          break;
+        case "plowed":
+          message += " plowed the ground";
+          break;
+        case "watered":
+          message += " watered a seed";
+          break;
+        case "dry":
+          message += " dried the ground";
+          break;
+        case "seeded":
+          message += " planted a seed";
+          break;
+        default:
+          message += " did something";
       }
 
       writeActivity(message);
-
-      // let npc = players.find(({ id }) => id === uuid)?.npc;
-      // console.log("npc", npc);
-      // mapContainer.removeChild(npc.render);
     });
 
     // Make npc move

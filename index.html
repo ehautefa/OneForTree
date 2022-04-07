@@ -156,33 +156,13 @@
       transition: all 2s ease;
     }
 
-    #activitiesList {
-      position: fixed;
-      top: 10px;
-      right: 60px;
-      width: 350px;
-      height: calc(100vh - 20px);
-      background-color: rgba(255, 255, 255, 0.75);
-      padding: 20px;
-      box-sizing: border-box;
-      overflow-y: scroll;
-    }
 
-    #activitiesList h2 {
-      font: 2.75em/1.0em 'VT323', monospace;
-      margin-top: 0;
-      margin-bottom: 20px;
-    }
 
-    #activitiesList p {
-      font: 1.6em/1.5em 'VT323', monospace;
-    }
-
-    @media screen and (max-width: 1024px) {
+    /* @media screen and (max-width: 1024px) {
       #activitiesList {
         display: none;
       }
-    }
+    } */
 
     .connection-form {
       display: flex;
@@ -193,8 +173,7 @@
 
 <body>
   <!-- <script src=""></script> -->
-  <section id="activitiesList">
-    <h2>Radio</h2>
+  <section id="notificationList">
   </section>
   <script src="./src/activities-list-manage.js"></script>
   <script type="module" src="/src/main.js"> </script>

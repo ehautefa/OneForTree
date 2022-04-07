@@ -1,120 +1,142 @@
-#activitiesList{
+
+  #notificationList {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    width: 350px;
     pointer-events:none;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
   }
 
-.notification {
-    visibility: hidden;
-    max-width: 50px;
-    height: 50px;
-    /*margin-left: -125px;*/
-    margin: auto;
-    background-color: #333;
-    color: #fff;
-    text-align: center;
-    border-radius: 2px;
-    position: fixed;
-    z-index: 1;
-    left: 0;right:0;
-    bottom: 30px;
-    font-size: 17px;
-    white-space: nowrap;
-}
-.notification .notification-img{
-	width: 50px;
-	height: 50px;
-    
-    float: left;
-    
-    padding-top: 16px;
-    padding-bottom: 16px;
-    
-    box-sizing: border-box;
 
-    
-    background-color: #111;
-    color: #fff;
-}
-.notification .notification-text{
-
-    /* visibility: hidden; */
-    opacity:0;
-    color: #fff;
-   
-    padding: 16px;
-    
-    overflow: hidden;
-	white-space: nowrap;
-    /* animation: fadein 5s forwards; */
-    transition: all 0.5s;
-}
-
-.notification.show .notification-text{
-    transition-delay: 0.5s;
-    opacity: 1;
-}
-
-.notification.show {
-    visibility: visible;
-    
-    /* -webkit-animation: fadein 0.5s, expand 0.5s 0.5s forwards; */
-    /* ,stay 3s 1s; */
-    /* , shrink 0.5s 2s, fadeout 0.5s 2.5s; */
-    /* min-width: 350px; */
-    /* transition: all 2s; */
-    animation: fadein 0.5s, expand 0.5s 0.5s forwards;
-    
-    /* , stay 3s 1s; */
-    /* ,stay 3s 1s; */
-    /* , shrink 0.5s 4s; */
-     /* fadeout 0.5s 4.5s; */
-}
+  .notification {
+      visibility: hidden;
+      max-width: 50px;
+      height: 50px;
+      /*margin-left: -125px;*/
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      border-radius: 2px;
+  
+      /* position: fixed; */
 
 
+      z-index: 1;
+      /* left: 0;right:0; */
+      font-size: 17px;
+      margin-bottom: 10px;
+      white-space: nowrap;
+      /* display: flex; */
 
-@-webkit-keyframes fadein {
-    from {bottom: 0; opacity: 0;} 
-    to {bottom: 30px; opacity: 1;}
+  }
+  .notification .notification-img{
+      width: 50px;
+      height: 50px;
+      
+      float: left;
+      
+      padding-top: 16px;
+      padding-bottom: 16px;
+      
+      box-sizing: border-box;
+  
+      
+      background-color: #111;
+      color: #fff;
+  }
+  .notification .notification-text{
+      color: #fff;
+      font: 1.1em/1.0em 'VT323';
+      padding: 16px;
+      overflow: hidden;
+      white-space: nowrap;
+      opacity:0;
+  }
+  .notification.show .notification-text{
+    -webkit-animation: textin 0.5s 0.5s, textstay 3s 1s forwards;
+    animation: textin 0.5s 0.5s, textstay 3s 1s forwards;
+  }
+  
+  .notification.show {
+      visibility: visible;
+      -webkit-animation: fadein 0.5s, expand 0.5s 0.5s,stay 3s 1s forwards, /*shrink 0.5s 2s,*/ fadeout 0.5s 2.5s forwards, reducesize 0.5s 5.0s forwards ;
+      animation: fadein 0.5s, expand 0.5s 0.5s,stay 3s 1s forwards, /*shrink 0.5s 4s,*/ fadeout 0.5s 4.5s forwards, reducesize 0.5s 5.0s forwards ;
+  }
+
+  @-webkit-keyframes reducesize {
+    from { height: 50px; margin-bottom: 10px;}
+    to { height: 0px; margin-bottom: 0px;}
 }
 
-@keyframes fadein {
-    from {bottom: 0; opacity: 0;}
-    to {bottom: 30px; opacity: 1;}
-}
+  @keyframes reducesize {
+      from { height: 50px; margin-bottom: 10px;}
+      to { height: 0px; margin-bottom: 0px;}
+  }
 
-@-webkit-keyframes expand {
-    from {min-width: 50px} 
-    to {min-width: 350px}
-}
-
-@keyframes expand {
-    from {min-width: 50px}
-    to {min-width: 350px}
-}
-@-webkit-keyframes stay {
-    from {min-width: 350px} 
-    to {min-width: 350px}
-}
-
-@keyframes stay {
-    from {min-width: 350px}
-    to {min-width: 350px}
-}
-@-webkit-keyframes shrink {
-    from {min-width: 350px;} 
-    to {min-width: 50px;}
-}
-
-@keyframes shrink {
-    from {min-width: 350px;} 
-    to {min-width: 50px;}
-}
-
-@-webkit-keyframes fadeout {
-    from {bottom: 30px; opacity: 1;} 
-    to {bottom: 60px; opacity: 0;}
-}
-
-@keyframes fadeout {
-    from {bottom: 30px; opacity: 1;}
-    to {bottom: 60px; opacity: 0;}
-}
+  @-webkit-keyframes fadein {
+      from {bottom: 0; opacity: 0;} 
+      to {bottom: 30px; opacity: 1;}
+  }
+  
+  @keyframes fadein {
+      from {bottom: 0; opacity: 0;}
+      to {bottom: 30px; opacity: 1;}
+  }
+  
+  @-webkit-keyframes expand {
+      from {min-width: 50px} 
+      to {min-width: 350px}
+  }
+  
+  @keyframes expand {
+      from {min-width: 50px}
+      to {min-width: 350px}
+  }
+  @-webkit-keyframes stay {
+      from {min-width: 350px} 
+      to {min-width: 350px}
+  }
+  
+  @keyframes stay {
+      from {min-width: 350px}
+      to {min-width: 350px}
+  }
+  @-webkit-keyframes shrink {
+      from {min-width: 350px;} 
+      to {min-width: 50px;}
+  }
+  
+  @keyframes shrink {
+      from {min-width: 350px;} 
+      to {min-width: 50px;}
+  }
+  
+  @-webkit-keyframes fadeout {
+      from {opacity: 1;} 
+      to {opacity: 0;}
+  }
+  
+  @keyframes fadeout {
+      from {opacity: 1;}
+      to {opacity: 0;}
+  }
+  
+  @-webkit-keyframes  textstay {
+      from {opacity: 1}
+      to {opacity: 1}
+  }
+  
+  @keyframes textin {
+      from {opacity: 0}
+      to {opacity: 1}
+  }
+  
+  @keyframes textstay {
+      from {opacity: 1}
+      to {opacity: 1}
+  }

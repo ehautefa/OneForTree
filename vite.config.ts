@@ -219,7 +219,7 @@ export const server = (io, socket) => {
         // Update tile for the server
         map[x][y] = tile;
         // Transmits the user data to himself
-        io.emit("edit", { position: { x, y }, tile: tile });
+        io.emit("edit", { position: { x, y }, tile: tile , user: user});
       } else {
         console.log(
           "Map Update: denied",
