@@ -16,7 +16,9 @@
     "vite": "^2.8.0"
   },
   "dependencies": {
+    "@types/pixi.js": "^5.0.0",
     "node-ts": "^5.1.2",
+    "pixi.js": "^6.3.0",
     "socket.io-client": "^4.4.1",
     "ts-node": "^10.7.0",
     "vite-plugin-socket-io": "^1.0.2"
