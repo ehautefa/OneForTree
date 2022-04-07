@@ -497,65 +497,65 @@ async function launchGame({ user, leaderboard, map, socket }) {
     var newHeight = window.innerHeight;
   });
 
-  // UI LifeBar Init
-  var healthBarSprite = new PIXI.Graphics();
-  healthBarSprite.beginFill(0xffffff, 1);
-  healthBarSprite.drawRect(
-    screen.width - 40,
-    10,
-    25,
-    visualViewport.height - 20
-  );
+  // // UI LifeBar Init
+  // var healthBarSprite = new PIXI.Graphics();
+  // healthBarSprite.beginFill(0xffffff, 1);
+  // healthBarSprite.drawRect(
+  //   screen.width - 40,
+  //   10,
+  //   25,
+  //   visualViewport.height - 20
+  // );
 
-  var healthBarSpriteBlack = new PIXI.Graphics();
-  healthBarSpriteBlack.beginFill(0xbababa, 1);
-  healthBarSpriteBlack.drawRect(
-    screen.width - 40,
-    10,
-    25,
-    healthBarSprite.height * 0.75
-  );
+  // var healthBarSpriteBlack = new PIXI.Graphics();
+  // healthBarSpriteBlack.beginFill(0xbababa, 1);
+  // healthBarSpriteBlack.drawRect(
+  //   screen.width - 40,
+  //   10,
+  //   25,
+  //   healthBarSprite.height * 0.75
+  // );
 
-  // UI ProfileType Init
-  let textProfileContent = user.role;
-  let powerCapacityBar = new PIXI.Graphics();
-  let powerCapacityBarBlack = new PIXI.Graphics();
+  // // UI ProfileType Init
+  // let textProfileContent = user.role;
+  // let powerCapacityBar = new PIXI.Graphics();
+  // let powerCapacityBarBlack = new PIXI.Graphics();
 
-  let textProfile = new PIXI.Text(textProfileContent, {
-    fontFamily: "VT323",
-    fontSize: 24,
-    fill: 0xffffff,
-    align: "center",
-  });
+  // let textProfile = new PIXI.Text(textProfileContent, {
+  //   fontFamily: "VT323",
+  //   fontSize: 24,
+  //   fill: 0xffffff,
+  //   align: "center",
+  // });
 
-  textProfile.anchor.set(0, 0);
-  textProfile.position.x = 20;
-  textProfile.position.y = visualViewport.height - 50;
+  // textProfile.anchor.set(0, 0);
+  // textProfile.position.x = 20;
+  // textProfile.position.y = visualViewport.height - 50;
 
-  powerCapacityBar.beginFill(0xffffff, 0.75);
-  powerCapacityBar.drawRect(
-    textProfile.width + 28,
-    visualViewport.height - 57,
-    250,
-    30
-  );
+  // powerCapacityBar.beginFill(0xffffff, 0.75);
+  // powerCapacityBar.drawRect(
+  //   textProfile.width + 28,
+  //   visualViewport.height - 57,
+  //   250,
+  //   30
+  // );
 
-  powerCapacityBarBlack.beginFill(0xff0000, 0.75);
-  powerCapacityBarBlack.drawRect(
-    textProfile.width + 28,
-    visualViewport.height - 57,
-    powerCapacityBar.width * 1,
-    30
-  );
+  // powerCapacityBarBlack.beginFill(0xff0000, 0.75);
+  // powerCapacityBarBlack.drawRect(
+  //   textProfile.width + 28,
+  //   visualViewport.height - 57,
+  //   powerCapacityBar.width * 1,
+  //   30
+  // );
 
-  // UI Deploy
-  app.stage.addChild(
-    healthBarSprite,
-    healthBarSpriteBlack,
-    textProfile,
-    powerCapacityBar,
-    powerCapacityBarBlack
-  );
+  // // UI Deploy
+  // app.stage.addChild(
+  //   healthBarSprite,
+  //   healthBarSpriteBlack,
+  //   textProfile,
+  //   powerCapacityBar,
+  //   powerCapacityBarBlack
+  // );
 
-  console.log(textProfile.width);
+  // console.log(textProfile.width);
 }
