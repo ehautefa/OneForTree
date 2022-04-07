@@ -3,8 +3,9 @@ import * as PIXI from "pixi.js";
 import { io } from "socket.io-client";
 import { createNpc, createPlayer } from "./player";
 
-document.getElementById("Connect").onclick = () => {
-  const username = document.getElementById("Username").value;
+document.getElementById("connectionForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const username = Object.fromEntries(new FormData(e.target))["username"];
 
   if (username.length > 0) {
     document.getElementById("cl").classList.toggle("cloudLeft-active");
@@ -27,7 +28,7 @@ document.getElementById("Connect").onclick = () => {
   } else {
     document.getElementById("Username").classList.add("error");
   }
-};
+});
 
 async function launchGame({ user, leaderboard, map, socket }) {
   // Create the application helper and add its render target to the page

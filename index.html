@@ -28,11 +28,12 @@
     }
 
     input {
-      width: 16%;
-      height: 5%;
-      min-width: 400px;
+      /* width: 16%; */
+      /* height: 5%; */
+      min-width: 350px;
       font-size: xx-large;
       font-family: 'VT323', monospace;
+      margin-bottom: 1rem;
     }
 
     .cloudLeft {
@@ -67,7 +68,7 @@
       animation-play-state: paused;
     }
 
-
+    /* ??? */
     .inputs {
       width: 100%;
       height: 100%;
@@ -185,7 +186,10 @@
     #activitiesList{
       pointer-events:none;
     }
-
+    .connection-form {
+      display: flex;
+      flex-direction: column;
+    }
   </style>
 </head>
 
@@ -203,8 +207,11 @@
     <div id="cr" class="transform cloudRight"></div>
     <div class="inputs transform">
       <h1>One For Tree !</h1>
-      <input type="text" id="Username" placeholder="Username">
-      <button id="Connect">PLAY !</button>
+      <form class="connection-form" id="connectionForm">
+        <input type="text" name="username" placeholder="Username">
+        <input type="submit" value="PLAY !">
+        <!-- <button id="Connect">PLAY !</button> -->
+      </form>
     </div>
   </div>
 </body>
