@@ -280,7 +280,8 @@ async function launchGame({ user, leaderboard, map, socket }) {
       console.log("edit", position, tile);
       updateMapTile({ x: position.x, y: position.y, cellType: tile });
       let message = user.name;
-
+      console.log("Type:", user);
+      let image = "/src/assets/";
       switch (tile) {
         case "tree":
           message += " planted a tree";
@@ -301,7 +302,25 @@ async function launchGame({ user, leaderboard, map, socket }) {
           message += " did something";
       }
 
-      writeActivity(message);
+      switch (user.role) {
+        case "worker":
+          image += "Laboureur_ico.png";
+          break;
+        case "cultivator":
+          image += "Planteur_ico.png";
+          break;
+        case "waterer":
+          image += "Waterer_ico.png";
+          break;
+        case "treater":
+          image += "Fertilizer_ico.png";
+          break;
+        default:
+          image += "Laboureur_ico.png";
+          break;
+      }
+
+      writeActivity(message, image);
     });
 
     // Make npc move

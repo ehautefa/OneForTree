@@ -1,142 +1,203 @@
-
-  #notificationList {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    width: 350px;
-    pointer-events:none;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-  }
-
-
-  .notification {
-      visibility: hidden;
-      max-width: 50px;
-      height: 50px;
-      /*margin-left: -125px;*/
-      background-color: #333;
-      color: #fff;
-      text-align: center;
-      border-radius: 2px;
-  
-      /* position: fixed; */
-
-
-      z-index: 1;
-      /* left: 0;right:0; */
-      font-size: 17px;
-      margin-bottom: 10px;
-      white-space: nowrap;
-      /* display: flex; */
-
-  }
-  .notification .notification-img{
-      width: 50px;
-      height: 50px;
-      
-      float: left;
-      
-      padding-top: 16px;
-      padding-bottom: 16px;
-      
-      box-sizing: border-box;
-  
-      
-      background-color: #111;
-      color: #fff;
-  }
-  .notification .notification-text{
-      color: #fff;
-      font: 1.1em/1.0em 'VT323';
-      padding: 16px;
-      overflow: hidden;
-      white-space: nowrap;
-      opacity:0;
-  }
-  .notification.show .notification-text{
-    -webkit-animation: textin 0.5s 0.5s, textstay 3s 1s forwards;
-    animation: textin 0.5s 0.5s, textstay 3s 1s forwards;
-  }
-  
-  .notification.show {
-      visibility: visible;
-      -webkit-animation: fadein 0.5s, expand 0.5s 0.5s,stay 3s 1s forwards, /*shrink 0.5s 2s,*/ fadeout 0.5s 2.5s forwards, reducesize 0.5s 5.0s forwards ;
-      animation: fadein 0.5s, expand 0.5s 0.5s,stay 3s 1s forwards, /*shrink 0.5s 4s,*/ fadeout 0.5s 4.5s forwards, reducesize 0.5s 5.0s forwards ;
-  }
-
-  @-webkit-keyframes reducesize {
-    from { height: 50px; margin-bottom: 10px;}
-    to { height: 0px; margin-bottom: 0px;}
+#notificationList {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  width: 350px;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
 }
 
-  @keyframes reducesize {
-      from { height: 50px; margin-bottom: 10px;}
-      to { height: 0px; margin-bottom: 0px;}
-  }
+.notification .notification-img {
+  width: 50px;
+  height: 50px;
+  float: left;
+  /* padding-top: 16px; */
+  /* padding-bottom: 16px; */
+  box-sizing: border-box;
+  background-color: #111;
+  color: #fff;
+  display: table-cell;
+  text-align: center;
+  vertical-align: middle;
+}
 
-  @-webkit-keyframes fadein {
-      from {bottom: 0; opacity: 0;} 
-      to {bottom: 30px; opacity: 1;}
+.notification .notification-text {
+  color: #fff;
+  font: 1.1em/1em "VT323";
+  padding: 16px;
+  overflow: hidden;
+  white-space: nowrap;
+  opacity: 0;
+  -webkit-animation: textin 0.5s 0.5s, textstay 3s 1s forwards;
+  animation: textin 0.5s 0.5s, textstay 3s 1s forwards;
+}
+
+.notification-ico {
+  margin-top: 10px;
+  image-rendering: pixelated;
+
+  height: 30px;
+  width: 30px;
+}
+
+.notification {
+  visibility: visible;
+  max-width: 50px;
+  height: 50px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 2px;
+  z-index: 1;
+  font-size: 17px;
+  margin-bottom: 10px;
+  white-space: nowrap;
+  -webkit-animation: fadein 0.5s, expand 0.5s 0.5s, stay 3s 1s forwards,
+    /*shrink 0.5s 2s,*/ fadeout 0.5s 2.5s forwards, reducesize 0.5s 5s forwards;
+  animation: fadein 0.5s, expand 0.5s 0.5s, stay 3s 1s forwards,
+    /*shrink 0.5s 4s,*/ fadeout 0.5s 4.5s forwards, reducesize 0.5s 5s forwards;
+}
+
+@-webkit-keyframes reducesize {
+  from {
+    height: 50px;
+    margin-bottom: 10px;
   }
-  
-  @keyframes fadein {
-      from {bottom: 0; opacity: 0;}
-      to {bottom: 30px; opacity: 1;}
+  to {
+    height: 0px;
+    margin-bottom: 0px;
   }
-  
-  @-webkit-keyframes expand {
-      from {min-width: 50px} 
-      to {min-width: 350px}
+}
+
+@keyframes reducesize {
+  from {
+    height: 50px;
+    margin-bottom: 10px;
   }
-  
-  @keyframes expand {
-      from {min-width: 50px}
-      to {min-width: 350px}
+  to {
+    height: 0px;
+    margin-bottom: 0px;
   }
-  @-webkit-keyframes stay {
-      from {min-width: 350px} 
-      to {min-width: 350px}
+}
+
+@-webkit-keyframes fadein {
+  from {
+    bottom: 0;
+    opacity: 0;
   }
-  
-  @keyframes stay {
-      from {min-width: 350px}
-      to {min-width: 350px}
+  to {
+    bottom: 30px;
+    opacity: 1;
   }
-  @-webkit-keyframes shrink {
-      from {min-width: 350px;} 
-      to {min-width: 50px;}
+}
+
+@keyframes fadein {
+  from {
+    bottom: 0;
+    opacity: 0;
   }
-  
-  @keyframes shrink {
-      from {min-width: 350px;} 
-      to {min-width: 50px;}
+  to {
+    bottom: 30px;
+    opacity: 1;
   }
-  
-  @-webkit-keyframes fadeout {
-      from {opacity: 1;} 
-      to {opacity: 0;}
+}
+
+@-webkit-keyframes expand {
+  from {
+    min-width: 50px;
   }
-  
-  @keyframes fadeout {
-      from {opacity: 1;}
-      to {opacity: 0;}
+  to {
+    min-width: 350px;
   }
-  
-  @-webkit-keyframes  textstay {
-      from {opacity: 1}
-      to {opacity: 1}
+}
+
+@keyframes expand {
+  from {
+    min-width: 50px;
   }
-  
-  @keyframes textin {
-      from {opacity: 0}
-      to {opacity: 1}
+  to {
+    min-width: 350px;
   }
-  
-  @keyframes textstay {
-      from {opacity: 1}
-      to {opacity: 1}
+}
+@-webkit-keyframes stay {
+  from {
+    min-width: 350px;
   }
+  to {
+    min-width: 350px;
+  }
+}
+
+@keyframes stay {
+  from {
+    min-width: 350px;
+  }
+  to {
+    min-width: 350px;
+  }
+}
+@-webkit-keyframes shrink {
+  from {
+    min-width: 350px;
+  }
+  to {
+    min-width: 50px;
+  }
+}
+
+@keyframes shrink {
+  from {
+    min-width: 350px;
+  }
+  to {
+    min-width: 50px;
+  }
+}
+
+@-webkit-keyframes fadeout {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fadeout {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@-webkit-keyframes textstay {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes textin {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes textstay {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+  }
+}
