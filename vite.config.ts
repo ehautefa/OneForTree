@@ -11,7 +11,10 @@ export type Tile =
   | "watered" // germinating land
   | "tree" // A tree entity
   | "shrub" // little bush
-  | "garbage"; // Garbage
+  | "fertilizer" // fertilizant
+  | "cloud" // les nuages
+  | "berry" // berry
+  | "grass";
 export type UserRole = "worker" | "cultivator" | "waterer" | "treater";
 export type User = {
   // UUID
@@ -48,10 +51,11 @@ function genMap(width: number, height: number) {
 }
 
 import fs from "fs";
+import { setTokenSourceMapRange } from "typescript";
 let rawdata = fs.readFileSync("src/map.json");
 
 let map: Tile[][] = JSON.parse(rawdata.toString());
-// let map: Tile[][] = genMap(50, 50);
+// let map: Tile[][] = genMap(10, 10);
 const mapWidth = map[0].length;
 const mapHeight = map.length;
 
@@ -81,6 +85,8 @@ function selectRole(): UserRole {
 ///  - emit "create": { name: string } -> { user, map, leaderboard }
 /// > A user logged in
 ///  - recieve "login": -> { user: User }
+/// > A user logged in
+///  - recieve "logout": -> { uuid }
 /// > You want to move
 ///  - emit "move": { uuid, position: {x, y} } -> { position: {x, y} }
 /// > A User has moved
@@ -111,7 +117,6 @@ export const server = (io, socket) => {
     }
 
     // Sends to the user the finalized user and the map
-    // socket.emit("created", { map: map, user: users[socket.id], users: users });
     callback?.({ map: map, user: users[socket.id], leaderboard: users });
     // Sends to other players that a new user connected
     socket.broadcast.emit("login", { user: users[socket.id] });
@@ -155,10 +160,11 @@ export const server = (io, socket) => {
                 tile = "seeded";
               }
               break;
-            case "shrub":
+            case "berry":
               if (user.capacity <= 5) {
                 users[socket.id].capacity = 5;
               }
+			  tile="grass";
               break;
           }
           break;
@@ -180,10 +186,16 @@ export const server = (io, socket) => {
         case "treater":
           switch (tile) {
             case "watered":
-              // if (user.capacity > 0) {
-              //   users[user.id].capacity -= 1;
-              tile = "tree";
-              // }
+              if (user.capacity > 0) {
+                users[user.id].capacity -= 1;
+                tile = "tree";
+              }
+              break;
+            case "fertilizer":
+              if (user.capacity <= 5) {
+                users[socket.id].capacity = 5;
+              }
+			  tile = "grass";
               break;
           }
           break;
@@ -192,7 +204,23 @@ export const server = (io, socket) => {
       // Maps gets edited
       if (map[x][y] !== tile) {
         console.log(
-          "Map Update:",
+          "Map Update: allowed",
+          socket.id,
+          user.role,
+          x,
+          y,
+          map[x][y],
+          "->",
+          tile,
+		  user.capacity
+        );
+        // Update tile for the server
+        map[x][y] = tile;
+        // Transmits the user data to himself
+        io.emit("edit", { position: { x, y }, tile: tile , user: user});
+      } else {
+        console.log(
+          "Map Update: denied",
           socket.id,
           user.role,
           x,
@@ -201,50 +229,41 @@ export const server = (io, socket) => {
           "->",
           tile
         );
-
-        // Update tile for the server
-        map[x][y] = tile;
-        // Transmits the user data to himself
-        io.emit("edit", { position: { x, y }, tile: tile });
-        // Edits the user
-        callback?.({ user: users[user.id] });
       }
+      // Edits the user
+      callback?.({ user: users[socket.id] });
     }
   );
 
   // Move a player
   socket.on("move", ({ position, uuid }, callback: ({}) => void) => {
-    console.log("move", { position, uuid });
-    for (const [id, user] of Object.entries(users)) {
-      if (user.id === uuid) {
-        if (
-          // Check for valid position
-          position.x >= 0 &&
-          position.x < mapWidth &&
-          position.y >= 0 &&
-          position.y < mapHeight
-        ) {
-          const prev = { x: users[id].x, y: users[id].y };
-          // Update player position
-          users[id] = {
-            ...user,
-            x: position.x,
-            y: position.y,
-          };
-          console.log("allowed move", {
-            position: { x: users[uuid].x, y: users[id].y },
-          });
-          console.log("callback", callback);
-          callback?.({ position });
-          // And broadcast it
-          socket.broadcast.emit("move", { uuid, prev: prev, next: position });
-        } else {
-          console.log("denied move", {
-            position: { x: users[uuid].x, y: users[id].y },
-          });
-          callback?.({ position: { x: users[uuid].x, y: users[id].y } });
-        }
-      }
+    let id = socket.id;
+    let user = users[socket.id];
+    if (
+      // Check for valid position
+      position.x >= 0 &&
+      position.x < mapWidth &&
+      position.y >= 0 &&
+      position.y < mapHeight
+    ) {
+      const prev = { x: users[id].x, y: users[id].y };
+      // Update player position
+      users[id] = {
+        ...user,
+        x: position.x,
+        y: position.y,
+      };
+      console.log("allowed move", {
+        position: { x: users[uuid].x, y: users[id].y },
+      });
+      callback?.({ position });
+      // And broadcast it
+      socket.broadcast.emit("move", { uuid, prev: prev, next: position });
+    } else {
+      console.log("denied move", {
+        position: { x: users[uuid].x, y: users[id].y },
+      });
+      callback?.({ position: { x: users[uuid].x, y: users[id].y } });
     }
   });
 
@@ -255,10 +274,11 @@ export const server = (io, socket) => {
 
   socket.on("disconnect", () => {
     console.log("Disconnect:", socket.id);
+    socket.broadcast.emit("logout", { uuid: socket.id });
     socket.disconnect();
     // Destroy the user
     // TODO Maybe we don't want this
-    // delete users[socket.id];
+    delete users[socket.id];
   });
 };
 
