@@ -187,8 +187,8 @@ export const server = (io, socket) => {
               if (user.capacity <= 5) {
                 users[socket.id].capacity = 5;
               }
+			  io.emit("edit", { position: findRandomGrassTile(map, "berry"), tile: tile, user: null});
 			  tile="grass";
-			  io.emit("spawn", { position: findRandomGrassTile(map, "berry"), tile: "berry"});
 
               break;
           }
@@ -220,8 +220,8 @@ export const server = (io, socket) => {
               if (user.capacity <= 5) {
                 users[socket.id].capacity = 5;
               }
+			  io.emit("edit", { position: findRandomGrassTile(map, "fertilizer"), tile: tile, user: null});
 			  tile = "grass";
-			  io.emit("spawn", { position: findRandomGrassTile(map, "fertilizer"), tile: "fertilizer"});
               break;
           }
           break;
