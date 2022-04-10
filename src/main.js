@@ -276,6 +276,33 @@ async function launchGame({ user, leaderboard, map, socket }) {
       mapContainer.removeChild(npc.render);
     });
 
+	socket.on("spawn", ({ position, tile }) => {
+		console.log("edit", position, tile);
+		updateMapTile({ x: position.x, y: position.y, cellType: tile });
+	  	let rdmX = position.x;
+      	let rdmY = position.y;
+      	let currentTile = mapContainer.children.find(
+      	  (item) => item.tilePosition.x == rdmX && item.tilePosition.y == rdmY
+      	);
+      	currentTile.removeChild(
+      	  currentTile.children.find((item) => item.type == "ground")
+      	);
+      	let newChild = tileMethods
+      	  .find((tile) => {
+      	    return tile.type === cellType;
+      	  })
+      	  ?.tile({ x: rdmX, y: rdmY });
+      	if (!newChild) return;
+      	newChild.interactive = true;
+      	newChild.on("pointerdown", (e) => {
+      	  console.log("ptr dw:", rdmX, rdmY);
+      	  setPosition(() => ({ x: rdmX, y: rdmY }));
+      	});
+      	newChild.type = "ground";
+      	currentTile.addChild(newChild); 
+	  });
+
+
     socket.on("edit", ({ position, tile, user }) => {
       console.log("edit", position, tile);
       updateMapTile({ x: position.x, y: position.y, cellType: tile });

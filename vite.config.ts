@@ -50,6 +50,29 @@ function genMap(width: number, height: number) {
   return map;
 }
 
+// find a random grass tile and spawn berry or fertilizer on it
+function findRandomGrassTile(map: Tile[][], new_type: Tile) {
+	let x: number = Math.floor(Math.random() * (mapWidth + 1));
+	let y: number = Math.floor(Math.random() * (mapHeight + 1));
+
+	for (let i = y; i < mapHeight; i++)
+	{
+		for (let j = x; j < mapWidth; j++)
+		{
+			if (map[i][j] == "grass") {
+				map[i][j] = new_type;
+				console.log("New", new_type, "spawn on", i, j);
+				return ({i, j});
+			}
+			if (i == mapHeight - 1 && j == mapWidth - 1) {
+				i = 0;
+				j = 0;
+			}
+		}
+	}
+	return {x, y};
+}
+
 import fs from "fs";
 import { setTokenSourceMapRange } from "typescript";
 let rawdata = fs.readFileSync("src/map.json");
@@ -165,6 +188,8 @@ export const server = (io, socket) => {
                 users[socket.id].capacity = 5;
               }
 			  tile="grass";
+			  io.emit("spawn", { position: findRandomGrassTile(map, "berry"), tile: "berry"});
+
               break;
           }
           break;
@@ -196,6 +221,7 @@ export const server = (io, socket) => {
                 users[socket.id].capacity = 5;
               }
 			  tile = "grass";
+			  io.emit("spawn", { position: findRandomGrassTile(map, "fertilizer"), tile: "fertilizer"});
               break;
           }
           break;
