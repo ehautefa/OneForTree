@@ -96,42 +96,44 @@ class Map {
 	loadChunck({ chunckIndex, dataIndex }) {
 		if (this.loadedChuncks[chunckIndex] === dataIndex)
 			return
-		for (let i = 0; i < this.chunckSize; i++) {
-			let tileContainer = this.chunck[chunckIndex].getChildAt(i)
-			let tileData = this.data[dataIndex][i]
-
-			let textures = [
-				this.app.loader.resource[tileData.ground],
-				this.app.loader.resource[tileData.plant],
-				this.app.loader.resource[tileData.animal]
-			]
-
-			let sprites = [
-				tileContainer.getChildByName("ground"),
-				tileContainer.getChildByName("plant"),
-				tileContainer.getChildByName("animal")
-			]
-
-			for (let j = 0; j < 3; j++) {
-				sprites[j].visible = true
-				if (textures[j])
-					sprites[j].setTexture(textures[j])
-				else
-					sprites[j].visible = false
-			}
-		}
+		for (let i = 0; i < this.chunckSize; i++)
+			this.loadTile({
+				tileContainer: this.chunck[chunckIndex].getChildAt(i),
+				tileData: this.data[dataIndex][i]
+			})
 		this.loadedChuncks[chunckIndex] = dataIndex
 	}
 
-	/*
-	**	update chuncks with the player position in pixel
-	*/
-	update({ playerPosPixel }) {
+	loadTile({ tileContainer, tileData }) {
+		let textures = [
+			this.app.loader.resource[tileData.ground],
+			this.app.loader.resource[tileData.plant],
+			this.app.loader.resource[tileData.animal]
+		]
 
-		// retrieve the index of the chunk on which the player is located
+		let sprites = [
+			tileContainer.getChildByName("ground"),
+			tileContainer.getChildByName("plant"),
+			tileContainer.getChildByName("animal")
+		]
+
+		for (let j = 0; j < 3; j++) {
+			sprites[j].visible = true
+			if (textures[j])
+				sprites[j].setTexture(textures[j])
+			else
+				sprites[j].visible = false
+		}
+	}
+
+	/*
+	**	update which chuncks are loaded with the player position in pixel
+	*/
+	updateChuncks({ playerPosPixel }) {
+
+		// retrieve the chunk on which the player is located
 		let playerPosTile = { x: playerPosPixel.x / this.spriteSize, y: playerPosPixel.y / this.spriteSize }
 		let playerPosChunck = { x: playerPosTile.x / this.chunckSize, y: playerPosTile.y / this.chunckSize }
-		let playerChunckIndex = playerPosChunck.x + (playerPosChunck.y * this.mapSizeChunck)
 		let newChuncks = new Array(this.nbChunck)
 
 		// retrieve the list of the chuncks which will be loaded
@@ -147,18 +149,37 @@ class Map {
 		let chuncksToLoad = newChuncks.filter(value => !this.includes(value), this.loadedChuncks)
 		let chuncksToUnload = this.loadedChuncks.filter(value => !this.includes(value), newChuncks)
 
+		// reload new chuncks with the unloaded ones
 		for (let i = 0; i < this.nbChunck; i++) {
-			this.loadChunck(this.loadedChuncks.find(i => ), chuncksToLoad[i])
+			this.loadChunck(this.loadedChuncks.find(value => value === chuncksToUnload[i]), chuncksToLoad[i])
+		}
+	}
+
+	/*
+	**	update tile texture with it's position in pixel
+	*/
+	updateTile({ tilePosPixel }) {
+		// retrieve the chunk on which the tile is located
+		let tilePosTile = { x: tilePosPixel.x / this.spriteSize, y: tilePosPixel.y / this.spriteSize }
+		let tilePosChunck = { x: tilePosTile.x / this.chunckSize, y: tilePosTile.y / this.chunckSize }
+		let chunckIndex = tilePosChunck.x + (tilePosChunck.y * this.totalMapSizeChunck)
+
+		// retrieve the tile index inside his chunck
+		let chunckPosPixel = { x: this.chunck[chunckIndex].x, y: this.chunck[chunckIndex].y }
+		let chunckPosTile = { x: chunckPosPixel.x / this.spriteSize, y: chunckPosPixel.y / this.spriteSize }
+		let tileIndex = tilePosTile.x - chunckPosTile.x + ((tilePosTile.y - chunckPosTile.y) * this.chunckSize)
+
+		// retrieve the chunck container that correspond to the one were the tile is located
+		let chunckContainer
+		for (const chunck in this.chunck) {
+			if (chunck.x === chunckPosPixel.x && chunck.y === chunckPosPixel.y)
+				chunckContainer = chunck
 		}
 
+		// update texture
+		this.loadTile({
+			tileContainer: chunckContainer.getChildAt(tileIndex),
+			tileData: this.data[chunckIndex][tileIndex]
+		})
 	}
 }
-
-//    0  1  2  3  4  5 
-//    _________________
-// 0 |0  1  2  3  4  5 
-// 1 |6  7  8  9  10 11
-// 2 |12 13 14 15 16 17
-// 3 |18 19 20 21 22 23
-// 4 |24 25 26 27 30 31
-// 5 |30 31 32 33 34 35
